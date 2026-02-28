@@ -1,6 +1,6 @@
 {
-  "name": "Sauze Freestyle Map",
-  "short_name": "SauzeMap",
+  "name": "skismart",
+  "short_name": "skismart",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
