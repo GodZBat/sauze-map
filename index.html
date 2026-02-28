@@ -4,32 +4,77 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Sauze Freestyle Map</title>
-<link rel="manifest" href="./manifest.webmanifest">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="skismart">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-
-<link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 html, body { height:100%; margin:0; }
 #map { height:100%; }
 
+/* --- Panel base (desktop) + drawer (mobile) --- */
 .panel{
   position:absolute;
   top:12px;
   left:12px;
   z-index:1000;
   background:rgba(255,255,255,0.96);
-  padding:12px;
   border-radius:14px;
   box-shadow:0 8px 20px rgba(0,0,0,0.2);
   font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
   width:320px;
   max-height: calc(100% - 24px);
+  overflow:hidden;
+}
+
+.panel-header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-bottom:1px solid #e6e6e6;
+}
+
+.panel-title{
+  font-weight:1000;
+  font-size:16px;
+  line-height:1;
+}
+
+.panel-toggle{
+  border:0;
+  border-radius:10px;
+  padding:8px 10px;
+  cursor:pointer;
+  font-weight:900;
+  background:#111;
+  color:#fff;
+}
+
+.panel-body{
+  padding:12px;
   overflow:auto;
+  max-height: calc(100% - 52px);
+}
+
+/* Stato CHIUSO */
+.panel.collapsed .panel-body{
+  display:none;
+}
+
+/* Mobile: bottom sheet */
+@media (max-width: 600px){
+  .panel{
+    left: 10px;
+    right: 10px;
+    top: auto;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    width: auto;
+    max-height: 70vh;
+    border-radius:16px;
+  }
+  .panel.collapsed{
+    max-height: 52px;
+  }
 }
 
 button{
@@ -80,81 +125,85 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
 
 <div id="map"></div>
 
-<div class="panel">
-  <div style="font-weight:1000;">⛷️ Sauze Freestyle Map</div>
-
-  <div class="section-title">🔎 Cerca pista</div>
-  <input id="searchInput" type="text" placeholder="Es: Clotes, Sportinia, 29..." />
-  <div class="row">
-    <button class="btn-light" id="searchBtn">Cerca</button>
-    <button class="btn-light" id="clearSearchBtn">Reset</button>
-    <button class="btn-green" id="locateBtn">📍 Dove sono</button>
+<div class="panel collapsed" id="panel">
+  <div class="panel-header">
+    <button class="panel-toggle" id="panelToggle" aria-label="Apri/chiudi menu">☰</button>
+    <div class="panel-title">⛷️ Sauze Freestyle Map</div>
   </div>
-  <div class="small" id="searchHint">Puoi cercare per nome o ref.</div>
 
-  <hr/>
+  <div class="panel-body" id="panelBody">
+    <div class="section-title">🔎 Cerca pista</div>
+    <input id="searchInput" type="text" placeholder="Es: Clotes, Sportinia, 29..." />
+    <div class="row">
+      <button class="btn-light" id="searchBtn">Cerca</button>
+      <button class="btn-light" id="clearSearchBtn">Reset</button>
+      <button class="btn-green" id="locateBtn">📍 Dove sono</button>
+    </div>
+    <div class="small" id="searchHint">Puoi cercare per nome o ref.</div>
 
-  <div class="section-title">🛰️ 3D (Hillshade)</div>
-  <label class="small"><input type="checkbox" id="toggleHillshade" checked> Ombreggiatura rilievo</label>
-  <div class="small">Intensità</div>
-  <input id="hillshadeOpacity" type="range" min="0" max="100" value="35"/>
+    <hr/>
 
-  <hr/>
+    <div class="section-title">🛰️ 3D (Hillshade)</div>
+    <label class="small"><input type="checkbox" id="toggleHillshade" checked> Ombreggiatura rilievo</label>
+    <div class="small">Intensità</div>
+    <input id="hillshadeOpacity" type="range" min="0" max="100" value="35"/>
 
-  <div class="section-title">🌧️ Meteo live (Radar)</div>
-  <label class="small"><input type="checkbox" id="toggleRadar"> Radar ON</label>
-  <div class="row">
-    <button class="btn-blue" id="radarPlay">▶︎ Play</button>
-    <button class="btn-light" id="radarPause">⏸ Pause</button>
-    <button class="btn-light" id="radarNow">🕒 Ultimo frame</button>
+    <hr/>
+
+    <div class="section-title">🌧️ Meteo live (Radar)</div>
+    <label class="small"><input type="checkbox" id="toggleRadar"> Radar ON</label>
+    <div class="row">
+      <button class="btn-blue" id="radarPlay">▶︎ Play</button>
+      <button class="btn-light" id="radarPause">⏸ Pause</button>
+      <button class="btn-light" id="radarNow">🕒 Ultimo frame</button>
+    </div>
+    <div class="small">Opacità radar</div>
+    <input id="radarOpacity" type="range" min="0" max="100" value="55"/>
+    <div class="pill" id="radarStatus">Radar: spento</div>
+
+    <hr/>
+
+    <div class="section-title">🛫❄️ Spot</div>
+    <div class="row">
+      <button class="btn-dark" id="modeJump">🛫 Salto</button>
+      <button class="btn-blue" id="modePowder">❄️ Powder</button>
+      <button class="btn-light" id="clearSpots">🧹 Reset</button>
+    </div>
+    <div class="row">
+      <button class="btn-light" id="exportSpots">📤 Export</button>
+      <button class="btn-light" id="importSpots">📥 Import</button>
+    </div>
+    <div class="small">Gli spot vengono salvati nel browser.</div>
+
+    <hr/>
+
+    <div class="section-title">🎬 Replay giornata</div>
+    <div class="row">
+      <button class="btn-orange" id="trackStart">⏺ Registra</button>
+      <button class="btn-light" id="trackStop">⏹ Stop</button>
+      <button class="btn-dark" id="trackReplay">▶︎ Replay</button>
+    </div>
+    <div class="small" id="trackInfo">Traccia: nessuna</div>
+
+    <hr/>
+
+    <div class="section-title">🗺️ Layer</div>
+    <label class="small"><input type="checkbox" id="toggleRuns" checked> Piste</label><br>
+    <label class="small"><input type="checkbox" id="toggleLifts" checked> Impianti</label><br>
+    <label class="small"><input type="checkbox" id="toggleSpots" checked> Spot</label>
+
+    <div class="section-title">🎿 Filtro</div>
+    <div class="row">
+      <button class="btn-light" id="fAll">Tutte</button>
+      <button class="btn-light" id="fBlue">Blu</button>
+      <button class="btn-light" id="fRed">Rosse</button>
+      <button class="btn-light" id="fBlack">Nere</button>
+    </div>
+    <div class="small" id="filterHint">Filtro: tutte</div>
   </div>
-  <div class="small">Opacità radar</div>
-  <input id="radarOpacity" type="range" min="0" max="100" value="55"/>
-  <div class="pill" id="radarStatus">Radar: spento</div>
-
-  <hr/>
-
-  <div class="section-title">🛫❄️ Spot</div>
-  <div class="row">
-    <button class="btn-dark" id="modeJump">🛫 Salto</button>
-    <button class="btn-blue" id="modePowder">❄️ Powder</button>
-    <button class="btn-light" id="clearSpots">🧹 Reset</button>
-  </div>
-  <div class="row">
-    <button class="btn-light" id="exportSpots">📤 Export</button>
-    <button class="btn-light" id="importSpots">📥 Import</button>
-  </div>
-  <div class="small">Gli spot vengono salvati nel browser.</div>
-
-  <hr/>
-
-  <div class="section-title">🎬 Replay giornata</div>
-  <div class="row">
-    <button class="btn-orange" id="trackStart">⏺ Registra</button>
-    <button class="btn-light" id="trackStop">⏹ Stop</button>
-    <button class="btn-dark" id="trackReplay">▶︎ Replay</button>
-  </div>
-  <div class="small" id="trackInfo">Traccia: nessuna</div>
-
-  <hr/>
-
-  <div class="section-title">🗺️ Layer</div>
-  <label class="small"><input type="checkbox" id="toggleRuns" checked> Piste</label><br>
-  <label class="small"><input type="checkbox" id="toggleLifts" checked> Impianti</label><br>
-  <label class="small"><input type="checkbox" id="toggleSpots" checked> Spot</label>
-
-  <div class="section-title">🎿 Filtro</div>
-  <div class="row">
-    <button class="btn-light" id="fAll">Tutte</button>
-    <button class="btn-light" id="fBlue">Blu</button>
-    <button class="btn-light" id="fRed">Rosse</button>
-    <button class="btn-light" id="fBlack">Nere</button>
-  </div>
-  <div class="small" id="filterHint">Filtro: tutte</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- SnakeAnim plugin (animazione polilinea) -->
 <script src="https://unpkg.com/leaflet.polyline.snakeanim@0.2.0/L.Polyline.SnakeAnim.js"></script>
 
 <script>
@@ -163,19 +212,16 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
    ========================= */
 const map = L.map("map");
 
-// OSM
 const osm = L.tileLayer(
   "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   { maxZoom:19, attribution:"© OpenStreetMap contributors" }
 );
 
-// ESRI Satellite
 const esriSat = L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
   { maxZoom:19, attribution:"Tiles © Esri" }
 );
 
-// ESRI Hillshade overlay
 const hillshade = L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
   { maxZoom:19, opacity: 0.35, attribution:"Hillshade © Esri" }
@@ -496,8 +542,6 @@ async function loadRadarFrames(){
 }
 
 function radarTileUrl(frame){
-  // Leaflet default tileSize 256, usiamo /256/
-  // Schema RainViewer: {host}{frame.path}/256/{z}/{x}/{y}/{color}/{options}.png
   return `${radarHost}${frame.path}/256/{z}/{x}/{y}/2/1_1.png`;
 }
 
@@ -506,11 +550,8 @@ function ensureRadarLayer(url){
     radarLayer = L.tileLayer(url, {
       opacity: Number(radarOpacity.value)/100,
       zIndex: 999,
-
-      // ✅ IMPORTANTISSIMO: RainViewer ha tile fino a zoom 7
       maxNativeZoom: 7,
       maxZoom: 19,
-
       tileSize: 256,
       updateWhenIdle: true,
       updateWhenZooming: false
@@ -644,7 +685,7 @@ document.getElementById("trackStart").onclick = () => {
     const last = currentTrack[currentTrack.length - 1];
     if(last){
       const d = metersBetween(last, pt);
-      if(d < 6) return; // riduce rumore
+      if(d < 6) return;
     }
 
     currentTrack.push(pt);
@@ -688,7 +729,30 @@ document.getElementById("trackReplay").onclick = () => {
 
 const initialTrack = loadTrack();
 setTrackInfo(initialTrack.length ? trackSummary(initialTrack) : "Traccia: nessuna");
-</script>
-</body>
 
+/* =========================
+   PANEL TOGGLE (mobile drawer)
+   ========================= */
+const panel = document.getElementById("panel");
+const panelToggle = document.getElementById("panelToggle");
+
+// su desktop aprilo di default
+if (!window.matchMedia("(max-width: 600px)").matches) {
+  panel.classList.remove("collapsed");
+}
+
+// toggle
+panelToggle.addEventListener("click", () => {
+  panel.classList.toggle("collapsed");
+});
+
+// chiudi quando tocchi la mappa (mobile)
+map.getContainer().addEventListener("pointerdown", () => {
+  if (window.matchMedia("(max-width: 600px)").matches) {
+    panel.classList.add("collapsed");
+  }
+});
+</script>
+
+</body>
 </html>
