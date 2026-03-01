@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Sauze 3D</title>
 
-  <!-- ✅ MapLibre v2 (più compatibile) -->
   <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
 
   <style>
@@ -65,53 +64,30 @@
 
 <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
 <script>
-  const MAPTILER_KEY = "ujmVsM1FLEYnTiV9yrPe"; // 🔑 <-- incolla qui la tua key
+  const MAPTILER_KEY = "ujmVsM1FLEYnTiV9yrPe";
   const msg = document.getElementById("msg");
   const setMsg = (t)=> msg.textContent = t;
-
-  // test WebGL (chiaro)
-  function webglOk(){
-    try{
-      const c = document.createElement("canvas");
-      const gl = c.getContext("webgl") || c.getContext("experimental-webgl");
-      return !!gl;
-    }catch(e){ return false; }
-  }
-  if(!webglOk()){
-    setMsg("❌ WebGL non disponibile. Abilita accelerazione hardware o prova un altro browser.");
-    throw new Error("WebGL not available");
-  }
 
   const CENTER = [6.86, 45.03];
 
   const style = {
     version: 8,
     sources: {
-      // ✅ Mappa (CORS OK)
       carto: {
         type: "raster",
         tiles: ["https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"],
-        tileSize: 256,
-        attribution: "© OpenStreetMap contributors © CARTO"
+        tileSize: 256
       },
-
-      // ✅ Satellite MapTiler (CORS OK con key)
       sat: {
         type: "raster",
         tiles: [`https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`],
-        tileSize: 256,
-        attribution: "© MapTiler © OpenStreetMap contributors"
+        tileSize: 256
       },
-
-      // ✅ Labels sopra il satellite (Hybrid)
-      // Se vuoi SOLO nomi e meno roba: possiamo cambiarlo dopo, ma questo funziona subito.
       labels: {
         type: "raster",
         tiles: [`https://api.maptiler.com/tiles/hybrid/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`],
         tileSize: 256
       },
-
-      // ✅ DEM 3D (Terrarium)
       terrainSource: {
         type: "raster-dem",
         tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
@@ -121,14 +97,9 @@
       }
     },
     layers: [
-      // base mappa
-      { id: "base", type: "raster", source: "carto", layout: { visibility: "visible" } },
-
-      // satellite (inizialmente OFF)
+      { id: "base", type: "raster", source: "carto" },
       { id: "satellite", type: "raster", source: "sat", layout: { visibility: "none" } },
-
-      // labels (inizialmente ON ma si vedono solo se satellite è ON)
-      { id: "labels", type: "raster", source: "labels", layout: { visibility: "visible" }, paint: { "raster-opacity": 1.0 } }
+      { id: "labels", type: "raster", source: "labels", layout: { visibility: "visible" } }
     ]
   };
 
@@ -144,94 +115,87 @@
 
   map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
 
-  // UI state
-  let labelsOn = true;
-
-  function showMap(){
-    map.setLayoutProperty("base", "visibility", "visible");
-    map.setLayoutProperty("satellite", "visibility", "none");
-    // labels restano “ON”, ma se non c'è satellite sotto non danno fastidio
-    setMsg("✅ Modalità: Mappa 3D (CARTO)");
-  }
-
-  function showSatellite(){
-    map.setLayoutProperty("base", "visibility", "none");
-    map.setLayoutProperty("satellite", "visibility", "visible");
-    // labels sopra satellite (se ON)
-    map.setLayoutProperty("labels", "visibility", labelsOn ? "visible" : "none");
-    setMsg("✅ Modalità: Satellite 3D (MapTiler) " + (labelsOn ? "+ Labels" : ""));
-  }
-
-  function toggleLabels(){
-    labelsOn = !labelsOn;
-    document.getElementById("btnLabels").textContent = "🔤 Labels: " + (labelsOn ? "ON" : "OFF");
-    // mostrale solo se satellite è visibile
-    const satVisible = (map.getLayoutProperty("satellite", "visibility") !== "none");
-    map.setLayoutProperty("labels", (labelsOn && satVisible) ? "visible" : "none");
-    setMsg("✅ Labels: " + (labelsOn ? "ON" : "OFF"));
-  }
-
-  document.getElementById("btnMap").onclick = showMap;
-  document.getElementById("btnSat").onclick = showSatellite;
-  document.getElementById("btnLabels").onclick = toggleLabels;
-
   map.on("load", () => {
-    try{
-      // 3D terrain ON
-      map.setTerrain({ source: "terrainSource", exaggeration: 1.4 });
 
-      // carica piste
-      map.addSource("runs", { type:"geojson", data:"./sauze_doulx.geojson" });
+    map.setTerrain({ source: "terrainSource", exaggeration: 1.4 });
 
-      // outline bianco sotto
-      map.addLayer({
-        id: "runs-outline",
-        type: "line",
-        source: "runs",
-        filter: ["==", ["get","piste:type"], "downhill"],
-        paint: {
-          "line-color": "#ffffff",
-          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 3.5, 12, 5.5, 14, 7.5, 16, 10.0],
-          "line-opacity": 0.55
-        }
-      });
+    map.addSource("runs", { type:"geojson", data:"./sauze_doulx.geojson" });
 
-      // piste colorate
-      map.addLayer({
-        id: "runs-colored",
-        type: "line",
-        source: "runs",
-        filter: ["==", ["get","piste:type"], "downhill"],
-        paint: {
-          "line-color": [
-            "case",
-            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["easy","novice","beginner","blue"]]], "#1f77b4",
-            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["intermediate","medium","red"]]], "#d62728",
-            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["advanced","expert","difficult","black"]]], "#000000",
-            "#7aa6d8"
-          ],
-          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 2.5, 12, 4.0, 14, 6.0, 16, 8.0],
-          "line-opacity": 0.95
-        }
-      });
+    map.addLayer({
+      id: "runs-outline",
+      type: "line",
+      source: "runs",
+      filter: ["==", ["get","piste:type"], "downhill"],
+      paint: {
+        "line-color": "#ffffff",
+        "line-width": 6,
+        "line-opacity": 0.5
+      }
+    });
 
-      setMsg("✅ 3D pronto. Premi “Satellite” per passare alla vista satellitare.");
-    }catch(e){
-      console.error(e);
-      setMsg("⚠️ Mappa OK, ma errore nel caricare piste/terrain:\n" + (e?.message || e));
-    }
+    map.addLayer({
+      id: "runs-colored",
+      type: "line",
+      source: "runs",
+      filter: ["==", ["get","piste:type"], "downhill"],
+      paint: {
+        "line-color": [
+          "case",
+          ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["easy","novice","beginner","blue"]]], "#1f77b4",
+          ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["intermediate","medium","red"]]], "#d62728",
+          ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["advanced","expert","difficult","black"]]], "#000000",
+          "#7aa6d8"
+        ],
+        "line-width": 4,
+        "line-opacity": 0.95
+      }
+    });
+
+    // 🎯 CLICK + POPUP
+    map.on("click", "runs-colored", (e) => {
+      const feature = e.features[0];
+      const props = feature.properties;
+
+      const nome = props.name || "Pista senza nome";
+      const difficolta = props["piste:difficulty"] || "Non specificata";
+
+      let colore = "#7aa6d8";
+      if (difficolta.toLowerCase().includes("blue")) colore = "#1f77b4";
+      if (difficolta.toLowerCase().includes("red")) colore = "#d62728";
+      if (difficolta.toLowerCase().includes("black")) colore = "#000000";
+
+      new maplibregl.Popup()
+        .setLngLat(e.lngLat)
+        .setHTML(`
+          <div style="font-family:system-ui;min-width:180px;">
+            <div style="font-weight:900;font-size:16px;margin-bottom:6px;">
+              ${nome}
+            </div>
+            <div>
+              🎿 Difficoltà:
+              <span style="font-weight:800;color:${colore};">
+                ${difficolta}
+              </span>
+            </div>
+          </div>
+        `)
+        .addTo(map);
+    });
+
+    map.on("mouseenter", "runs-colored", () => {
+      map.getCanvas().style.cursor = "pointer";
+    });
+
+    map.on("mouseleave", "runs-colored", () => {
+      map.getCanvas().style.cursor = "";
+    });
+
+    setMsg("✅ 3D pronto. Clicca una pista per vedere le info.");
   });
 
-  map.on("error", (e) => {
-    console.error("Map error:", e?.error || e);
-    const em = (e && e.error && e.error.message) ? e.error.message : "Errore sconosciuto";
-    setMsg("GODITI LE PISTE!");
-  });
-
-  // slider esagerazione
   document.getElementById("ex").addEventListener("input", (e)=>{
     const ex = Number(e.target.value) / 100;
-    try{ map.setTerrain({ source: "terrainSource", exaggeration: ex }); }catch(err){}
+    map.setTerrain({ source: "terrainSource", exaggeration: ex });
   });
 </script>
 </body>
