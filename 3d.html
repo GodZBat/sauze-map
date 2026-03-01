@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Sauze 3D</title>
 
-  <!-- ✅ MapLibre v2 (più compatibile) -->
+  <!-- MapLibre v2 (più compatibile) -->
   <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
 
   <style>
@@ -17,7 +17,7 @@
       padding:12px; border-radius:14px;
       box-shadow:0 8px 20px rgba(0,0,0,0.2);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      width:340px; max-width: calc(100% - 24px);
+      width:360px; max-width: calc(100% - 24px);
     }
     .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
     button{
@@ -36,6 +36,7 @@
       font-size:13px; line-height:1.3;
       white-space:pre-wrap;
     }
+    .hint { opacity: 0.85; }
   </style>
 </head>
 <body>
@@ -58,18 +59,18 @@
   <div class="small">Esagerazione rilievo</div>
   <input id="ex" type="range" min="50" max="300" value="140">
 
-  <div class="small">2 dita: inclina/ruota • Pinch: zoom</div>
+  <div class="small hint">Tip: clicca una pista per info • 2 dita: inclina/ruota</div>
 </div>
 
 <div class="msg" id="msg">Avvio…</div>
 
 <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
 <script>
-  const MAPTILER_KEY = "ujmVsM1FLEYnTiV9yrPe"; // 🔑 <-- incolla qui la tua key
+  const MAPTILER_KEY = "PASTE_YOUR_MAPTILER_KEY_HERE"; // 👈 incolla la tua key qui
   const msg = document.getElementById("msg");
   const setMsg = (t)=> msg.textContent = t;
 
-  // test WebGL (chiaro)
+  // ---- WebGL check rapido ----
   function webglOk(){
     try{
       const c = document.createElement("canvas");
@@ -82,36 +83,43 @@
     throw new Error("WebGL not available");
   }
 
+  // ---- Limite zoom: evita errori tile a zoom troppo alti ----
+  // (MapTiler/CARTO spesso arrivano a 19-20, ma in free/alcune aree meglio tenere 18)
+  const MAX_ZOOM_SAFE = 18;
+
   const CENTER = [6.86, 45.03];
 
+  // ---- Style ----
   const style = {
     version: 8,
     sources: {
-      // ✅ Mappa (CORS OK)
+      // Basemap (CORS OK)
       carto: {
         type: "raster",
         tiles: ["https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"],
         tileSize: 256,
+        maxzoom: 19,
         attribution: "© OpenStreetMap contributors © CARTO"
       },
 
-      // ✅ Satellite MapTiler (CORS OK con key)
+      // Satellite MapTiler
       sat: {
         type: "raster",
         tiles: [`https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`],
         tileSize: 256,
-        attribution: "© MapTiler © OpenStreetMap contributors"
+        maxzoom: MAX_ZOOM_SAFE
       },
 
-      // ✅ Labels sopra il satellite (Hybrid)
-      // Se vuoi SOLO nomi e meno roba: possiamo cambiarlo dopo, ma questo funziona subito.
+      // ✅ Labels/HYBRID MapTiler (endpoint più affidabile rispetto a tiles/hybrid su alcuni account)
+      // Se sul tuo account hybrid non è abilitato, qui fallirà e lo vedrai dal banner.
       labels: {
         type: "raster",
-        tiles: [`https://api.maptiler.com/tiles/hybrid/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`],
-        tileSize: 256
+        tiles: [`https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`],
+        tileSize: 256,
+        maxzoom: MAX_ZOOM_SAFE
       },
 
-      // ✅ DEM 3D (Terrarium)
+      // DEM 3D
       terrainSource: {
         type: "raster-dem",
         tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
@@ -124,11 +132,14 @@
       // base mappa
       { id: "base", type: "raster", source: "carto", layout: { visibility: "visible" } },
 
-      // satellite (inizialmente OFF)
+      // satellite
       { id: "satellite", type: "raster", source: "sat", layout: { visibility: "none" } },
 
-      // labels (inizialmente ON ma si vedono solo se satellite è ON)
-      { id: "labels", type: "raster", source: "labels", layout: { visibility: "visible" }, paint: { "raster-opacity": 1.0 } }
+      // labels sopra (mettiamo sopra a tutto e leggermente trasparenti così si leggono bene)
+      { id: "labels", type: "raster", source: "labels",
+        layout: { visibility: "none" },
+        paint: { "raster-opacity": 1.0 }
+      }
     ]
   };
 
@@ -139,33 +150,31 @@
     zoom: 12.2,
     pitch: 65,
     bearing: -20,
-    antialias: true
+    antialias: true,
+    maxZoom: MAX_ZOOM_SAFE
   });
 
   map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
 
-  // UI state
   let labelsOn = true;
 
   function showMap(){
     map.setLayoutProperty("base", "visibility", "visible");
     map.setLayoutProperty("satellite", "visibility", "none");
-    // labels restano “ON”, ma se non c'è satellite sotto non danno fastidio
-    setMsg("✅ Modalità: Mappa 3D (CARTO)");
+    map.setLayoutProperty("labels", "visibility", "none");
+    setMsg("✅ Modalità: Mappa 3D");
   }
 
   function showSatellite(){
     map.setLayoutProperty("base", "visibility", "none");
     map.setLayoutProperty("satellite", "visibility", "visible");
-    // labels sopra satellite (se ON)
     map.setLayoutProperty("labels", "visibility", labelsOn ? "visible" : "none");
-    setMsg("✅ Modalità: Satellite 3D (MapTiler) " + (labelsOn ? "+ Labels" : ""));
+    setMsg("✅ Modalità: Satellite 3D" + (labelsOn ? " + Labels" : ""));
   }
 
   function toggleLabels(){
     labelsOn = !labelsOn;
     document.getElementById("btnLabels").textContent = "🔤 Labels: " + (labelsOn ? "ON" : "OFF");
-    // mostrale solo se satellite è visibile
     const satVisible = (map.getLayoutProperty("satellite", "visibility") !== "none");
     map.setLayoutProperty("labels", (labelsOn && satVisible) ? "visible" : "none");
     setMsg("✅ Labels: " + (labelsOn ? "ON" : "OFF"));
@@ -175,15 +184,47 @@
   document.getElementById("btnSat").onclick = showSatellite;
   document.getElementById("btnLabels").onclick = toggleLabels;
 
+  // ---- Popup piste ----
+  let runPopup = null;
+  function showRunPopup(lngLat, props){
+    const name = props.name || props.ref || "Pista";
+    const diff = props["piste:difficulty"] || "—";
+    const type = props["piste:type"] || "—";
+    const grooming = props["piste:grooming"] || "";
+    const lit = props["piste:lit"] ? String(props["piste:lit"]) : "";
+    const extra = [
+      grooming ? `🛠 Grooming: <b>${grooming}</b>` : "",
+      lit ? `💡 Illuminata: <b>${lit}</b>` : ""
+    ].filter(Boolean).join("<br>");
+
+    const html = `
+      <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;min-width:220px">
+        🎿 <b>${name}</b><br>
+        Difficoltà: <b>${diff}</b><br>
+        Tipo: <b>${type}</b>
+        ${extra ? `<hr style="border:none;border-top:1px solid #e6e6e6;margin:8px 0">${extra}` : ""}
+      </div>
+    `;
+
+    if(runPopup) runPopup.remove();
+    runPopup = new maplibregl.Popup({ closeButton:true, closeOnClick:true })
+      .setLngLat(lngLat)
+      .setHTML(html)
+      .addTo(map);
+  }
+
   map.on("load", () => {
     try{
-      // 3D terrain ON
+      // Terrain ON
       map.setTerrain({ source: "terrainSource", exaggeration: 1.4 });
 
-      // carica piste
-      map.addSource("runs", { type:"geojson", data:"./sauze_doulx.geojson" });
+      // Piste GeoJSON
+      map.addSource("runs", {
+        type:"geojson",
+        data:"./sauze_doulx.geojson"
+      });
 
-      // outline bianco sotto
+      // Outline
       map.addLayer({
         id: "runs-outline",
         type: "line",
@@ -196,7 +237,7 @@
         }
       });
 
-      // piste colorate
+      // Piste colorate
       map.addLayer({
         id: "runs-colored",
         type: "line",
@@ -215,23 +256,57 @@
         }
       });
 
-      setMsg("✅ 3D pronto. Premi “Satellite” per passare alla vista satellitare.");
+      // ✅ Click sulle piste -> popup
+      map.on("mouseenter", "runs-colored", () => map.getCanvas().style.cursor = "pointer");
+      map.on("mouseleave", "runs-colored", () => map.getCanvas().style.cursor = "");
+      map.on("click", "runs-colored", (e) => {
+        const f = e.features && e.features[0];
+        if(!f) return;
+        showRunPopup(e.lngLat, f.properties || {});
+      });
+
+      setMsg("✅ 3D pronto. Premi “Satellite” e poi “Labels ON” per vedere i nomi.");
     }catch(e){
       console.error(e);
       setMsg("⚠️ Mappa OK, ma errore nel caricare piste/terrain:\n" + (e?.message || e));
     }
   });
 
-  map.on("error", (e) => {
-    console.error("Map error:", e?.error || e);
-    const em = (e && e.error && e.error.message) ? e.error.message : "Errore sconosciuto";
-    setMsg("❌ Errore mappa:\n" + em + "\n\nSe succede quando attivi Satellite: controlla la KEY MapTiler.");
-  });
-
-  // slider esagerazione
+  // Slider esagerazione
   document.getElementById("ex").addEventListener("input", (e)=>{
     const ex = Number(e.target.value) / 100;
     try{ map.setTerrain({ source: "terrainSource", exaggeration: ex }); }catch(err){}
+  });
+
+  // ---- Gestione errori: non “sporcare” l’app con errori tile (404/failed to fetch) ----
+  // Se una tile singola fallisce (zoom alto / provider / rete), non vogliamo banner rosso.
+  let lastHardErrorAt = 0;
+  function shouldIgnoreErrorMessage(m){
+    const s = String(m || "").toLowerCase();
+    // errori tipici tile non fatali
+    if (s.includes("failed to fetch")) return true;
+    if (s.includes("status 404")) return true;
+    if (s.includes("404")) return true;
+    if (s.includes("tile")) return true;
+    return false;
+  }
+
+  map.on("error", (e) => {
+    const em = (e && e.error && e.error.message) ? e.error.message : (e?.message || "");
+    console.error("Map error:", e?.error || e);
+
+    // ignora errori di tile “non fatali”
+    if (shouldIgnoreErrorMessage(em)) {
+      // non mostriamo niente: la mappa può continuare a funzionare
+      return;
+    }
+
+    // Evita spam: mostra al massimo ogni 3 sec
+    const now = Date.now();
+    if (now - lastHardErrorAt < 3000) return;
+    lastHardErrorAt = now;
+
+    setMsg("❌ Errore mappa:\n" + em + "\n\nSe succede attivando Labels: controlla che HYBRID sia incluso nel tuo piano/key MapTiler.");
   });
 </script>
 </body>
