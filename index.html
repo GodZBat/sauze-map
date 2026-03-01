@@ -4,16 +4,14 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Sauze Freestyle Map</title>
-<link rel="manifest" href="./manifest.webmanifest">
 
-<!-- iPhone: icona per "Aggiungi a Home" -->
+<!-- PWA / iPhone Home Screen -->
+<link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" type="image/png" href="./icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Sauze Freestyle Map">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
-<!-- (facoltativo ma utile) favicon per browser -->
-<link rel="icon" type="image/png" href="./icon-192.png">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
@@ -34,6 +32,10 @@ html, body { height:100%; margin:0; }
   width:320px;
   max-height: calc(100% - 24px);
   overflow:hidden;
+
+  /* ✅ scroll iOS: layout a colonne */
+  display:flex;
+  flex-direction:column;
 }
 
 .panel-header{
@@ -42,6 +44,7 @@ html, body { height:100%; margin:0; }
   gap:10px;
   padding:10px 12px;
   border-bottom:1px solid #e6e6e6;
+  flex: 0 0 auto;
 }
 
 .panel-title{
@@ -62,8 +65,14 @@ html, body { height:100%; margin:0; }
 
 .panel-body{
   padding:12px;
-  overflow:auto;
-  max-height: calc(100% - 52px);
+
+  /* ✅ scroll vero su iPhone */
+  overflow-y:auto;
+  -webkit-overflow-scrolling: touch;
+
+  /* ✅ prende lo spazio disponibile */
+  flex: 1 1 auto;
+  max-height: none;
 }
 
 /* Stato CHIUSO */
@@ -110,6 +119,7 @@ button{
 
 .small{ font-size:12px; color:#222; }
 .row{ display:flex; gap:6px; flex-wrap:wrap; }
+
 input[type="text"]{
   width:100%;
   padding:8px 10px;
@@ -120,6 +130,7 @@ input[type="text"]{
 }
 input[type="range"]{ width:100%; }
 hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
+
 .pill{
   display:inline-block;
   padding:4px 8px;
@@ -142,14 +153,28 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
   </div>
 
   <div class="panel-body" id="panelBody">
-    <div class="section-title">🔎 Cerca pista</div>
+
+    <div class="row">
+      <button class="btn-dark" onclick="location.href='./3d.html'">🏔️ Vista 3D</button>
+    </div>
+
+    <div class="section-title">🔎 Cerca pista (Focus)</div>
     <input id="searchInput" type="text" placeholder="Es: Clotes, Sportinia, 29..." />
     <div class="row">
       <button class="btn-light" id="searchBtn">Cerca</button>
       <button class="btn-light" id="clearSearchBtn">Reset</button>
       <button class="btn-green" id="locateBtn">📍 Dove sono</button>
     </div>
-    <div class="small" id="searchHint">Puoi cercare per nome o ref.</div>
+    <div class="small" id="searchHint">Puoi cercare per nome o ref. In “focus” le altre piste spariscono.</div>
+
+    <hr/>
+
+    <div class="section-title">❄️ Neve al suolo</div>
+    <div class="row">
+      <button class="btn-blue" id="snowRefresh">↻ Aggiorna</button>
+    </div>
+    <div class="pill" id="snowDepth">Neve al suolo: —</div>
+    <div class="small" id="snowMeta">Fonte: Open-Meteo (snow_depth). Ultimo update: —</div>
 
     <hr/>
 
@@ -157,19 +182,6 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
     <label class="small"><input type="checkbox" id="toggleHillshade" checked> Ombreggiatura rilievo</label>
     <div class="small">Intensità</div>
     <input id="hillshadeOpacity" type="range" min="0" max="100" value="35"/>
-
-    <hr/>
-
-    <div class="section-title">🌧️ Meteo live (Radar)</div>
-    <label class="small"><input type="checkbox" id="toggleRadar"> Radar ON</label>
-    <div class="row">
-      <button class="btn-blue" id="radarPlay">▶︎ Play</button>
-      <button class="btn-light" id="radarPause">⏸ Pause</button>
-      <button class="btn-light" id="radarNow">🕒 Ultimo frame</button>
-    </div>
-    <div class="small">Opacità radar</div>
-    <input id="radarOpacity" type="range" min="0" max="100" value="55"/>
-    <div class="pill" id="radarStatus">Radar: spento</div>
 
     <hr/>
 
@@ -183,7 +195,7 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
       <button class="btn-light" id="exportSpots">📤 Export</button>
       <button class="btn-light" id="importSpots">📥 Import</button>
     </div>
-    <div class="small">Gli spot vengono salvati nel browser.</div>
+    <div class="small">Tocca la mappa per aggiungere spot. Apri un marker per eliminarlo singolarmente.</div>
 
     <hr/>
 
@@ -200,7 +212,8 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
     <div class="section-title">🗺️ Layer</div>
     <label class="small"><input type="checkbox" id="toggleRuns" checked> Piste</label><br>
     <label class="small"><input type="checkbox" id="toggleLifts" checked> Impianti</label><br>
-    <label class="small"><input type="checkbox" id="toggleSpots" checked> Spot</label>
+    <label class="small"><input type="checkbox" id="toggleSpots" checked> Spot</label><br>
+    <label class="small"><input type="checkbox" id="toggleLabels" checked> Nomi (Satellite)</label>
 
     <div class="section-title">🎿 Filtro</div>
     <div class="row">
@@ -218,23 +231,32 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
 
 <script>
 /* =========================
-   MAP BASE + ESRI SAT + HILLSHADE
+   MAP BASE + ESRI SAT + HILLSHADE + LABELS
    ========================= */
 const map = L.map("map");
 
+// OSM
 const osm = L.tileLayer(
   "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   { maxZoom:19, attribution:"© OpenStreetMap contributors" }
 );
 
+// ESRI Satellite
 const esriSat = L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
   { maxZoom:19, attribution:"Tiles © Esri" }
 );
 
+// ESRI Hillshade overlay
 const hillshade = L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
   { maxZoom:19, opacity: 0.35, attribution:"Hillshade © Esri" }
+);
+
+// ✅ Labels overlay (nomi località/strade) sopra satellite
+const esriLabels = L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+  { maxZoom: 19, opacity: 1.0, zIndex: 650, attribution:"Labels © Esri" }
 );
 
 osm.addTo(map);
@@ -242,11 +264,28 @@ hillshade.addTo(map);
 
 L.control.layers(
   { "🗺 Mappa": osm, "🛰 Satellite ESRI": esriSat },
-  { "🏔 Hillshade": hillshade },
+  { "🏔 Hillshade": hillshade, "🔤 Labels": esriLabels },
   { position:"topright" }
 ).addTo(map);
 
 map.setView([45.03,6.86],12);
+
+// Labels: ON in satellite, OFF in OSM (rispetta toggle in menu)
+function setLabelsActive(active){
+  const toggle = document.getElementById("toggleLabels");
+  if (toggle && !toggle.checked) active = false;
+  if(active) esriLabels.addTo(map);
+  else map.removeLayer(esriLabels);
+}
+map.on("baselayerchange", (e) => {
+  if (e.name === "🛰 Satellite ESRI") setLabelsActive(true);
+  else setLabelsActive(false);
+});
+
+document.getElementById("toggleLabels").addEventListener("change", () => {
+  const isSat = map.hasLayer(esriSat);
+  setLabelsActive(isSat);
+});
 
 // Hillshade UI
 const hillToggle = document.getElementById("toggleHillshade");
@@ -290,6 +329,10 @@ let cachedData = null;
 let currentFilter = "all";
 let lastHighlighted = null;
 
+// ✅ Search focus
+let focusLayer = null;
+let isFocus = false;
+
 function resetHighlight(){
   if(!lastHighlighted) return;
   const l = lastHighlighted;
@@ -309,8 +352,47 @@ function highlight(layer, isLift){
   lastHighlighted = layer;
 }
 
+function enterFocus(runLayer){
+  if(!runLayer) return;
+  isFocus = true;
+
+  // "spegni" le altre piste
+  runsLayer.eachLayer(l => {
+    if(l === runLayer) return;
+    l.setStyle({ opacity: 0.03, weight: 2 });
+  });
+
+  // layer sopra con SOLO la pista trovata
+  if (focusLayer) map.removeLayer(focusLayer);
+
+  const diff = runLayer.feature?.properties?.["piste:difficulty"];
+  focusLayer = L.geoJSON(runLayer.feature, {
+    style: { color: pisteColor(diff), weight: 10, opacity: 1.0 }
+  }).addTo(map);
+
+  try { focusLayer.bringToFront(); } catch(e) {}
+}
+
+function exitFocus(){
+  isFocus = false;
+
+  if (focusLayer){
+    map.removeLayer(focusLayer);
+    focusLayer = null;
+  }
+
+  // ripristina stile normale
+  runsLayer.eachLayer(l => {
+    const diff = l.feature?.properties?.["piste:difficulty"];
+    l.setStyle({ color: pisteColor(diff), weight: 5, opacity: 0.95 });
+  });
+}
+
 function rebuild(keepView=false){
   if(!cachedData) return;
+
+  // se rebuild avviene, meglio uscire dal focus (coerenza stili)
+  if (isFocus) exitFocus();
 
   map.removeLayer(runsLayer);
   map.removeLayer(liftsLayer);
@@ -387,7 +469,7 @@ document.getElementById("toggleLifts").onchange = (e)=> e.target.checked ? lifts
 document.getElementById("toggleSpots").onchange = (e)=> e.target.checked ? spotLayer.addTo(map) : map.removeLayer(spotLayer);
 
 /* =========================
-   SEARCH
+   SEARCH + FOCUS
    ========================= */
 function findRun(query){
   query = String(query||"").trim().toLowerCase();
@@ -399,6 +481,7 @@ function findRun(query){
   });
   return found;
 }
+
 document.getElementById("searchBtn").onclick = () => {
   const q = document.getElementById("searchInput").value;
   const run = findRun(q);
@@ -406,15 +489,21 @@ document.getElementById("searchBtn").onclick = () => {
     document.getElementById("searchHint").textContent = "Nessuna pista trovata. Prova un altro nome/ref.";
     return;
   }
-  document.getElementById("searchHint").textContent = "Trovata! Zoom + highlight.";
+  document.getElementById("searchHint").textContent = "Trovata! Modalità focus attiva.";
   highlight(run, false);
+
+  // ✅ focus: le altre piste quasi invisibili
+  enterFocus(run);
+
   map.fitBounds(run.getBounds().pad(0.25));
   run.openPopup();
 };
+
 document.getElementById("clearSearchBtn").onclick = () => {
   document.getElementById("searchInput").value = "";
-  document.getElementById("searchHint").textContent = "Puoi cercare per nome o ref.";
+  document.getElementById("searchHint").textContent = "Puoi cercare per nome o ref. In “focus” le altre piste spariscono.";
   resetHighlight();
+  exitFocus();
 };
 
 /* =========================
@@ -437,9 +526,71 @@ document.getElementById("locateBtn").onclick = () => {
 };
 
 /* =========================
-   SPOTS (saved)
+   SNOW DEPTH (Open-Meteo) -> cm
    ========================= */
-const STORAGE_SPOTS = "ski_spots_v4";
+const snowDepthEl = document.getElementById("snowDepth");
+const snowMetaEl  = document.getElementById("snowMeta");
+const snowRefreshBtn = document.getElementById("snowRefresh");
+
+// punto rappresentativo Sauze d'Oulx (centro area)
+const SNOW_LAT = 45.03;
+const SNOW_LON = 6.86;
+
+// trova indice dell'ora più vicina al "now"
+function nearestTimeIndex(times){
+  const now = Date.now();
+  let bestI = 0;
+  let bestD = Infinity;
+  for(let i=0;i<times.length;i++){
+    const t = new Date(times[i]).getTime();
+    const d = Math.abs(t - now);
+    if(d < bestD){ bestD = d; bestI = i; }
+  }
+  return bestI;
+}
+
+async function refreshSnow(){
+  try{
+    snowDepthEl.textContent = "Neve al suolo: caricamento…";
+    // Open-Meteo: snow_depth è in metri → convertiamo in cm
+    const url =
+      `https://api.open-meteo.com/v1/forecast` +
+      `?latitude=${SNOW_LAT}&longitude=${SNOW_LON}` +
+      `&hourly=snow_depth` +
+      `&timezone=Europe%2FRome`;
+
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("Open-Meteo non raggiungibile");
+    const data = await res.json();
+
+    const times = data?.hourly?.time || [];
+    const depths = data?.hourly?.snow_depth || [];
+
+    if(!times.length || !depths.length) throw new Error("Dati neve non disponibili");
+
+    const i = nearestTimeIndex(times);
+    const meters = Number(depths[i]);
+    const cm = Math.max(0, Math.round(meters * 100));
+
+    const when = new Date(times[i]).toLocaleString("it-IT");
+    snowDepthEl.textContent = `Neve al suolo: ${cm} cm`;
+    snowMetaEl.textContent = `Fonte: Open-Meteo (snow_depth). Ora: ${when}`;
+  }catch(e){
+    console.error(e);
+    snowDepthEl.textContent = "Neve al suolo: —";
+    snowMetaEl.textContent = "Errore nel recupero dati neve (riprovare).";
+  }
+}
+
+snowRefreshBtn.onclick = refreshSnow;
+// auto refresh ogni 30 min
+refreshSnow();
+setInterval(refreshSnow, 30 * 60 * 1000);
+
+/* =========================
+   SPOTS (saved) + DELETE SINGLE
+   ========================= */
+const STORAGE_SPOTS = "ski_spots_v5";
 let mode = null;
 
 function iconFor(type){ return type==="jump" ? "🛫" : "❄️"; }
@@ -451,12 +602,24 @@ function loadSpots(){
 function saveSpots(spots){
   localStorage.setItem(STORAGE_SPOTS, JSON.stringify(spots));
 }
+function newSpotId(){
+  if (crypto?.randomUUID) return crypto.randomUUID();
+  return String(Date.now()) + "_" + Math.random().toString(16).slice(2);
+}
+
 function renderSpots(){
   spotLayer.clearLayers();
   const spots = loadSpots();
+
   for(const s of spots){
     const m = L.marker([s.lat, s.lng]).addTo(spotLayer);
-    m.bindPopup(`${iconFor(s.type)} <b>${s.title || (s.type==="jump"?"Salto":"Powder")}</b><br>${s.notes||""}`);
+    const title = s.title || (s.type==="jump" ? "Salto" : "Powder");
+    const notes = s.notes ? `<br>${s.notes}` : "";
+    m.bindPopup(`
+      ${iconFor(s.type)} <b>${title}</b>${notes}
+      <hr style="border:none;border-top:1px solid #e6e6e6;margin:8px 0;">
+      <button class="btn-light delete-spot" data-spot-id="${s.id}">🗑 Elimina questo spot</button>
+    `);
   }
 }
 function addSpot(s){
@@ -468,6 +631,7 @@ function addSpot(s){
 
 document.getElementById("modeJump").onclick = () => mode = "jump";
 document.getElementById("modePowder").onclick = () => mode = "powder";
+
 document.getElementById("clearSpots").onclick = () => {
   if(confirm("Cancellare tutti gli spot?")){
     localStorage.removeItem(STORAGE_SPOTS);
@@ -475,11 +639,32 @@ document.getElementById("clearSpots").onclick = () => {
   }
 };
 
+// Click mappa: aggiungi spot se mode attiva
 map.on("click", (e) => {
   if(!mode) return;
   const title = prompt(mode==="jump" ? "Nome spot salto (opzionale)" : "Nome spot powder (opzionale)", "") || "";
   const notes = prompt("Note (opzionale)", "") || "";
-  addSpot({ type: mode, lat: e.latlng.lat, lng: e.latlng.lng, title, notes, created_at: new Date().toISOString() });
+  addSpot({
+    id: newSpotId(),
+    type: mode,
+    lat: e.latlng.lat,
+    lng: e.latlng.lng,
+    title,
+    notes,
+    created_at: new Date().toISOString()
+  });
+});
+
+// Delete singolo spot (event delegation)
+document.addEventListener("click", (ev) => {
+  const btn = ev.target.closest(".delete-spot");
+  if(!btn) return;
+  const id = btn.getAttribute("data-spot-id");
+  if(!id) return;
+
+  const spots = loadSpots().filter(s => String(s.id) !== String(id));
+  saveSpots(spots);
+  renderSpots();
 });
 
 document.getElementById("exportSpots").onclick = () => {
@@ -507,7 +692,10 @@ document.getElementById("importSpots").onclick = () => {
       try{
         const imported = JSON.parse(String(reader.result || "[]"));
         if(!Array.isArray(imported)) throw new Error("Formato non valido");
-        const merged = loadSpots().concat(imported);
+
+        // se import vecchio senza id, glielo aggiungiamo
+        const fixed = imported.map(s => ({ id: s.id || newSpotId(), ...s }));
+        const merged = loadSpots().concat(fixed);
         saveSpots(merged);
         renderSpots();
         alert("Import ok! Spot totali: " + merged.length);
@@ -521,124 +709,6 @@ document.getElementById("importSpots").onclick = () => {
 };
 
 renderSpots();
-
-/* =========================
-   (9) WEATHER RADAR (RainViewer) — FIX: maxNativeZoom 7
-   ========================= */
-let radarLayer = null;
-let radarFrames = [];
-let radarFrameIdx = 0;
-let radarTimer = null;
-let radarHost = null;
-
-const radarToggle = document.getElementById("toggleRadar");
-const radarOpacity = document.getElementById("radarOpacity");
-const radarStatus = document.getElementById("radarStatus");
-
-function setRadarStatus(txt){ radarStatus.textContent = "Radar: " + txt; }
-
-async function loadRadarFrames(){
-  const res = await fetch("https://api.rainviewer.com/public/weather-maps.json");
-  if(!res.ok) throw new Error("RainViewer API non raggiungibile");
-  const data = await res.json();
-
-  radarHost = data.host;
-  const past = (data.radar && data.radar.past) ? data.radar.past : [];
-  const nowcast = (data.radar && data.radar.nowcast) ? data.radar.nowcast : [];
-  radarFrames = past.concat(nowcast);
-
-  if(radarFrames.length === 0) throw new Error("Nessun frame radar disponibile");
-  radarFrameIdx = Math.max(0, radarFrames.length - 1);
-}
-
-function radarTileUrl(frame){
-  return `${radarHost}${frame.path}/256/{z}/{x}/{y}/2/1_1.png`;
-}
-
-function ensureRadarLayer(url){
-  if(!radarLayer){
-    radarLayer = L.tileLayer(url, {
-      opacity: Number(radarOpacity.value)/100,
-      zIndex: 999,
-      maxNativeZoom: 7,
-      maxZoom: 19,
-      tileSize: 256,
-      updateWhenIdle: true,
-      updateWhenZooming: false
-    });
-  } else {
-    radarLayer.setUrl(url);
-  }
-}
-
-async function radarShowLatest(){
-  try{
-    setRadarStatus("caricamento…");
-    if(!radarHost || radarFrames.length===0) await loadRadarFrames();
-    const frame = radarFrames[radarFrames.length - 1];
-    ensureRadarLayer(radarTileUrl(frame));
-    radarLayer.setOpacity(Number(radarOpacity.value)/100);
-    radarLayer.addTo(map);
-    setRadarStatus(new Date(frame.time*1000).toLocaleTimeString());
-  }catch(e){
-    console.error(e);
-    alert("Radar error: " + e.message);
-    setRadarStatus("errore");
-    radarToggle.checked = false;
-  }
-}
-
-async function radarPlay(){
-  try{
-    setRadarStatus("caricamento…");
-    if(!radarHost || radarFrames.length===0) await loadRadarFrames();
-
-    if(!radarLayer){
-      ensureRadarLayer(radarTileUrl(radarFrames[0]));
-    }
-    radarLayer.setOpacity(Number(radarOpacity.value)/100);
-    radarLayer.addTo(map);
-
-    if(radarTimer) clearInterval(radarTimer);
-    radarTimer = setInterval(() => {
-      const frame = radarFrames[radarFrameIdx];
-      ensureRadarLayer(radarTileUrl(frame));
-      setRadarStatus(new Date(frame.time*1000).toLocaleTimeString());
-      radarFrameIdx = (radarFrameIdx + 1) % radarFrames.length;
-    }, 650);
-  }catch(e){
-    console.error(e);
-    alert("Radar error: " + e.message);
-    setRadarStatus("errore");
-    radarToggle.checked = false;
-  }
-}
-
-function radarPause(){
-  if(radarTimer){
-    clearInterval(radarTimer);
-    radarTimer = null;
-    setRadarStatus("in pausa");
-  }
-}
-
-radarToggle.addEventListener("change", async () => {
-  if(radarToggle.checked){
-    await radarShowLatest();
-  } else {
-    radarPause();
-    if(radarLayer) map.removeLayer(radarLayer);
-    setRadarStatus("spento");
-  }
-});
-
-document.getElementById("radarPlay").onclick = () => { radarToggle.checked = true; radarPlay(); };
-document.getElementById("radarPause").onclick = () => radarPause();
-document.getElementById("radarNow").onclick = () => { radarToggle.checked = true; radarShowLatest(); };
-
-radarOpacity.addEventListener("input", () => {
-  if(radarLayer) radarLayer.setOpacity(Number(radarOpacity.value)/100);
-});
 
 /* =========================
    (10) REPLAY GIORNATA: record + animate
@@ -695,7 +765,7 @@ document.getElementById("trackStart").onclick = () => {
     const last = currentTrack[currentTrack.length - 1];
     if(last){
       const d = metersBetween(last, pt);
-      if(d < 6) return;
+      if(d < 6) return; // riduce rumore
     }
 
     currentTrack.push(pt);
@@ -746,17 +816,16 @@ setTrackInfo(initialTrack.length ? trackSummary(initialTrack) : "Traccia: nessun
 const panel = document.getElementById("panel");
 const panelToggle = document.getElementById("panelToggle");
 
-// su desktop aprilo di default
+// desktop: aperto di default
 if (!window.matchMedia("(max-width: 600px)").matches) {
   panel.classList.remove("collapsed");
 }
 
-// toggle
 panelToggle.addEventListener("click", () => {
   panel.classList.toggle("collapsed");
 });
 
-// chiudi quando tocchi la mappa (mobile)
+// chiudi quando tocchi la mappa (mobile) — NON rompe map.on("click") degli spot
 map.getContainer().addEventListener("pointerdown", () => {
   if (window.matchMedia("(max-width: 600px)").matches) {
     panel.classList.add("collapsed");
