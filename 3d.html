@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Sauze Freestyle Map</title>
+
+<!-- PWA / iPhone Home Screen -->
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sauze Freestyle Map">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+html, body { height:100%; margin:0; }
+#map { height:100%; }
+
+/* --- Panel base (desktop) + drawer (mobile) --- */
+.panel{
+  position:absolute;
+  top:12px;
+  left:12px;
+  z-index:1000;
+  background:rgba(255,255,255,0.96);
+  border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.2);
+  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  width:320px;
+  max-height: calc(100% - 24px);
+  overflow:hidden;
+
+  /* ✅ scroll iOS: layout a colonne */
+  display:flex;
+  flex-direction:column;
+}
+
+.panel-header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-bottom:1px solid #e6e6e6;
+  flex: 0 0 auto;
+}
+
+.panel-title{
+  font-weight:1000;
+  font-size:16px;
+  line-height:1;
+}
+
+.panel-toggle{
+  border:0;
+  border-radius:10px;
+  padding:8px 10px;
+  cursor:pointer;
+  font-weight:900;
+  background:#111;
+  color:#fff;
+}
+
+.panel-body{
+  padding:12px;
+
+  /* ✅ scroll vero su iPhone */
+  overflow-y:auto;
+  -webkit-overflow-scrolling: touch;
+
+  /* ✅ prende lo spazio disponibile */
+  flex: 1 1 auto;
+  max-height: none;
+}
+
+/* Stato CHIUSO */
+.panel.collapsed .panel-body{
+  display:none;
+}
+
+/* Mobile: bottom sheet */
+@media (max-width: 600px){
+  .panel{
+    left: 10px;
+    right: 10px;
+    top: auto;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    width: auto;
+    max-height: 70vh;
+    border-radius:16px;
+  }
+  .panel.collapsed{
+    max-height: 52px;
+  }
+}
+
+button{
+  border:0;
+  border-radius:10px;
+  padding:8px 10px;
+  margin:4px 0;
+  cursor:pointer;
+  font-weight:800;
+}
+
+.btn-dark{ background:#111; color:#fff; }
+.btn-blue{ background:#2b7cff; color:#fff; }
+.btn-light{ background:#eee; }
+.btn-green{ background:#1f9d55; color:#fff; }
+.btn-orange{ background:#ff8a00; color:#fff; }
+
+.section-title{
+  font-size:12px;
+  font-weight:900;
+  margin-top:10px;
+}
+
+.small{ font-size:12px; color:#222; }
+.row{ display:flex; gap:6px; flex-wrap:wrap; }
+
+input[type="text"]{
+  width:100%;
+  padding:8px 10px;
+  border-radius:10px;
+  border:1px solid #ddd;
+  font-weight:700;
+  box-sizing:border-box;
+}
+input[type="range"]{ width:100%; }
+hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
+
+.pill{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#f2f2f2;
+  font-size:12px;
+  font-weight:800;
+  margin-top:6px;
+}
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div class="panel collapsed" id="panel">
+  <div class="panel-header">
+    <button class="panel-toggle" id="panelToggle" aria-label="Apri/chiudi menu">☰</button>
+    <div class="panel-title">⛷️ Sauze Freestyle Map</div>
+  </div>
+
+  <div class="panel-body" id="panelBody">
+
+    <div class="row">
+      <button class="btn-dark" onclick="location.href='./3d.html'">🏔️ Vista 3D</button>
+    </div>
+
+    <div class="section-title">🔎 Cerca pista (Focus)</div>
+    <input id="searchInput" type="text" placeholder="Es: Clotes, Sportinia, 29..." />
+    <div class="row">
+      <button class="btn-light" id="searchBtn">Cerca</button>
+      <button class="btn-light" id="clearSearchBtn">Reset</button>
+      <button class="btn-green" id="locateBtn">📍 Dove sono</button>
+    </div>
+    <div class="small" id="searchHint">Puoi cercare per nome o ref. In “focus” le altre piste spariscono.</div>
+
+    <hr/>
+
+    <div class="section-title">❄️ Neve al suolo</div>
+    <div class="row">
+      <button class="btn-blue" id="snowRefresh">↻ Aggiorna</button>
+    </div>
+    <div class="pill" id="snowDepth">Neve al suolo: —</div>
+    <div class="small" id="snowMeta">Fonte: Open-Meteo (snow_depth). Ultimo update: —</div>
+
+    <hr/>
+
+    <div class="section-title">🛰️ 3D (Hillshade)</div>
+    <label class="small"><input type="checkbox" id="toggleHillshade" checked> Ombreggiatura rilievo</label>
+    <div class="small">Intensità</div>
+    <input id="hillshadeOpacity" type="range" min="0" max="100" value="35"/>
+
+    <hr/>
+
+    <div class="section-title">🛫❄️ Spot</div>
+    <div class="row">
+      <button class="btn-dark" id="modeJump">🛫 Salto</button>
+      <button class="btn-blue" id="modePowder">❄️ Powder</button>
+      <button class="btn-light" id="clearSpots">🧹 Reset</button>
+    </div>
+    <div class="row">
+      <button class="btn-light" id="exportSpots">📤 Export</button>
+      <button class="btn-light" id="importSpots">📥 Import</button>
+    </div>
+    <div class="small">Tocca la mappa per aggiungere spot. Apri un marker per eliminarlo singolarmente.</div>
+
+    <hr/>
+
+    <div class="section-title">🎬 Replay giornata</div>
+    <div class="row">
+      <button class="btn-orange" id="trackStart">⏺ Registra</button>
+      <button class="btn-light" id="trackStop">⏹ Stop</button>
+      <button class="btn-dark" id="trackReplay">▶︎ Replay</button>
+    </div>
+    <div class="small" id="trackInfo">Traccia: nessuna</div>
+
+    <hr/>
+
+    <div class="section-title">🗺️ Layer</div>
+    <label class="small"><input type="checkbox" id="toggleRuns" checked> Piste</label><br>
+    <label class="small"><input type="checkbox" id="toggleLifts" checked> Impianti</label><br>
+    <label class="small"><input type="checkbox" id="toggleSpots" checked> Spot</label><br>
+    <label class="small"><input type="checkbox" id="toggleLabels" checked> Nomi (Satellite)</label>
+
+    <div class="section-title">🎿 Filtro</div>
+    <div class="row">
+      <button class="btn-light" id="fAll">Tutte</button>
+      <button class="btn-light" id="fBlue">Blu</button>
+      <button class="btn-light" id="fRed">Rosse</button>
+      <button class="btn-light" id="fBlack">Nere</button>
+    </div>
+    <div class="small" id="filterHint">Filtro: tutte</div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.polyline.snakeanim@0.2.0/L.Polyline.SnakeAnim.js"></script>
+
+<script>
+/* =========================
+   MAP BASE + ESRI SAT + HILLSHADE + LABELS
+   ========================= */
+const map = L.map("map");
+
+// OSM
+const osm = L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  { maxZoom:19, attribution:"© OpenStreetMap contributors" }
+);
+
+// ESRI Satellite
+const esriSat = L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  { maxZoom:19, attribution:"Tiles © Esri" }
+);
+
+// ESRI Hillshade overlay
+const hillshade = L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
+  { maxZoom:19, opacity: 0.35, attribution:"Hillshade © Esri" }
+);
+
+// ✅ Labels overlay (nomi località/strade) sopra satellite
+const esriLabels = L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+  { maxZoom: 19, opacity: 1.0, zIndex: 650, attribution:"Labels © Esri" }
+);
+
+osm.addTo(map);
+hillshade.addTo(map);
+
+L.control.layers(
+  { "🗺 Mappa": osm, "🛰 Satellite ESRI": esriSat },
+  { "🏔 Hillshade": hillshade, "🔤 Labels": esriLabels },
+  { position:"topright" }
+).addTo(map);
+
+map.setView([45.03,6.86],12);
+
+// Labels: ON in satellite, OFF in OSM (rispetta toggle in menu)
+function setLabelsActive(active){
+  const toggle = document.getElementById("toggleLabels");
+  if (toggle && !toggle.checked) active = false;
+  if(active) esriLabels.addTo(map);
+  else map.removeLayer(esriLabels);
+}
+map.on("baselayerchange", (e) => {
+  if (e.name === "🛰 Satellite ESRI") setLabelsActive(true);
+  else setLabelsActive(false);
+});
+
+document.getElementById("toggleLabels").addEventListener("change", () => {
+  const isSat = map.hasLayer(esriSat);
+  setLabelsActive(isSat);
+});
+
+// Hillshade UI
+const hillToggle = document.getElementById("toggleHillshade");
+const hillOpacity = document.getElementById("hillshadeOpacity");
+hillToggle.addEventListener("change", () => {
+  if (hillToggle.checked) hillshade.addTo(map);
+  else map.removeLayer(hillshade);
+});
+hillOpacity.addEventListener("input", () => {
+  hillshade.setOpacity(Number(hillOpacity.value)/100);
+});
+
+/* =========================
+   RUNS/LIFTS STYLING
+   ========================= */
+function pisteColor(diff){
+  if(!diff) return "#7aa6d8";
+  diff = String(diff).toLowerCase();
+  if(diff.includes("easy")||diff.includes("novice")||diff.includes("beginner")||diff.includes("blue")) return "#1f77b4";
+  if(diff.includes("intermediate")||diff.includes("medium")||diff.includes("red")) return "#d62728";
+  if(diff.includes("advanced")||diff.includes("expert")||diff.includes("difficult")||diff.includes("black")) return "#000";
+  return "#7aa6d8";
+}
+function classify(diff){
+  if(!diff) return "unknown";
+  diff = String(diff).toLowerCase();
+  if(diff.includes("easy")||diff.includes("novice")||diff.includes("beginner")||diff.includes("blue")) return "blue";
+  if(diff.includes("intermediate")||diff.includes("medium")||diff.includes("red")) return "red";
+  if(diff.includes("advanced")||diff.includes("expert")||diff.includes("difficult")||diff.includes("black")) return "black";
+  return "unknown";
+}
+
+/* =========================
+   GEOJSON LAYERS
+   ========================= */
+let runsLayer = L.geoJSON(null);
+let liftsLayer = L.geoJSON(null);
+const spotLayer = L.layerGroup().addTo(map);
+
+let cachedData = null;
+let currentFilter = "all";
+let lastHighlighted = null;
+
+// ✅ Search focus
+let focusLayer = null;
+let isFocus = false;
+
+function resetHighlight(){
+  if(!lastHighlighted) return;
+  const l = lastHighlighted;
+  if(l.__isLift){
+    l.setStyle({color:"#777", weight:3, dashArray:"6 6", opacity:0.85});
+  } else {
+    const diff = l.feature?.properties?.["piste:difficulty"];
+    l.setStyle({color:pisteColor(diff), weight:5, opacity:0.95});
+  }
+  lastHighlighted = null;
+}
+
+function highlight(layer, isLift){
+  resetHighlight();
+  layer.setStyle({weight:8, opacity:1.0});
+  layer.__isLift = isLift;
+  lastHighlighted = layer;
+}
+
+function enterFocus(runLayer){
+  if(!runLayer) return;
+  isFocus = true;
+
+  // "spegni" le altre piste
+  runsLayer.eachLayer(l => {
+    if(l === runLayer) return;
+    l.setStyle({ opacity: 0.03, weight: 2 });
+  });
+
+  // layer sopra con SOLO la pista trovata
+  if (focusLayer) map.removeLayer(focusLayer);
+
+  const diff = runLayer.feature?.properties?.["piste:difficulty"];
+  focusLayer = L.geoJSON(runLayer.feature, {
+    style: { color: pisteColor(diff), weight: 10, opacity: 1.0 }
+  }).addTo(map);
+
+  try { focusLayer.bringToFront(); } catch(e) {}
+}
+
+function exitFocus(){
+  isFocus = false;
+
+  if (focusLayer){
+    map.removeLayer(focusLayer);
+    focusLayer = null;
+  }
+
+  // ripristina stile normale
+  runsLayer.eachLayer(l => {
+    const diff = l.feature?.properties?.["piste:difficulty"];
+    l.setStyle({ color: pisteColor(diff), weight: 5, opacity: 0.95 });
+  });
+}
+
+function rebuild(keepView=false){
+  if(!cachedData) return;
+
+  // se rebuild avviene, meglio uscire dal focus (coerenza stili)
+  if (isFocus) exitFocus();
+
+  map.removeLayer(runsLayer);
+  map.removeLayer(liftsLayer);
+
+  runsLayer = L.geoJSON(cachedData, {
+    filter: (f) => {
+      const p = f.properties || {};
+      if(!p["piste:type"]) return false;
+      if(p.aerialway) return false;
+      if(currentFilter === "all") return true;
+      return classify(p["piste:difficulty"]) === currentFilter;
+    },
+    style: (f) => {
+      const p = f.properties || {};
+      return {color: pisteColor(p["piste:difficulty"]), weight:5, opacity:0.95};
+    },
+    onEachFeature: (f, l) => {
+      const p = f.properties || {};
+      const name = p.name || p.ref || "Pista";
+      const diff = p["piste:difficulty"] ? ` (${p["piste:difficulty"]})` : "";
+      l.bindPopup(`🎿 <b>${name}</b>${diff}`);
+      l.on("click", () => highlight(l, false));
+      l.__searchName = String(p.name || "").toLowerCase();
+      l.__searchRef  = String(p.ref || "").toLowerCase();
+    }
+  });
+
+  liftsLayer = L.geoJSON(cachedData, {
+    filter: (f) => !!(f.properties || {}).aerialway,
+    style: () => ({color:"#777", weight:3, dashArray:"6 6", opacity:0.85}),
+    onEachFeature: (f, l) => {
+      const p = f.properties || {};
+      const name = p.name || p.ref || "Impianto";
+      l.bindPopup(`🚡 <b>${name}</b>`);
+      l.on("click", () => highlight(l, true));
+      l.__isLift = true;
+    }
+  });
+
+  if(document.getElementById("toggleRuns").checked) runsLayer.addTo(map);
+  if(document.getElementById("toggleLifts").checked) liftsLayer.addTo(map);
+
+  if(!keepView){
+    const group = L.featureGroup([]);
+    if(document.getElementById("toggleRuns").checked) group.addLayer(runsLayer);
+    if(document.getElementById("toggleLifts").checked) group.addLayer(liftsLayer);
+    const b = group.getBounds();
+    if(b.isValid()) map.fitBounds(b.pad(0.10));
+  }
+}
+
+fetch("./sauze_doulx.geojson")
+  .then(r => r.json())
+  .then(data => { cachedData = data; rebuild(false); })
+  .catch(err => { alert("Errore GeoJSON: " + err.message); console.error(err); });
+
+/* =========================
+   FILTER + TOGGLES
+   ========================= */
+function setFilter(f){
+  currentFilter = f;
+  const label = f==="all" ? "tutte" : (f==="blue" ? "blu" : (f==="red" ? "rosse" : "nere"));
+  document.getElementById("filterHint").textContent = "Filtro: " + label;
+  resetHighlight();
+  rebuild(true);
+}
+document.getElementById("fAll").onclick   = () => setFilter("all");
+document.getElementById("fBlue").onclick  = () => setFilter("blue");
+document.getElementById("fRed").onclick   = () => setFilter("red");
+document.getElementById("fBlack").onclick = () => setFilter("black");
+
+document.getElementById("toggleRuns").onchange  = (e)=> e.target.checked ? runsLayer.addTo(map) : map.removeLayer(runsLayer);
+document.getElementById("toggleLifts").onchange = (e)=> e.target.checked ? liftsLayer.addTo(map) : map.removeLayer(liftsLayer);
+document.getElementById("toggleSpots").onchange = (e)=> e.target.checked ? spotLayer.addTo(map) : map.removeLayer(spotLayer);
+
+/* =========================
+   SEARCH + FOCUS
+   ========================= */
+function findRun(query){
+  query = String(query||"").trim().toLowerCase();
+  if(!query) return null;
+  let found = null;
+  runsLayer.eachLayer(l => {
+    if(found) return;
+    if((l.__searchName||"").includes(query) || (l.__searchRef||"").includes(query)) found = l;
+  });
+  return found;
+}
+
+document.getElementById("searchBtn").onclick = () => {
+  const q = document.getElementById("searchInput").value;
+  const run = findRun(q);
+  if(!run){
+    document.getElementById("searchHint").textContent = "Nessuna pista trovata. Prova un altro nome/ref.";
+    return;
+  }
+  document.getElementById("searchHint").textContent = "Trovata! Modalità focus attiva.";
+  highlight(run, false);
+
+  // ✅ focus: le altre piste quasi invisibili
+  enterFocus(run);
+
+  map.fitBounds(run.getBounds().pad(0.25));
+  run.openPopup();
+};
+
+document.getElementById("clearSearchBtn").onclick = () => {
+  document.getElementById("searchInput").value = "";
+  document.getElementById("searchHint").textContent = "Puoi cercare per nome o ref. In “focus” le altre piste spariscono.";
+  resetHighlight();
+  exitFocus();
+};
+
+/* =========================
+   GEOLOCATION
+   ========================= */
+let userMarker = null;
+document.getElementById("locateBtn").onclick = () => {
+  if(!navigator.geolocation){
+    alert("Geolocalizzazione non supportata.");
+    return;
+  }
+  navigator.geolocation.getCurrentPosition((pos) => {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    if(userMarker) map.removeLayer(userMarker);
+    userMarker = L.circleMarker([lat, lng], { radius:8, weight:3, fillOpacity:0.7 }).addTo(map)
+      .bindPopup("📍 Sei qui").openPopup();
+    map.setView([lat, lng], 15);
+  }, (err) => alert("Errore geolocalizzazione: " + err.message), { enableHighAccuracy:true, timeout:8000 });
+};
+
+/* =========================
+   SNOW DEPTH (Open-Meteo) -> cm
+   ========================= */
+const snowDepthEl = document.getElementById("snowDepth");
+const snowMetaEl  = document.getElementById("snowMeta");
+const snowRefreshBtn = document.getElementById("snowRefresh");
+
+// punto rappresentativo Sauze d'Oulx (centro area)
+const SNOW_LAT = 45.03;
+const SNOW_LON = 6.86;
+
+// trova indice dell'ora più vicina al "now"
+function nearestTimeIndex(times){
+  const now = Date.now();
+  let bestI = 0;
+  let bestD = Infinity;
+  for(let i=0;i<times.length;i++){
+    const t = new Date(times[i]).getTime();
+    const d = Math.abs(t - now);
+    if(d < bestD){ bestD = d; bestI = i; }
+  }
+  return bestI;
+}
+
+async function refreshSnow(){
+  try{
+    snowDepthEl.textContent = "Neve al suolo: caricamento…";
+    // Open-Meteo: snow_depth è in metri → convertiamo in cm
+    const url =
+      `https://api.open-meteo.com/v1/forecast` +
+      `?latitude=${SNOW_LAT}&longitude=${SNOW_LON}` +
+      `&hourly=snow_depth` +
+      `&timezone=Europe%2FRome`;
+
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("Open-Meteo non raggiungibile");
+    const data = await res.json();
+
+    const times = data?.hourly?.time || [];
+    const depths = data?.hourly?.snow_depth || [];
+
+    if(!times.length || !depths.length) throw new Error("Dati neve non disponibili");
+
+    const i = nearestTimeIndex(times);
+    const meters = Number(depths[i]);
+    const cm = Math.max(0, Math.round(meters * 100));
+
+    const when = new Date(times[i]).toLocaleString("it-IT");
+    snowDepthEl.textContent = `Neve al suolo: ${cm} cm`;
+    snowMetaEl.textContent = `Fonte: Open-Meteo (snow_depth). Ora: ${when}`;
+  }catch(e){
+    console.error(e);
+    snowDepthEl.textContent = "Neve al suolo: —";
+    snowMetaEl.textContent = "Errore nel recupero dati neve (riprovare).";
+  }
+}
+
+snowRefreshBtn.onclick = refreshSnow;
+// auto refresh ogni 30 min
+refreshSnow();
+setInterval(refreshSnow, 30 * 60 * 1000);
+
+/* =========================
+   SPOTS (saved) + DELETE SINGLE
+   ========================= */
+const STORAGE_SPOTS = "ski_spots_v5";
+let mode = null;
+
+function iconFor(type){ return type==="jump" ? "🛫" : "❄️"; }
+
+function loadSpots(){
+  const raw = localStorage.getItem(STORAGE_SPOTS);
+  return raw ? JSON.parse(raw) : [];
+}
+function saveSpots(spots){
+  localStorage.setItem(STORAGE_SPOTS, JSON.stringify(spots));
+}
+function newSpotId(){
+  if (crypto?.randomUUID) return crypto.randomUUID();
+  return String(Date.now()) + "_" + Math.random().toString(16).slice(2);
+}
+
+function renderSpots(){
+  spotLayer.clearLayers();
+  const spots = loadSpots();
+
+  for(const s of spots){
+    const m = L.marker([s.lat, s.lng]).addTo(spotLayer);
+    const title = s.title || (s.type==="jump" ? "Salto" : "Powder");
+    const notes = s.notes ? `<br>${s.notes}` : "";
+    m.bindPopup(`
+      ${iconFor(s.type)} <b>${title}</b>${notes}
+      <hr style="border:none;border-top:1px solid #e6e6e6;margin:8px 0;">
+      <button class="btn-light delete-spot" data-spot-id="${s.id}">🗑 Elimina questo spot</button>
+    `);
+  }
+}
+function addSpot(s){
+  const spots = loadSpots();
+  spots.push(s);
+  saveSpots(spots);
+  renderSpots();
+}
+
+document.getElementById("modeJump").onclick = () => mode = "jump";
+document.getElementById("modePowder").onclick = () => mode = "powder";
+
+document.getElementById("clearSpots").onclick = () => {
+  if(confirm("Cancellare tutti gli spot?")){
+    localStorage.removeItem(STORAGE_SPOTS);
+    renderSpots();
+  }
+};
+
+// Click mappa: aggiungi spot se mode attiva
+map.on("click", (e) => {
+  if(!mode) return;
+  const title = prompt(mode==="jump" ? "Nome spot salto (opzionale)" : "Nome spot powder (opzionale)", "") || "";
+  const notes = prompt("Note (opzionale)", "") || "";
+  addSpot({
+    id: newSpotId(),
+    type: mode,
+    lat: e.latlng.lat,
+    lng: e.latlng.lng,
+    title,
+    notes,
+    created_at: new Date().toISOString()
+  });
+});
+
+// Delete singolo spot (event delegation)
+document.addEventListener("click", (ev) => {
+  const btn = ev.target.closest(".delete-spot");
+  if(!btn) return;
+  const id = btn.getAttribute("data-spot-id");
+  if(!id) return;
+
+  const spots = loadSpots().filter(s => String(s.id) !== String(id));
+  saveSpots(spots);
+  renderSpots();
+});
+
+document.getElementById("exportSpots").onclick = () => {
+  const spots = loadSpots();
+  const blob = new Blob([JSON.stringify(spots, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "ski_spots.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+};
+
+document.getElementById("importSpots").onclick = () => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json";
+  input.onchange = () => {
+    const file = input.files?.[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const imported = JSON.parse(String(reader.result || "[]"));
+        if(!Array.isArray(imported)) throw new Error("Formato non valido");
+
+        // se import vecchio senza id, glielo aggiungiamo
+        const fixed = imported.map(s => ({ id: s.id || newSpotId(), ...s }));
+        const merged = loadSpots().concat(fixed);
+        saveSpots(merged);
+        renderSpots();
+        alert("Import ok! Spot totali: " + merged.length);
+      } catch(err){
+        alert("Errore import: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+};
+
+renderSpots();
+
+/* =========================
+   (10) REPLAY GIORNATA: record + animate
+   ========================= */
+const STORAGE_TRACK = "ski_track_v1";
+let watchId = null;
+let currentTrack = [];
+let trackPolyline = null;
+
+function setTrackInfo(txt){ document.getElementById("trackInfo").textContent = txt; }
+
+function saveTrack(track){
+  localStorage.setItem(STORAGE_TRACK, JSON.stringify(track));
+}
+
+function loadTrack(){
+  const raw = localStorage.getItem(STORAGE_TRACK);
+  return raw ? JSON.parse(raw) : [];
+}
+
+function metersBetween(a,b){
+  const R = 6371000;
+  const toRad = d => d*Math.PI/180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLon = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+  const h = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+function trackSummary(track){
+  if(track.length < 2) return "Traccia: troppo corta";
+  let dist = 0;
+  for(let i=1;i<track.length;i++) dist += metersBetween(track[i-1], track[i]);
+  return `Traccia: ${track.length} punti • ~${Math.round(dist)} m`;
+}
+
+document.getElementById("trackStart").onclick = () => {
+  if(!navigator.geolocation){
+    alert("Geolocalizzazione non supportata.");
+    return;
+  }
+  if(watchId !== null){
+    alert("Registrazione già attiva.");
+    return;
+  }
+  currentTrack = [];
+  setTrackInfo("Registrazione… (muoviti, poi Stop)");
+
+  watchId = navigator.geolocation.watchPosition((pos) => {
+    const pt = { lat: pos.coords.latitude, lng: pos.coords.longitude, t: Date.now() };
+
+    const last = currentTrack[currentTrack.length - 1];
+    if(last){
+      const d = metersBetween(last, pt);
+      if(d < 6) return; // riduce rumore
+    }
+
+    currentTrack.push(pt);
+    saveTrack(currentTrack);
+    setTrackInfo(trackSummary(currentTrack));
+
+    if(trackPolyline) map.removeLayer(trackPolyline);
+    trackPolyline = L.polyline(currentTrack.map(p => [p.lat,p.lng]), { weight:4, opacity:0.9 }).addTo(map);
+
+  }, (err) => alert("Errore GPS: " + err.message),
+  { enableHighAccuracy:true, maximumAge:1000, timeout:8000 });
+};
+
+document.getElementById("trackStop").onclick = () => {
+  if(watchId !== null){
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+  }
+  const saved = loadTrack();
+  setTrackInfo(saved.length ? trackSummary(saved) : "Traccia: nessuna");
+};
+
+document.getElementById("trackReplay").onclick = () => {
+  const track = loadTrack();
+  if(track.length < 2){
+    alert("Nessuna traccia da riprodurre. Registra prima!");
+    return;
+  }
+
+  if(trackPolyline) map.removeLayer(trackPolyline);
+
+  trackPolyline = L.polyline(track.map(p => [p.lat,p.lng]), { weight:5, opacity:0.95 }).addTo(map);
+  map.fitBounds(trackPolyline.getBounds().pad(0.20));
+
+  if(typeof trackPolyline.snakeIn === "function"){
+    trackPolyline.snakeIn();
+  } else {
+    alert("Plugin animazione non caricato: replay senza animazione.");
+  }
+};
+
+const initialTrack = loadTrack();
+setTrackInfo(initialTrack.length ? trackSummary(initialTrack) : "Traccia: nessuna");
+
+/* =========================
+   PANEL TOGGLE (mobile drawer)
+   ========================= */
+const panel = document.getElementById("panel");
+const panelToggle = document.getElementById("panelToggle");
+
+// desktop: aperto di default
+if (!window.matchMedia("(max-width: 600px)").matches) {
+  panel.classList.remove("collapsed");
+}
+
+panelToggle.addEventListener("click", () => {
+  panel.classList.toggle("collapsed");
+});
+
+// chiudi quando tocchi la mappa (mobile) — NON rompe map.on("click") degli spot
+map.getContainer().addEventListener("pointerdown", () => {
+  if (window.matchMedia("(max-width: 600px)").matches) {
+    panel.classList.add("collapsed");
+  }
+});
+</script>
+
+</body>
+</html>
