@@ -1,34 +1,42 @@
 <!doctype html>
 <html lang="it">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Sauze 3D</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Sauze 3D</title>
 
-<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet"/>
-<style>
-html,body{margin:0;height:100%}
-#map{height:100%}
-.panel{
-  position:absolute; left:12px; top:12px; z-index:10;
-  background:rgba(255,255,255,0.95);
-  padding:12px; border-radius:14px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.2);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  width:320px; max-width: calc(100% - 24px);
-}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-button{border:0;border-radius:10px;padding:8px 10px;font-weight:900;cursor:pointer}
-.btn-dark{background:#111;color:#fff}
-.small{font-size:12px;margin-top:8px;color:#333}
-input[type="range"]{width:100%}
-.msg{
-  position:absolute; left:12px; right:12px; bottom:12px; z-index:20;
-  background:rgba(0,0,0,0.75); color:#fff; padding:10px 12px;
-  border-radius:14px; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  font-size:13px; line-height:1.3;
-}
-</style>
+  <!-- ✅ MapLibre v2 (più compatibile di v4) -->
+  <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
+
+  <style>
+    html,body{margin:0;height:100%}
+    #map{height:100%; background:#0b1220;}
+    .panel{
+      position:absolute; left:12px; top:12px; z-index:10;
+      background:rgba(255,255,255,0.95);
+      padding:12px; border-radius:14px;
+      box-shadow:0 8px 20px rgba(0,0,0,0.2);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      width:320px; max-width: calc(100% - 24px);
+    }
+    .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    button{
+      border:0;border-radius:10px;padding:8px 10px;
+      font-weight:900;cursor:pointer;
+    }
+    .btn-dark{background:#111;color:#fff}
+    .small{font-size:12px;margin-top:8px;color:#333}
+    input[type="range"]{width:100%}
+    .msg{
+      position:absolute; left:12px; right:12px; bottom:12px; z-index:20;
+      background:rgba(0,0,0,0.78); color:#fff;
+      padding:10px 12px; border-radius:14px;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      font-size:13px; line-height:1.3;
+      white-space:pre-wrap;
+    }
+    a { color:#9dd1ff; }
+  </style>
 </head>
 <body>
 
@@ -39,46 +47,59 @@ input[type="range"]{width:100%}
   <div class="row">
     <button class="btn-dark" onclick="location.href='./'">↩︎ Torna 2D</button>
   </div>
+
   <div class="small">Esagerazione rilievo</div>
   <input id="ex" type="range" min="50" max="300" value="140">
   <div class="small">2 dita: inclina/ruota • Pinch: zoom</div>
 </div>
 
-<div class="msg" id="msg">Caricamento 3D…</div>
+<div class="msg" id="msg">Avvio…</div>
 
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
 <script>
-const msg = document.getElementById("msg");
-const setMsg = (t)=> msg.textContent = t;
+  const msg = document.getElementById("msg");
+  function setMsg(t){ msg.textContent = t; }
 
-if (!maplibregl.supported()) {
-  setMsg("⚠️ WebGL non supportato. Prova un altro browser o abilita accelerazione hardware.");
-  throw new Error("WebGL not supported");
-}
+  // ✅ Test WebGL super-esplicito (prima ancora di MapLibre)
+  function webglOk(){
+    try{
+      const c = document.createElement("canvas");
+      const gl = c.getContext("webgl") || c.getContext("experimental-webgl");
+      return !!gl;
+    }catch(e){ return false; }
+  }
 
-const CENTER = [6.86, 45.03];
+  if(!webglOk()){
+    setMsg(
+`❌ WebGL NON disponibile su questo browser/PC.
+Senza WebGL non può esistere il 3D.
 
-const map = new maplibregl.Map({
-  container: "map",
-  style: {
+✅ Soluzioni rapide:
+• Chrome/Edge: Impostazioni → Sistema → "Usa accelerazione hardware" = ON
+• Riavvia il browser
+• Prova Edge (spesso funziona meglio)
+`);
+    throw new Error("WebGL not available");
+  }
+
+  setMsg("✅ WebGL OK. Carico la mappa 3D…");
+
+  const CENTER = [6.86, 45.03];
+
+  const style = {
     version: 8,
     sources: {
-      // ✅ Basemap CORS-OK (CARTO Voyager)
+      // ✅ Basemap CORS-OK
       carto: {
         type: "raster",
-        tiles: [
-          "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"
-        ],
+        tiles: ["https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"],
         tileSize: 256,
         attribution: "© OpenStreetMap contributors © CARTO"
       },
-
-      // ✅ DEM 3D (Amazon Terrarium)
+      // ✅ DEM Terrarium (3D)
       terrainSource: {
         type: "raster-dem",
-        tiles: [
-          "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
-        ],
+        tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
         tileSize: 256,
         encoding: "terrarium",
         maxzoom: 14
@@ -87,73 +108,80 @@ const map = new maplibregl.Map({
     layers: [
       { id: "base", type: "raster", source: "carto" }
     ]
-  },
-  center: CENTER,
-  zoom: 12.2,
-  pitch: 65,
-  bearing: -20,
-  antialias: true
-});
+  };
 
-map.addControl(new maplibregl.NavigationControl({ visualizePitch:true }), "top-right");
+  const map = new maplibregl.Map({
+    container: "map",
+    style,
+    center: CENTER,
+    zoom: 12.2,
+    pitch: 65,
+    bearing: -20,
+    antialias: true
+  });
 
-map.on("load", async () => {
-  // attiva terrain
-  map.setTerrain({ source: "terrainSource", exaggeration: 1.4 });
+  map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
 
-  // prova a caricare le piste DOPO, così se manca file non “rompe” la mappa
-  try{
-    map.addSource("runs", { type:"geojson", data:"./sauze_doulx.geojson" });
+  map.on("load", async () => {
+    try{
+      // ✅ Terrain ON
+      map.setTerrain({ source: "terrainSource", exaggeration: 1.4 });
 
-    // outline bianco
-    map.addLayer({
-      id: "runs-outline",
-      type: "line",
-      source: "runs",
-      filter: ["==", ["get","piste:type"], "downhill"],
-      paint: {
-        "line-color": "#ffffff",
-        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 3.5, 12, 5.5, 14, 7.5, 16, 10.0],
-        "line-opacity": 0.55
-      }
-    });
+      // ✅ Carico piste DOPO (così anche se fallisce, la mappa si vede)
+      map.addSource("runs", { type:"geojson", data:"./sauze_doulx.geojson" });
 
-    // piste colorate
-    map.addLayer({
-      id: "runs-colored",
-      type: "line",
-      source: "runs",
-      filter: ["==", ["get","piste:type"], "downhill"],
-      paint: {
-        "line-color": [
-          "case",
-          ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["easy","novice","beginner","blue"]]], "#1f77b4",
-          ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["intermediate","medium","red"]]], "#d62728",
-          ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["advanced","expert","difficult","black"]]], "#000000",
-          "#7aa6d8"
-        ],
-        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 2.5, 12, 4.0, 14, 6.0, 16, 8.0],
-        "line-opacity": 0.95
-      }
-    });
+      // outline bianco
+      map.addLayer({
+        id: "runs-outline",
+        type: "line",
+        source: "runs",
+        filter: ["==", ["get","piste:type"], "downhill"],
+        paint: {
+          "line-color": "#ffffff",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 3.5, 12, 5.5, 14, 7.5, 16, 10.0],
+          "line-opacity": 0.55
+        }
+      });
 
-    setMsg("✅ 3D attivo (basemap CARTO). Se vedi rilievo, è ok. Ora puoi inclinare con 2 dita.");
-  }catch(e){
-    console.error(e);
-    setMsg("✅ 3D attivo. ⚠️ Piste non caricate (controlla sauze_doulx.geojson).");
-  }
-});
+      // colorate
+      map.addLayer({
+        id: "runs-colored",
+        type: "line",
+        source: "runs",
+        filter: ["==", ["get","piste:type"], "downhill"],
+        paint: {
+          "line-color": [
+            "case",
+            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["easy","novice","beginner","blue"]]], "#1f77b4",
+            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["intermediate","medium","red"]]], "#d62728",
+            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["advanced","expert","difficult","black"]]], "#000000",
+            "#7aa6d8"
+          ],
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 2.5, 12, 4.0, 14, 6.0, 16, 8.0],
+          "line-opacity": 0.95
+        }
+      });
 
-map.on("error", (e) => {
-  console.error("Map error", e?.error || e);
-  setMsg("⚠️ Errore mappa: spesso è CORS sulle tile. Questa versione usa tile CORS-OK. Se è ancora bianco: WebGL/accelerazione hardware.");
-});
+      setMsg("✅ 3D attivo! (MapLibre v2) • Prova a inclinare/ruotare con 2 dita.\nSe non vedi le piste, controlla che sauze_doulx.geojson sia nella stessa cartella di 3d.html.");
+    }catch(e){
+      console.error(e);
+      setMsg("⚠️ La mappa si è caricata ma qualcosa ha fallito:\n" + (e?.message || e));
+    }
+  });
 
-// slider esagerazione
-document.getElementById("ex").addEventListener("input", (e)=>{
-  const ex = Number(e.target.value) / 100;
-  map.setTerrain({ source: "terrainSource", exaggeration: ex });
-});
+  map.on("error", (e) => {
+    console.error("Map error:", e?.error || e);
+    const em = (e && e.error && e.error.message) ? e.error.message : "Errore sconosciuto";
+    setMsg("❌ Errore mappa:\n" + em + "\n\nTipico: accelerazione hardware OFF o blocco WebGL.");
+  });
+
+  // slider esagerazione
+  document.getElementById("ex").addEventListener("input", (e)=>{
+    const ex = Number(e.target.value) / 100;
+    try{
+      map.setTerrain({ source: "terrainSource", exaggeration: ex });
+    }catch(err){}
+  });
 </script>
 </body>
 </html>
