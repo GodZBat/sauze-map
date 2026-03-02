@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Sauze 3D</title>
 
-  <!-- ✅ MapLibre v2 (più compatibile) -->
   <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
 
   <style>
@@ -17,13 +16,10 @@
       padding:12px; border-radius:14px;
       box-shadow:0 8px 20px rgba(0,0,0,0.2);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      width:340px; max-width: calc(100% - 24px);
+      width:380px; max-width: calc(100% - 24px);
     }
     .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-    button{
-      border:0;border-radius:10px;padding:8px 10px;
-      font-weight:900;cursor:pointer;
-    }
+    button{border:0;border-radius:10px;padding:8px 10px;font-weight:900;cursor:pointer}
     .btn-dark{background:#111;color:#fff}
     .btn-light{background:#eee;color:#111}
     .small{font-size:12px;margin-top:8px;color:#333}
@@ -44,7 +40,6 @@
 
 <div class="panel">
   <div style="font-weight:1000;">🏔️ Sauze 3D</div>
-
   <div class="row">
     <button class="btn-dark" onclick="location.href='./'">↩︎ Torna 2D</button>
   </div>
@@ -52,24 +47,24 @@
   <div class="row">
     <button class="btn-light" id="btnMap">🗺️ Mappa</button>
     <button class="btn-dark" id="btnSat">🛰️ Satellite</button>
-    <button class="btn-light" id="btnLabels">🔤 Labels: ON</button>
   </div>
 
   <div class="small">Esagerazione rilievo</div>
   <input id="ex" type="range" min="50" max="300" value="140">
 
-  <div class="small">2 dita: inclina/ruota • Pinch: zoom</div>
+  <div class="small">Tip: clicca una pista per info • 2 dita: inclina/ruota</div>
 </div>
 
 <div class="msg" id="msg">Avvio…</div>
 
 <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
 <script>
-  const MAPTILER_KEY = "V4cfiMGV4duAg4RXf7FY"; // 🔑 <-- incolla qui la tua key
+  // 🔑 Incolla QUI la tua key MapTiler (quella che ti funzionava prima)
+  const MAPTILER_KEY = "PASTE_YOUR_MAPTILER_KEY_HERE";
+
   const msg = document.getElementById("msg");
   const setMsg = (t)=> msg.textContent = t;
 
-  // test WebGL (chiaro)
   function webglOk(){
     try{
       const c = document.createElement("canvas");
@@ -83,155 +78,300 @@
   }
 
   const CENTER = [6.86, 45.03];
+  const MAX_ZOOM_SAFE = 18;
 
-  const style = {
+  // ✅ Style “Mappa” (raster CARTO) – stabile
+  const cartoStyle = {
     version: 8,
     sources: {
-      // ✅ Mappa (CORS OK)
       carto: {
         type: "raster",
         tiles: ["https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"],
         tileSize: 256,
+        maxzoom: 19,
         attribution: "© OpenStreetMap contributors © CARTO"
-      },
-
-      // ✅ Satellite MapTiler (CORS OK con key)
-      sat: {
-        type: "raster",
-        tiles: [`https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`],
-        tileSize: 256,
-        attribution: "© MapTiler © OpenStreetMap contributors"
-      },
-
-      // ✅ Labels sopra il satellite (Hybrid)
-      // Se vuoi SOLO nomi e meno roba: possiamo cambiarlo dopo, ma questo funziona subito.
-      labels: {
-        type: "raster",
-        tiles: [`https://api.maptiler.com/tiles/hybrid/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`],
-        tileSize: 256
-      },
-
-      // ✅ DEM 3D (Terrarium)
-      terrainSource: {
-        type: "raster-dem",
-        tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
-        tileSize: 256,
-        encoding: "terrarium",
-        maxzoom: 14
       }
     },
     layers: [
-      // base mappa
-      { id: "base", type: "raster", source: "carto", layout: { visibility: "visible" } },
-
-      // satellite (inizialmente OFF)
-      { id: "satellite", type: "raster", source: "sat", layout: { visibility: "none" } },
-
-      // labels (inizialmente ON ma si vedono solo se satellite è ON)
-      { id: "labels", type: "raster", source: "labels", layout: { visibility: "visible" }, paint: { "raster-opacity": 1.0 } }
+      { id: "base", type: "raster", source: "carto" }
     ]
   };
 
+  // ✅ Style MapTiler (satellite) – come prima
+  const maptilerSatelliteStyleURL = `https://api.maptiler.com/maps/satellite/style.json?key=${MAPTILER_KEY}`;
+
+  // DEM terrarium
+  const TERRAIN_SOURCE_ID = "terrainSource";
+  const TERRAIN_TILES = ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"];
+
+  // GeoJSON piste
+  const RUNS_SOURCE_ID = "runs";
+  const RUNS_GEOJSON_URL = "./sauze_doulx.geojson";
+
   const map = new maplibregl.Map({
     container: "map",
-    style,
+    style: cartoStyle,
     center: CENTER,
     zoom: 12.2,
     pitch: 65,
     bearing: -20,
-    antialias: true
+    antialias: true,
+    maxZoom: MAX_ZOOM_SAFE
   });
 
   map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
 
-  // UI state
-  let labelsOn = true;
+  // -------------------------
+  // Lunghezza pista: tag o calcolo
+  // -------------------------
+  function parseLengthToMeters(val){
+    if(val === undefined || val === null) return null;
 
-  function showMap(){
-    map.setLayoutProperty("base", "visibility", "visible");
-    map.setLayoutProperty("satellite", "visibility", "none");
-    // labels restano “ON”, ma se non c'è satellite sotto non danno fastidio
-    setMsg("✅ Modalità: Mappa 3D (CARTO)");
-  }
-
-  function showSatellite(){
-    map.setLayoutProperty("base", "visibility", "none");
-    map.setLayoutProperty("satellite", "visibility", "visible");
-    // labels sopra satellite (se ON)
-    map.setLayoutProperty("labels", "visibility", labelsOn ? "visible" : "none");
-    setMsg("✅ Modalità: Satellite 3D (MapTiler) " + (labelsOn ? "+ Labels" : ""));
-  }
-
-  function toggleLabels(){
-    labelsOn = !labelsOn;
-    document.getElementById("btnLabels").textContent = "🔤 Labels: " + (labelsOn ? "ON" : "OFF");
-    // mostrale solo se satellite è visibile
-    const satVisible = (map.getLayoutProperty("satellite", "visibility") !== "none");
-    map.setLayoutProperty("labels", (labelsOn && satVisible) ? "visible" : "none");
-    setMsg("✅ Labels: " + (labelsOn ? "ON" : "OFF"));
-  }
-
-  document.getElementById("btnMap").onclick = showMap;
-  document.getElementById("btnSat").onclick = showSatellite;
-  document.getElementById("btnLabels").onclick = toggleLabels;
-
-  map.on("load", () => {
-    try{
-      // 3D terrain ON
-      map.setTerrain({ source: "terrainSource", exaggeration: 1.4 });
-
-      // carica piste
-      map.addSource("runs", { type:"geojson", data:"./sauze_doulx.geojson" });
-
-      // outline bianco sotto
-      map.addLayer({
-        id: "runs-outline",
-        type: "line",
-        source: "runs",
-        filter: ["==", ["get","piste:type"], "downhill"],
-        paint: {
-          "line-color": "#ffffff",
-          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 3.5, 12, 5.5, 14, 7.5, 16, 10.0],
-          "line-opacity": 0.55
-        }
-      });
-
-      // piste colorate
-      map.addLayer({
-        id: "runs-colored",
-        type: "line",
-        source: "runs",
-        filter: ["==", ["get","piste:type"], "downhill"],
-        paint: {
-          "line-color": [
-            "case",
-            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["easy","novice","beginner","blue"]]], "#1f77b4",
-            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["intermediate","medium","red"]]], "#d62728",
-            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["advanced","expert","difficult","black"]]], "#000000",
-            "#7aa6d8"
-          ],
-          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 2.5, 12, 4.0, 14, 6.0, 16, 8.0],
-          "line-opacity": 0.95
-        }
-      });
-
-      setMsg("✅ 3D pronto. Premi “Satellite” per passare alla vista satellitare.");
-    }catch(e){
-      console.error(e);
-      setMsg("⚠️ Mappa OK, ma errore nel caricare piste/terrain:\n" + (e?.message || e));
+    if(typeof val === "number" && isFinite(val)){
+      if(val <= 50) return val * 1000;  // probabile km
+      return val;                       // probabile metri
     }
+    const s = String(val).trim().toLowerCase();
+    if(!s) return null;
+
+    const m = s.match(/([0-9]+([.,][0-9]+)?)/);
+    if(!m) return null;
+    const num = Number(m[1].replace(",", "."));
+    if(!isFinite(num)) return null;
+
+    if(s.includes("km")) return num * 1000;
+    if(s.includes("m")) return num;
+
+    if(num <= 50) return num * 1000;
+    return num;
+  }
+
+  function haversineMeters(lon1, lat1, lon2, lat2){
+    const R = 6371000;
+    const toRad = (d)=> d * Math.PI / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat/2)**2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(a)));
+  }
+
+  function lineCoordsLengthMeters(coords){
+    let total = 0;
+    for(let i=1;i<coords.length;i++){
+      const [lon1, lat1] = coords[i-1];
+      const [lon2, lat2] = coords[i];
+      total += haversineMeters(lon1, lat1, lon2, lat2);
+    }
+    return total;
+  }
+
+  function geometryLengthMeters(geom){
+    if(!geom) return null;
+    if(geom.type === "LineString") return lineCoordsLengthMeters(geom.coordinates || []);
+    if(geom.type === "MultiLineString"){
+      let total = 0;
+      for(const line of (geom.coordinates || [])) total += lineCoordsLengthMeters(line || []);
+      return total;
+    }
+    return null;
+  }
+
+  function formatMeters(m){
+    if(m === null || !isFinite(m)) return "—";
+    if(m >= 1000) return `${(m/1000).toFixed(2)} km`;
+    return `${Math.round(m)} m`;
+  }
+
+  // -------------------------
+  // Popup click piste
+  // -------------------------
+  let runPopup = null;
+
+  function pistaPopupHtml(feature){
+    const props = feature?.properties || {};
+    const name = (props.name || props.ref || "Pista");
+    const diff = (props["piste:difficulty"] || "—");
+
+    const fromTag =
+      parseLengthToMeters(props["piste:length"]) ??
+      parseLengthToMeters(props.length) ??
+      null;
+
+    const fromGeom = (fromTag === null) ? geometryLengthMeters(feature?.geometry) : null;
+    const meters = (fromTag !== null) ? fromTag : fromGeom;
+
+    return `
+      <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; min-width:220px">
+        🎿 <b>${name}</b><br>
+        ⚑ Difficoltà: <b>${diff}</b><br>
+        📏 Lunghezza: <b>${formatMeters(meters)}</b>
+      </div>
+    `;
+  }
+
+  function showRunPopup(lngLat, feature){
+    if(runPopup) runPopup.remove();
+    runPopup = new maplibregl.Popup({ closeButton:true, closeOnClick:true })
+      .setLngLat(lngLat)
+      .setHTML(pistaPopupHtml(feature))
+      .addTo(map);
+  }
+
+  function bindRunsInteraction(){
+    const layerId = "runs-colored";
+    if(!map.getLayer(layerId)) return;
+
+    // evita duplicati dopo setStyle
+    map.off("mouseenter", layerId, onEnterRuns);
+    map.off("mouseleave", layerId, onLeaveRuns);
+    map.off("click", layerId, onClickRuns);
+
+    map.on("mouseenter", layerId, onEnterRuns);
+    map.on("mouseleave", layerId, onLeaveRuns);
+    map.on("click", layerId, onClickRuns);
+  }
+
+  function onEnterRuns(){ map.getCanvas().style.cursor = "pointer"; }
+  function onLeaveRuns(){ map.getCanvas().style.cursor = ""; }
+  function onClickRuns(e){
+    const f = e.features && e.features[0];
+    if(!f) return;
+    showRunPopup(e.lngLat, f);
+  }
+
+  // -------------------------
+  // Riaggiunge terrain + piste (dopo ogni cambio stile)
+  // -------------------------
+  const exSlider = document.getElementById("ex");
+  function currentExaggeration(){ return Number(exSlider.value)/100; }
+
+  async function ensureTerrainAndRuns(){
+    // Terrain
+    if(!map.getSource(TERRAIN_SOURCE_ID)){
+      map.addSource(TERRAIN_SOURCE_ID, {
+        type: "raster-dem",
+        tiles: TERRAIN_TILES,
+        tileSize: 256,
+        encoding: "terrarium",
+        maxzoom: 14
+      });
+    }
+    try{
+      map.setTerrain({ source: TERRAIN_SOURCE_ID, exaggeration: currentExaggeration() });
+    }catch(e){}
+
+    // Runs source
+    if(!map.getSource(RUNS_SOURCE_ID)){
+      map.addSource(RUNS_SOURCE_ID, { type:"geojson", data: RUNS_GEOJSON_URL });
+    }
+
+    // rimuovi layer se già presenti
+    ["runs-outline","runs-colored"].forEach(id => {
+      if(map.getLayer(id)) map.removeLayer(id);
+    });
+
+    // filtro robusto: mostra piste anche se manca piste:type
+    const runsFilter = ["any",
+      ["==", ["get","piste:type"], "downhill"],
+      ["==", ["get","piste:type"], "alpine"],
+      ["!has", "piste:type"]
+    ];
+
+    // outline
+    map.addLayer({
+      id: "runs-outline",
+      type: "line",
+      source: RUNS_SOURCE_ID,
+      filter: runsFilter,
+      paint: {
+        "line-color": "#ffffff",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 3.5, 12, 5.5, 14, 7.5, 16, 10.0],
+        "line-opacity": 0.55
+      }
+    });
+
+    // colorate
+    map.addLayer({
+      id: "runs-colored",
+      type: "line",
+      source: RUNS_SOURCE_ID,
+      filter: runsFilter,
+      paint: {
+        "line-color": [
+          "case",
+          ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["easy","novice","beginner","blue"]]], "#1f77b4",
+          ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["intermediate","medium","red"]]], "#d62728",
+          ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["advanced","expert","difficult","black"]]], "#000000",
+          "#7aa6d8"
+        ],
+        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 2.5, 12, 4.0, 14, 6.0, 16, 8.0],
+        "line-opacity": 0.95
+      }
+    });
+
+    // click handler
+    bindRunsInteraction();
+  }
+
+  // ✅ QUESTA è la parte critica: aspettiamo style.load (non idle)
+  function waitForStyleLoad(){
+    return new Promise(resolve => {
+      const done = () => resolve();
+      map.once("style.load", done);
+    });
+  }
+
+  async function setMapMode(){
+    map.__mode = "map";
+    setMsg("⏳ Carico Mappa…");
+    map.setStyle(cartoStyle);
+    await waitForStyleLoad();
+    await ensureTerrainAndRuns();
+    setMsg("✅ Modalità: Mappa 3D (clicca una pista)");
+  }
+
+  async function setSatelliteMode(){
+    map.__mode = "satellite";
+    setMsg("⏳ Carico Satellite…");
+    map.setStyle(maptilerSatelliteStyleURL);
+    await waitForStyleLoad();
+    await ensureTerrainAndRuns();
+    setMsg("✅ Modalità: Satellite 3D (clicca una pista)");
+  }
+
+  document.getElementById("btnMap").onclick = () => setMapMode();
+  document.getElementById("btnSat").onclick = () => setSatelliteMode();
+
+  exSlider.addEventListener("input", () => {
+    try { map.setTerrain({ source: TERRAIN_SOURCE_ID, exaggeration: currentExaggeration() }); } catch(e){}
   });
 
+  // error handling: ignora errori tile non fatali
+  function shouldIgnoreErrorMessage(m){
+    const s = String(m||"").toLowerCase();
+    if (s.includes("failed to fetch")) return true;
+    if (s.includes("404")) return true;
+    if (s.includes("tile")) return true;
+    return false;
+  }
+  let lastHardErrorAt = 0;
   map.on("error", (e) => {
+    const em = (e && e.error && e.error.message) ? e.error.message : (e?.message || "");
     console.error("Map error:", e?.error || e);
-    const em = (e && e.error && e.error.message) ? e.error.message : "Errore sconosciuto";
-    setMsg("GODITI LE PISTE!");
+    if (shouldIgnoreErrorMessage(em)) return;
+
+    const now = Date.now();
+    if(now - lastHardErrorAt < 3000) return;
+    lastHardErrorAt = now;
+
+    setMsg("❌ Errore mappa:\n" + em);
   });
 
-  // slider esagerazione
-  document.getElementById("ex").addEventListener("input", (e)=>{
-    const ex = Number(e.target.value) / 100;
-    try{ map.setTerrain({ source: "terrainSource", exaggeration: ex }); }catch(err){}
+  // avvio
+  map.on("load", async () => {
+    await ensureTerrainAndRuns();
+    setMsg("✅ 3D pronto. Premi “Satellite” per la vista satellitare. Clicca una pista per info.");
   });
 </script>
 </body>
