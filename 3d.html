@@ -1,41 +1,41 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Sauze 3D</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Sauze 3D</title>
 
-  <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
+<link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
 
-  <style>
-    html,body{margin:0;height:100%}
-    #map{height:100%; background:#0b1220;}
-    .panel{
-      position:absolute; left:12px; top:12px; z-index:10;
-      background:rgba(255,255,255,0.95);
-      padding:12px; border-radius:14px;
-      box-shadow:0 8px 20px rgba(0,0,0,0.2);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      width:340px; max-width: calc(100% - 24px);
-    }
-    .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-    button{
-      border:0;border-radius:10px;padding:8px 10px;
-      font-weight:900;cursor:pointer;
-    }
-    .btn-dark{background:#111;color:#fff}
-    .btn-light{background:#eee;color:#111}
-    .small{font-size:12px;margin-top:8px;color:#333}
-    input[type="range"]{width:100%}
-    .msg{
-      position:absolute; left:12px; right:12px; bottom:12px; z-index:20;
-      background:rgba(0,0,0,0.78); color:#fff;
-      padding:10px 12px; border-radius:14px;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      font-size:13px; line-height:1.3;
-      white-space:pre-wrap;
-    }
-  </style>
+<style>
+html,body{margin:0;height:100%}
+#map{height:100%; background:#0b1220;}
+.panel{
+  position:absolute; left:12px; top:12px; z-index:10;
+  background:rgba(255,255,255,0.95);
+  padding:12px; border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.2);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  width:340px; max-width: calc(100% - 24px);
+}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{
+  border:0;border-radius:10px;padding:8px 10px;
+  font-weight:900;cursor:pointer;
+}
+.btn-dark{background:#111;color:#fff}
+.btn-light{background:#eee;color:#111}
+.small{font-size:12px;margin-top:8px;color:#333}
+input[type="range"]{width:100%}
+.msg{
+  position:absolute; left:12px; right:12px; bottom:12px; z-index:20;
+  background:rgba(0,0,0,0.78); color:#fff;
+  padding:10px 12px; border-radius:14px;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  font-size:13px; line-height:1.3;
+  white-space:pre-wrap;
+}
+</style>
 </head>
 <body>
 
@@ -64,173 +64,143 @@
 
 <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
 <script>
-  const MAPTILER_KEY = "ORUgXv14fwE911CA6MdX"; // 🔑 <-- incolla qui la tua key
-  const msg = document.getElementById("msg");
-  const setMsg = (t)=> msg.textContent = t;
 
-  function webglOk(){
-    try{
-      const c = document.createElement("canvas");
-      const gl = c.getContext("webgl") || c.getContext("experimental-webgl");
-      return !!gl;
-    }catch(e){ return false; }
-  }
-  if(!webglOk()){
-    setMsg("❌ WebGL non disponibile. Abilita accelerazione hardware o prova un altro browser.");
-    throw new Error("WebGL not available");
-  }
+const MAPTILER_KEY = "INSERISCI_LA_TUA_KEY";  // 🔑 metti qui la tua key
 
-  const CENTER = [6.86, 45.03];
+const msg = document.getElementById("msg");
+const setMsg = (t)=> msg.textContent = t;
 
-  const style = {
-    version: 8,
-    sources: {
-      // ✅ Mappa (CORS OK)
-      carto: {
-        type: "raster",
-        tiles: ["https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"],
-        tileSize: 256,
-        attribution: "© OpenStreetMap contributors © CARTO"
-      },
+const CENTER = [6.86, 45.03];
 
-      // ✅ Satellite MapTiler (fix: satellite-v2)
-      sat: {
-        type: "raster",
-        tiles: [`https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`],
-        tileSize: 256,
-        attribution: "© MapTiler © OpenStreetMap contributors"
-      },
+const style = {
+  version: 8,
+  sources: {
 
-      // ✅ Labels sopra satellite (fix: Maps API hybrid)
-      labels: {
-        type: "raster",
-        tiles: [`https://api.maptiler.com/tiles/hybrid/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`],
-        tileSize: 256
-      }
-
-      // ✅ DEM 3D (Terrarium)
-      terrainSource: {
-        type: "raster-dem",
-        tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
-        tileSize: 256,
-        encoding: "terrarium",
-        maxzoom: 14
-      }
+    carto: {
+      type: "raster",
+      tiles: ["https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      attribution: "© OpenStreetMap contributors © CARTO"
     },
-    layers: [
-      // base mappa
-      { id: "base", type: "raster", source: "carto", layout: { visibility: "visible" } },
 
-      // satellite (inizialmente OFF)
-      { id: "satellite", type: "raster", source: "sat", layout: { visibility: "none" } },
+    sat: {
+      type: "raster",
+      tiles: [`https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`],
+      tileSize: 256,
+      attribution: "© MapTiler © OpenStreetMap contributors"
+    },
 
-      // labels (inizialmente OFF: le accendiamo solo in modalità satellite)
-      { id: "labels", type: "raster", source: "labels", layout: { visibility: "none" }, paint: { "raster-opacity": 1.0 } }
-    ]
-  };
+    labels: {
+      type: "raster",
+      tiles: [`https://api.maptiler.com/tiles/hybrid/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`],
+      tileSize: 256
+    },
 
-  const map = new maplibregl.Map({
-    container: "map",
-    style,
-    center: CENTER,
-    zoom: 12.2,
-    pitch: 65,
-    bearing: -20,
-    antialias: true
-  });
+    terrainSource: {
+      type: "raster-dem",
+      tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      encoding: "terrarium",
+      maxzoom: 14
+    }
+  },
 
-  map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
+  layers: [
+    { id: "base", type: "raster", source: "carto", layout: { visibility: "visible" } },
+    { id: "satellite", type: "raster", source: "sat", layout: { visibility: "none" } },
+    { id: "labels", type: "raster", source: "labels", layout: { visibility: "none" } }
+  ]
+};
 
-  // UI state
-  let labelsOn = true;
+const map = new maplibregl.Map({
+  container: "map",
+  style,
+  center: CENTER,
+  zoom: 12.2,
+  pitch: 65,
+  bearing: -20,
+  antialias: true
+});
 
-  function showMap(){
-    map.setLayoutProperty("base", "visibility", "visible");
-    map.setLayoutProperty("satellite", "visibility", "none");
-    map.setLayoutProperty("labels", "visibility", "none"); // ✅ fix: non lasciare labels in mappa
-    setMsg("✅ Modalità: Mappa 3D (CARTO)");
-  }
+map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
 
-  function showSatellite(){
-    map.setLayoutProperty("base", "visibility", "none");
-    map.setLayoutProperty("satellite", "visibility", "visible");
-    map.setLayoutProperty("labels", "visibility", labelsOn ? "visible" : "none");
-    setMsg("✅ Modalità: Satellite 3D (MapTiler) " + (labelsOn ? "+ Labels" : ""));
-  }
+let labelsOn = true;
 
-  function toggleLabels(){
-    labelsOn = !labelsOn;
-    document.getElementById("btnLabels").textContent = "🔤 Labels: " + (labelsOn ? "ON" : "OFF");
+function showMap(){
+  map.setLayoutProperty("base", "visible");
+  map.setLayoutProperty("satellite", "none");
+  map.setLayoutProperty("labels", "none");
+  setMsg("✅ Modalità: Mappa 3D");
+}
 
-    const satVisible = (map.getLayoutProperty("satellite", "visibility") !== "none");
-    map.setLayoutProperty("labels", (labelsOn && satVisible) ? "visible" : "none");
+function showSatellite(){
+  map.setLayoutProperty("base", "none");
+  map.setLayoutProperty("satellite", "visible");
+  map.setLayoutProperty("labels", labelsOn ? "visible" : "none");
+  setMsg("✅ Modalità: Satellite 3D");
+}
 
-    setMsg("✅ Labels: " + (labelsOn ? "ON" : "OFF"));
-  }
+function toggleLabels(){
+  labelsOn = !labelsOn;
+  document.getElementById("btnLabels").textContent =
+    "🔤 Labels: " + (labelsOn ? "ON" : "OFF");
 
-  document.getElementById("btnMap").onclick = showMap;
-  document.getElementById("btnSat").onclick = showSatellite;
-  document.getElementById("btnLabels").onclick = toggleLabels;
+  const satVisible = map.getLayoutProperty("satellite", "visibility") !== "none";
+  map.setLayoutProperty("labels", (labelsOn && satVisible) ? "visible" : "none");
+}
 
-  map.on("load", () => {
-    try{
-      // 3D terrain ON
-      map.setTerrain({ source: "terrainSource", exaggeration: 1.4 });
+document.getElementById("btnMap").onclick = showMap;
+document.getElementById("btnSat").onclick = showSatellite;
+document.getElementById("btnLabels").onclick = toggleLabels;
 
-      // carica piste
-      map.addSource("runs", { type:"geojson", data:"./sauze_doulx.geojson" });
+map.on("load", () => {
 
-      // outline bianco sotto
-      map.addLayer({
-        id: "runs-outline",
-        type: "line",
-        source: "runs",
-        filter: ["==", ["get","piste:type"], "downhill"],
-        paint: {
-          "line-color": "#ffffff",
-          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 3.5, 12, 5.5, 14, 7.5, 16, 10.0],
-          "line-opacity": 0.55
-        }
-      });
+  map.setTerrain({ source: "terrainSource", exaggeration: 1.4 });
 
-      // piste colorate
-      map.addLayer({
-        id: "runs-colored",
-        type: "line",
-        source: "runs",
-        filter: ["==", ["get","piste:type"], "downhill"],
-        paint: {
-          "line-color": [
-            "case",
-            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["easy","novice","beginner","blue"]]], "#1f77b4",
-            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["intermediate","medium","red"]]], "#d62728",
-            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["advanced","expert","difficult","black"]]], "#000000",
-            "#7aa6d8"
-          ],
-          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 2.5, 12, 4.0, 14, 6.0, 16, 8.0],
-          "line-opacity": 0.95
-        }
-      });
+  map.addSource("runs", { type:"geojson", data:"./sauze_doulx.geojson" });
 
-      setMsg("✅ 3D pronto. Premi “Satellite” per passare alla vista satellitare.");
-    }catch(e){
-      console.error(e);
-      setMsg("⚠️ Mappa OK, ma errore nel caricare piste/terrain:\n" + (e?.message || e));
+  map.addLayer({
+    id: "runs-outline",
+    type: "line",
+    source: "runs",
+    filter: ["==", ["get","piste:type"], "downhill"],
+    paint: {
+      "line-color": "#ffffff",
+      "line-width": 6,
+      "line-opacity": 0.5
     }
   });
 
-  // ✅ fix: mostra l'errore vero (utile se key/quota/404)
-  map.on("error", (e) => {
-    const err = e?.error;
-    console.error("Map error:", err || e);
-    setMsg("❌ Errore tiles/style:\n" + (err?.message || JSON.stringify(err) || "sconosciuto"));
+  map.addLayer({
+    id: "runs-colored",
+    type: "line",
+    source: "runs",
+    filter: ["==", ["get","piste:type"], "downhill"],
+    paint: {
+      "line-color": [
+        "case",
+        ["in", ["get","piste:difficulty"], ["literal", ["easy","blue"]]], "#1f77b4",
+        ["in", ["get","piste:difficulty"], ["literal", ["intermediate","red"]]], "#d62728",
+        ["in", ["get","piste:difficulty"], ["literal", ["advanced","black"]]], "#000000",
+        "#7aa6d8"
+      ],
+      "line-width": 4
+    }
   });
 
-  // slider esagerazione
-  document.getElementById("ex").addEventListener("input", (e)=>{
-    const ex = Number(e.target.value) / 100;
-    try{ map.setTerrain({ source: "terrainSource", exaggeration: ex }); }catch(err){}
-  });
+  setMsg("✅ 3D pronto. Premi Satellite.");
+});
+
+map.on("error", (e)=>{
+  console.error(e);
+  setMsg("❌ Errore MapTiler:\n" + (e?.error?.message || "Controlla API key / domini"));
+});
+
+document.getElementById("ex").addEventListener("input",(e)=>{
+  const ex = Number(e.target.value)/100;
+  map.setTerrain({ source: "terrainSource", exaggeration: ex });
+});
+
 </script>
 </body>
 </html>
