@@ -104,9 +104,9 @@
       // ✅ Labels sopra satellite (fix: Maps API hybrid)
       labels: {
         type: "raster",
-        tiles: [`https://api.maptiler.com/maps/hybrid/256/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`],
+        tiles: [`https://api.maptiler.com/tiles/hybrid/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`],
         tileSize: 256
-      },
+      }
 
       // ✅ DEM 3D (Terrarium)
       terrainSource: {
