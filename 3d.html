@@ -8,8 +8,9 @@
   <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
 
   <style>
-    html,body{margin:0;height:100%}
-    #map{height:100%; background:#0b1220;}
+    html, body { margin:0; height:100% }
+    #map { height:100%; background:#0b1220; }
+
     .panel{
       position:absolute; left:12px; top:12px; z-index:10;
       background:rgba(255,255,255,0.95);
@@ -18,15 +19,19 @@
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
       width:340px; max-width: calc(100% - 24px);
     }
-    .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+    .row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
+
     button{
-      border:0;border-radius:10px;padding:8px 10px;
-      font-weight:900;cursor:pointer;
+      border:0; border-radius:10px; padding:8px 10px;
+      font-weight:900; cursor:pointer;
     }
-    .btn-dark{background:#111;color:#fff}
-    .btn-light{background:#eee;color:#111}
-    .small{font-size:12px;margin-top:8px;color:#333}
-    input[type="range"]{width:100%}
+
+    .btn-dark{ background:#111; color:#fff }
+    .btn-light{ background:#eee; color:#111 }
+    .small{ font-size:12px; margin-top:8px; color:#333 }
+    input[type="range"]{ width:100% }
+
     .msg{
       position:absolute; left:12px; right:12px; bottom:12px; z-index:20;
       background:rgba(0,0,0,0.78); color:#fff;
@@ -37,6 +42,7 @@
     }
   </style>
 </head>
+
 <body>
 
 <div id="map"></div>
@@ -64,230 +70,177 @@
 
 <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
 <script>
-  // 🔑 INSERISCI QUI LA TUA KEY MAPTILER
-  const MAPTILER_KEY = "ORUgXv14fwE911CA6MdX";
+const MAPTILER_KEY = "ORUgXv14fwE911CA6MdX";
 
-  const msg = document.getElementById("msg");
-  const setMsg = (t)=> msg.textContent = t;
+const msg = document.getElementById("msg");
+const setMsg = (t) => msg.textContent = t;
 
-  const CENTER = [6.86, 45.03];
+const CENTER = [6.86, 45.03];
 
-  // --- Helpers per popup (nome/difficoltà) ---
-  function runNameFromProps(p){
-    // prova vari campi comuni; se il tuo geojson usa altro, dimmelo e lo cambio
-    return p?.name || p?.["piste:name"] || p?.ref || p?.["piste:ref"] || p?.["piste:ref:name"] || "Pista";
-  }
-  function runDifficultyFromProps(p){
-    return p?.["piste:difficulty"] || p?.difficulty || "";
-  }
-  function runColorFromDifficulty(diffRaw){
-    const d = String(diffRaw || "").toLowerCase();
-    if (["easy","novice","beginner","blue"].includes(d)) return "#1f77b4";
-    if (["intermediate","medium","red"].includes(d)) return "#d62728";
-    if (["advanced","expert","difficult","black"].includes(d)) return "#000000";
-    return "#7aa6d8";
-  }
+function runNameFromProps(p){
+  return p?.name || p?.["piste:name"] || p?.ref ||
+         p?.["piste:ref"] || p?.["piste:ref:name"] || "Pista";
+}
 
-  // Popup riutilizzabile
-  const popup = new maplibregl.Popup({
-    closeButton: true,
-    closeOnClick: true,
-    maxWidth: "280px"
-  });
+function runDifficultyFromProps(p){
+  return p?.["piste:difficulty"] || p?.difficulty || "";
+}
 
-  // Style base
-  const style = {
-    version: 8,
-    sources: {
-      carto: {
-        type: "raster",
-        tiles: ["https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"],
-        tileSize: 256,
-        attribution: "© OpenStreetMap contributors © CARTO"
-      },
-      sat: {
-        type: "raster",
-        tiles: [`https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`],
-        tileSize: 256,
-        attribution: "© MapTiler © OpenStreetMap contributors"
-      },
-      labels: {
-        type: "raster",
-        tiles: [`https://api.maptiler.com/tiles/hybrid/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`],
-        tileSize: 256
-      },
-      terrainSource: {
-        type: "raster-dem",
-        tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
-        tileSize: 256,
-        encoding: "terrarium",
-        maxzoom: 14
-      }
+function runColorFromDifficulty(diffRaw){
+  const d = String(diffRaw || "").toLowerCase();
+  if (["easy","novice","beginner","blue"].includes(d)) return "#1f77b4";
+  if (["intermediate","medium","red"].includes(d)) return "#d62728";
+  if (["advanced","expert","difficult","black"].includes(d)) return "#000000";
+  return "#7aa6d8";
+}
+
+const popup = new maplibregl.Popup({
+  closeButton: true,
+  closeOnClick: true,
+  maxWidth: "280px"
+});
+
+const style = {
+  version: 8,
+  sources: {
+    carto: {
+      type: "raster",
+      tiles: ["https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"],
+      tileSize: 256
     },
-    layers: [
-      { id: "base", type: "raster", source: "carto", layout: { visibility: "visible" } },
-      { id: "satellite", type: "raster", source: "sat", layout: { visibility: "none" } },
-      { id: "labels", type: "raster", source: "labels", layout: { visibility: "none" } }
-    ]
-  };
-
-  const map = new maplibregl.Map({
-    container: "map",
-    style,
-    center: CENTER,
-    zoom: 12.2,
-    pitch: 65,
-    bearing: -20,
-    antialias: true
-  });
-
-  map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
-
-  // UI state
-  let labelsOn = true;
-  let selectedRunId = null;
-
-  function showMap(){
-    map.setLayoutProperty("base", "visibility", "visible");
-    map.setLayoutProperty("satellite", "visibility", "none");
-    map.setLayoutProperty("labels", "visibility", "none");
-    setMsg("✅ Modalità: Mappa 3D (CARTO)");
-  }
-
-  function showSatellite(){
-    map.setLayoutProperty("base", "visibility", "none");
-    map.setLayoutProperty("satellite", "visibility", "visible");
-    map.setLayoutProperty("labels", "visibility", labelsOn ? "visible" : "none");
-    setMsg("✅ Modalità: Satellite 3D (MapTiler)" + (labelsOn ? " + Labels" : ""));
-  }
-
-  function toggleLabels(){
-    labelsOn = !labelsOn;
-    document.getElementById("btnLabels").textContent = "🔤 Labels: " + (labelsOn ? "ON" : "OFF");
-
-    const satVisible = map.getLayoutProperty("satellite", "visibility") !== "none";
-    map.setLayoutProperty("labels", "visibility", (labelsOn && satVisible) ? "visible" : "none");
-    setMsg("✅ Labels: " + (labelsOn ? "ON" : "OFF"));
-  }
-
-  document.getElementById("btnMap").addEventListener("click", showMap);
-  document.getElementById("btnSat").addEventListener("click", showSatellite);
-  document.getElementById("btnLabels").addEventListener("click", toggleLabels);
-
-  map.on("load", () => {
-    try{
-      // Terrain
-      map.setTerrain({ source: "terrainSource", exaggeration: 1.4 });
-
-      // GeoJSON piste
-      map.addSource("runs", {
-        type: "geojson",
-        data: "./sauze_doulx.geojson"
-        // Se in futuro vuoi highlight sempre perfetto:
-        // aggiungi promoteId: "id" se nel tuo geojson esiste una property id unica
-      });
-
-      // Outline
-      map.addLayer({
-        id: "runs-outline",
-        type: "line",
-        source: "runs",
-        filter: ["==", ["get","piste:type"], "downhill"],
-        paint: {
-          "line-color": "#ffffff",
-          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 3.5, 12, 5.5, 14, 7.5, 16, 10.0],
-          "line-opacity": 0.55
-        }
-      });
-
-      // Piste colorate
-      map.addLayer({
-        id: "runs-colored",
-        type: "line",
-        source: "runs",
-        filter: ["==", ["get","piste:type"], "downhill"],
-        paint: {
-          "line-color": [
-            "case",
-            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["easy","novice","beginner","blue"]]], "#1f77b4",
-            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["intermediate","medium","red"]]], "#d62728",
-            ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal", ["advanced","expert","difficult","black"]]], "#000000",
-            "#7aa6d8"
-          ],
-          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 2.5, 12, 4.0, 14, 6.0, 16, 8.0],
-          "line-opacity": 0.95
-        }
-      });
-
-      // Layer highlight (si attiva solo se la feature ha un id usabile)
-      map.addLayer({
-        id: "runs-selected",
-        type: "line",
-        source: "runs",
-        filter: ["==", ["id"], "__none__"],
-        paint: {
-          "line-color": "#ffff00",
-          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 5, 12, 7, 14, 9, 16, 12],
-          "line-opacity": 0.95
-        }
-      });
-
-      // Cursor pointer sulle piste
-      map.on("mouseenter", "runs-colored", () => { map.getCanvas().style.cursor = "pointer"; });
-      map.on("mouseleave", "runs-colored", () => { map.getCanvas().style.cursor = ""; });
-
-      // Click su pista: popup + highlight + msg
-      map.on("click", "runs-colored", (e) => {
-        const f = e.features && e.features[0];
-        if (!f) return;
-
-        const p = f.properties || {};
-        const nome = runNameFromProps(p);
-        const diff = runDifficultyFromProps(p);
-        const col = runColorFromDifficulty(diff);
-
-        // prova a ricavare un id stabile per highlight
-        const fid =
-          (f.id !== undefined && f.id !== null) ? f.id :
-          (p.id ?? p.osm_id ?? p["@id"] ?? p["piste:ref"] ?? null);
-
-        if (fid !== null) {
-          selectedRunId = fid;
-          map.setFilter("runs-selected", ["==", ["id"], selectedRunId]);
-        } else {
-          // niente id => niente highlight (ma popup ok)
-          map.setFilter("runs-selected", ["==", ["id"], "__none__"]);
-        }
-
-        const html = `
-          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
-            <div style="font-weight:900;font-size:14px;margin-bottom:4px;">${nome}</div>
-            ${diff ? `<div style="font-size:12px;">Difficoltà: <span style="font-weight:800;color:${col}">${diff}</span></div>` : ``}
-          </div>
-        `;
-
-        popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
-        setMsg(`🎿 ${nome}${diff ? " • " + diff : ""}`);
-      });
-
-      setMsg("✅ 3D pronto. Clicca una pista per vederne il nome.");
-    }catch(e){
-      console.error(e);
-      setMsg("⚠️ Errore nel caricare piste/terrain:\n" + (e?.message || e));
+    sat: {
+      type: "raster",
+      tiles: [`https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`],
+      tileSize: 256
+    },
+    labels: {
+      type: "raster",
+      tiles: [`https://api.maptiler.com/tiles/hybrid/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`],
+      tileSize: 256
+    },
+    terrainSource: {
+      type: "raster-dem",
+      tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      encoding: "terrarium",
+      maxzoom: 14
     }
-  });
+  },
+  layers: [
+    { id:"base", type:"raster", source:"carto", layout:{ visibility:"visible" }},
+    { id:"satellite", type:"raster", source:"sat", layout:{ visibility:"none" }},
+    { id:"labels", type:"raster", source:"labels", layout:{ visibility:"none" }}
+  ]
+};
 
-  map.on("error", (e) => {
-    const err = e?.error;
-    console.error("Map error:", err || e);
-    setMsg("❌ Errore tiles/style:\n" + (err?.message || "Controlla API key / domini / quota"));
-  });
+const map = new maplibregl.Map({
+  container:"map",
+  style,
+  center:CENTER,
+  zoom:12.2,
+  pitch:65,
+  bearing:-20,
+  antialias:true
+});
 
-  // Slider esagerazione rilievo
-  document.getElementById("ex").addEventListener("input", (e)=>{
-    const ex = Number(e.target.value) / 100;
-    try{ map.setTerrain({ source: "terrainSource", exaggeration: ex }); }catch(_){}
-  });
+map.addControl(new maplibregl.NavigationControl({ visualizePitch:true }), "top-right");
+
+map.on("load", () => {
+  try {
+
+    map.setTerrain({ source:"terrainSource", exaggeration:1.4 });
+
+    map.addSource("runs", {
+      type:"geojson",
+      data:"./sauze_doulx.geojson"
+    });
+
+    map.addLayer({
+      id:"runs-outline",
+      type:"line",
+      source:"runs",
+      filter:["==",["get","piste:type"],"downhill"],
+      paint:{
+        "line-color":"#ffffff",
+        "line-width":["interpolate",["linear"],["zoom"],10,3.5,12,5.5,14,7.5,16,10.0],
+        "line-opacity":0.55
+      }
+    });
+
+    map.addLayer({
+      id:"runs-colored",
+      type:"line",
+      source:"runs",
+      filter:["==",["get","piste:type"],"downhill"],
+      paint:{
+        "line-color":[
+          "case",
+          ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["easy","novice","beginner","blue"]]],"#1f77b4",
+          ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["intermediate","medium","red"]]],"#d62728",
+          ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["advanced","expert","difficult","black"]]],"#000000",
+          "#7aa6d8"
+        ],
+        "line-width":["interpolate",["linear"],["zoom"],10,2.5,12,4.0,14,6.0,16,8.0],
+        "line-opacity":0.95
+      }
+    });
+
+    map.addLayer({
+      id:"runs-selected",
+      type:"line",
+      source:"runs",
+      filter:["==",["id"],"__none__"],
+      paint:{
+        "line-color":"#ffff00",
+        "line-width":["interpolate",["linear"],["zoom"],10,5,12,7,14,9,16,12],
+        "line-opacity":0.95
+      }
+    });
+
+    // --- RIFUGI ---
+
+    map.addSource("rifugi", {
+      type:"geojson",
+      data:"./data/rifugi.geojson"
+    });
+
+    map.addLayer({
+      id:"rifugi-layer",
+      type:"circle",
+      source:"rifugi",
+      paint:{
+        "circle-radius":6,
+        "circle-color":"#111",
+        "circle-stroke-color":"#fff",
+        "circle-stroke-width":2
+      }
+    });
+
+    map.addLayer({
+      id:"rifugi-label",
+      type:"symbol",
+      source:"rifugi",
+      layout:{
+        "text-field":["get","name"],
+        "text-size":12,
+        "text-offset":[0,1.2],
+        "text-anchor":"top",
+        "text-allow-overlap":false
+      },
+      paint:{
+        "text-halo-color":"#ffffff",
+        "text-halo-width":2
+      }
+    });
+
+    setMsg("✅ 3D pronto.");
+
+  } catch(e){
+    console.error(e);
+    setMsg("⚠️ Errore:\n" + (e?.message || e));
+  }
+});
 </script>
+
 </body>
 </html>
