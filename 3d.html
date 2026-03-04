@@ -19,14 +19,11 @@
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
       width:340px; max-width: calc(100% - 24px);
     }
-
     .row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
-
     button{
       border:0; border-radius:10px; padding:8px 10px;
       font-weight:900; cursor:pointer;
     }
-
     .btn-dark{ background:#111; color:#fff }
     .btn-light{ background:#eee; color:#111 }
     .small{ font-size:12px; margin-top:8px; color:#333 }
@@ -75,17 +72,15 @@ const MAPTILER_KEY = "ORUgXv14fwE911CA6MdX";
 const msg = document.getElementById("msg");
 const setMsg = (t) => msg.textContent = t;
 
-const CENTER = [6.86, 45.03]; // Sauze d'Oulx
+const CENTER = [6.86, 45.03];
 
 function runNameFromProps(p){
   return p?.name || p?.["piste:name"] || p?.ref ||
          p?.["piste:ref"] || p?.["piste:ref:name"] || "Pista";
 }
-
 function runDifficultyFromProps(p){
   return p?.["piste:difficulty"] || p?.difficulty || "";
 }
-
 function runColorFromDifficulty(diffRaw){
   const d = String(diffRaw || "").toLowerCase();
   if (["easy","novice","beginner","blue"].includes(d)) return "#1f77b4";
@@ -148,6 +143,7 @@ map.addControl(new maplibregl.NavigationControl({ visualizePitch:true }), "top-r
 map.on("load", () => {
   try {
 
+    // Terrain
     map.setTerrain({ source:"terrainSource", exaggeration:1.4 });
 
     // Slider esagerazione
@@ -159,7 +155,9 @@ map.on("load", () => {
       });
     });
 
-    // Piste
+    // -------------------------
+    // PISTE
+    // -------------------------
     map.addSource("runs", {
       type:"geojson",
       data:"./sauze_doulx.geojson"
@@ -195,6 +193,7 @@ map.on("load", () => {
       }
     });
 
+    // evidenziazione (funziona solo se c'è un id; se non c'è non rompe nulla)
     map.addLayer({
       id:"runs-selected",
       type:"line",
@@ -206,61 +205,155 @@ map.on("load", () => {
       }
     });
 
-    // Click pista
     map.on("click", "runs-colored", (e) => {
-      const f = e.features[0];
-      const p = f.properties;
+      const f = e.features && e.features[0];
+      if (!f) return;
+      const p = f.properties || {};
 
       const name = runNameFromProps(p);
       const diff = runDifficultyFromProps(p);
       const color = runColorFromDifficulty(diff);
 
-      map.setFilter("runs-selected", ["==", ["id"], f.id]);
+      // highlight solo se esiste f.id
+      if (f.id !== undefined && f.id !== null) {
+        map.setFilter("runs-selected", ["==", ["id"], f.id]);
+      } else {
+        map.setFilter("runs-selected", ["==", ["id"], "__none__"]);
+      }
 
       popup
         .setLngLat(e.lngLat)
         .setHTML(`
-          <div style="font-weight:800">${name}</div>
-          <div style="margin-top:4px">
-            Difficoltà:
-            <span style="color:${color};font-weight:700">${diff || "N/D"}</span>
+          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
+            <div style="font-weight:900">${name}</div>
+            <div style="margin-top:4px">
+              Difficoltà:
+              <span style="color:${color};font-weight:800">${diff || "N/D"}</span>
+            </div>
           </div>
         `)
         .addTo(map);
     });
 
-    map.on("mouseenter", "runs-colored", () => {
-      map.getCanvas().style.cursor = "pointer";
+    map.on("mouseenter", "runs-colored", () => { map.getCanvas().style.cursor = "pointer"; });
+    map.on("mouseleave", "runs-colored", () => { map.getCanvas().style.cursor = ""; });
+
+    // -------------------------
+    // RIFUGI (✅ QUI era assente)
+    // -------------------------
+    map.addSource("rifugi", {
+      type: "geojson",
+      data: "./data/rifugi.geojson"
     });
 
-    map.on("mouseleave", "runs-colored", () => {
-      map.getCanvas().style.cursor = "";
+    map.addLayer({
+      id: "rifugi-layer",
+      type: "circle",
+      source: "rifugi",
+      paint: {
+        "circle-radius": 9,
+        "circle-color": "#ffcc00",
+        "circle-stroke-color": "#111",
+        "circle-stroke-width": 2
+      }
     });
 
-    // Toggle base layers
+    map.addLayer({
+      id: "rifugi-label",
+      type: "symbol",
+      source: "rifugi",
+      layout: {
+        "text-field": ["get", "name"],
+        "text-size": 13,
+        "text-offset": [0, 1.3],
+        "text-anchor": "top",
+        "text-allow-overlap": true
+      },
+      paint: {
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 2
+      }
+    });
+
+    // porta rifugi in cima
+    map.moveLayer("rifugi-layer");
+    map.moveLayer("rifugi-label");
+
+    function googleMapsPlaceUrl(name, lat, lng) {
+      const q = encodeURIComponent(`${name}, ${lat},${lng}`);
+      return `https://www.google.com/maps/search/?api=1&query=${q}`;
+    }
+    function googleMapsDirectionsUrl(lat, lng) {
+      return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    }
+
+    map.on("mouseenter", "rifugi-layer", () => { map.getCanvas().style.cursor = "pointer"; });
+    map.on("mouseleave", "rifugi-layer", () => { map.getCanvas().style.cursor = ""; });
+
+    map.on("click", "rifugi-layer", (e) => {
+      const f = e.features && e.features[0];
+      if (!f) return;
+
+      const name = f.properties?.name || "Rifugio";
+      const [lng, lat] = f.geometry.coordinates;
+
+      const googleUrl = googleMapsPlaceUrl(name, lat, lng);
+      const navUrl = googleMapsDirectionsUrl(lat, lng);
+
+      new maplibregl.Popup({ closeButton:true, closeOnClick:true })
+        .setLngLat(e.lngLat)
+        .setHTML(`
+          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
+            <div style="font-weight:900;font-size:14px;margin-bottom:8px;">${name}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
+                 style="display:inline-block;padding:8px 10px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font-weight:900;">
+                Apri su Google
+              </a>
+              <a href="${navUrl}" target="_blank" rel="noopener noreferrer"
+                 style="display:inline-block;padding:8px 10px;border-radius:10px;background:#eee;color:#111;text-decoration:none;font-weight:900;">
+                Naviga
+              </a>
+            </div>
+          </div>
+        `)
+        .addTo(map);
+    });
+
+    // -------------------------
+    // BOTTONI BASEMAP / LABELS
+    // -------------------------
     const btnMap = document.getElementById("btnMap");
     const btnSat = document.getElementById("btnSat");
     const btnLabels = document.getElementById("btnLabels");
 
+    let labelsOn = false;
+
     btnMap.onclick = () => {
       map.setLayoutProperty("base","visibility","visible");
       map.setLayoutProperty("satellite","visibility","none");
+
+      // in mappa: se vuoi, spegni labels (consigliato)
+      map.setLayoutProperty("labels","visibility","none");
+      labelsOn = false;
+      btnLabels.textContent = "🔤 Labels: OFF";
     };
 
     btnSat.onclick = () => {
       map.setLayoutProperty("base","visibility","none");
       map.setLayoutProperty("satellite","visibility","visible");
-    };
 
-    let labelsOn = false;
+      // labels solo se attivati
+      map.setLayoutProperty("labels","visibility", labelsOn ? "visible" : "none");
+    };
 
     btnLabels.onclick = () => {
       labelsOn = !labelsOn;
-      map.setLayoutProperty("labels","visibility",labelsOn?"visible":"none");
-      btnLabels.textContent = "🔤 Labels: " + (labelsOn?"ON":"OFF");
+      map.setLayoutProperty("labels","visibility",labelsOn ? "visible" : "none");
+      btnLabels.textContent = "🔤 Labels: " + (labelsOn ? "ON" : "OFF");
     };
 
-    setMsg("✅ 3D pronto.");
+    setMsg("✅ 3D pronto. (Piste + Rifugi)");
 
   } catch(e){
     console.error(e);
