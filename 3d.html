@@ -57,7 +57,7 @@
   <div class="row">
     <button class="btn-light" id="btnMap">🗺️ Mappa</button>
     <button class="btn-dark" id="btnSat">🛰️ Satellite</button>
-    <button class="btn-light" id="btnLabels">🔤 Labels: ON</button>
+    <button class="btn-light" id="btnLabels">🔤 Labels: OFF</button>
   </div>
 
   <div class="small">Esagerazione rilievo</div>
@@ -75,7 +75,7 @@ const MAPTILER_KEY = "ORUgXv14fwE911CA6MdX";
 const msg = document.getElementById("msg");
 const setMsg = (t) => msg.textContent = t;
 
-const CENTER = [6.86, 45.03];
+const CENTER = [6.86, 45.03]; // Sauze d'Oulx
 
 function runNameFromProps(p){
   return p?.name || p?.["piste:name"] || p?.ref ||
@@ -150,6 +150,16 @@ map.on("load", () => {
 
     map.setTerrain({ source:"terrainSource", exaggeration:1.4 });
 
+    // Slider esagerazione
+    const ex = document.getElementById("ex");
+    ex.addEventListener("input", () => {
+      map.setTerrain({
+        source: "terrainSource",
+        exaggeration: parseInt(ex.value)/100
+      });
+    });
+
+    // Piste
     map.addSource("runs", {
       type:"geojson",
       data:"./sauze_doulx.geojson"
@@ -162,7 +172,7 @@ map.on("load", () => {
       filter:["==",["get","piste:type"],"downhill"],
       paint:{
         "line-color":"#ffffff",
-        "line-width":["interpolate",["linear"],["zoom"],10,3.5,12,5.5,14,7.5,16,10.0],
+        "line-width":["interpolate",["linear"],["zoom"],10,3.5,12,5.5,14,7.5,16,10],
         "line-opacity":0.55
       }
     });
@@ -180,7 +190,7 @@ map.on("load", () => {
           ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["advanced","expert","difficult","black"]]],"#000000",
           "#7aa6d8"
         ],
-        "line-width":["interpolate",["linear"],["zoom"],10,2.5,12,4.0,14,6.0,16,8.0],
+        "line-width":["interpolate",["linear"],["zoom"],10,2.5,12,4,14,6,16,8],
         "line-opacity":0.95
       }
     });
@@ -192,46 +202,63 @@ map.on("load", () => {
       filter:["==",["id"],"__none__"],
       paint:{
         "line-color":"#ffff00",
-        "line-width":["interpolate",["linear"],["zoom"],10,5,12,7,14,9,16,12],
-        "line-opacity":0.95
+        "line-width":["interpolate",["linear"],["zoom"],10,5,12,7,14,9,16,12]
       }
     });
 
-    // --- RIFUGI ---
+    // Click pista
+    map.on("click", "runs-colored", (e) => {
+      const f = e.features[0];
+      const p = f.properties;
 
-    map.addSource("rifugi", {
-      type:"geojson",
-      data:"./data/rifugi.geojson"
+      const name = runNameFromProps(p);
+      const diff = runDifficultyFromProps(p);
+      const color = runColorFromDifficulty(diff);
+
+      map.setFilter("runs-selected", ["==", ["id"], f.id]);
+
+      popup
+        .setLngLat(e.lngLat)
+        .setHTML(`
+          <div style="font-weight:800">${name}</div>
+          <div style="margin-top:4px">
+            Difficoltà:
+            <span style="color:${color};font-weight:700">${diff || "N/D"}</span>
+          </div>
+        `)
+        .addTo(map);
     });
 
-    map.addLayer({
-      id:"rifugi-layer",
-      type:"circle",
-      source:"rifugi",
-      paint:{
-        "circle-radius":6,
-        "circle-color":"#111",
-        "circle-stroke-color":"#fff",
-        "circle-stroke-width":2
-      }
+    map.on("mouseenter", "runs-colored", () => {
+      map.getCanvas().style.cursor = "pointer";
     });
 
-    map.addLayer({
-      id:"rifugi-label",
-      type:"symbol",
-      source:"rifugi",
-      layout:{
-        "text-field":["get","name"],
-        "text-size":12,
-        "text-offset":[0,1.2],
-        "text-anchor":"top",
-        "text-allow-overlap":false
-      },
-      paint:{
-        "text-halo-color":"#ffffff",
-        "text-halo-width":2
-      }
+    map.on("mouseleave", "runs-colored", () => {
+      map.getCanvas().style.cursor = "";
     });
+
+    // Toggle base layers
+    const btnMap = document.getElementById("btnMap");
+    const btnSat = document.getElementById("btnSat");
+    const btnLabels = document.getElementById("btnLabels");
+
+    btnMap.onclick = () => {
+      map.setLayoutProperty("base","visibility","visible");
+      map.setLayoutProperty("satellite","visibility","none");
+    };
+
+    btnSat.onclick = () => {
+      map.setLayoutProperty("base","visibility","none");
+      map.setLayoutProperty("satellite","visibility","visible");
+    };
+
+    let labelsOn = false;
+
+    btnLabels.onclick = () => {
+      labelsOn = !labelsOn;
+      map.setLayoutProperty("labels","visibility",labelsOn?"visible":"none");
+      btnLabels.textContent = "🔤 Labels: " + (labelsOn?"ON":"OFF");
+    };
 
     setMsg("✅ 3D pronto.");
 
