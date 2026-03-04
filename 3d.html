@@ -150,149 +150,141 @@ function googleMapsDirectionsUrl(lat, lng) {
 }
 
 // -------------------------
-// ICONS via CANVAS (sempre ok, anche su iPhone)
+// ICONS: CANVAS -> IMAGEDATA -> addImage({width,height,data})
+// (compatibile, niente mismatch)
 // -------------------------
-function makeCanvasIcon(drawFn, size=64) {
+function addIconFromCanvas(name, drawFn, size=64, pixelRatio=2) {
+  if (map.hasImage(name)) return;
+
   const c = document.createElement("canvas");
-  c.width = size; c.height = size;
+  c.width = size;
+  c.height = size;
   const ctx = c.getContext("2d");
   drawFn(ctx, size);
-  return c;
+
+  const img = ctx.getImageData(0, 0, size, size);
+  const data = new Uint8Array(img.data.buffer); // Uint8ClampedArray -> Uint8Array
+
+  map.addImage(name, { width: size, height: size, data }, { pixelRatio });
 }
 
-function addIconsToMap() {
-  if (!map.hasImage("icon-ristoro")) {
-    const iconRistoro = makeCanvasIcon((ctx, s) => {
-      // sfondo cerchio giallo
-      ctx.beginPath();
-      ctx.arc(s/2, s/2, s*0.34, 0, Math.PI*2);
-      ctx.fillStyle = "#ffcc00";
-      ctx.fill();
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = "#111";
-      ctx.stroke();
+function addAllIcons() {
+  addIconFromCanvas("icon-ristoro", (ctx, s) => {
+    // background
+    ctx.beginPath();
+    ctx.arc(s/2, s/2, s*0.34, 0, Math.PI*2);
+    ctx.fillStyle = "#ffcc00";
+    ctx.fill();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#111";
+    ctx.stroke();
 
-      // forchetta
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = "#111";
-      ctx.lineWidth = 4;
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
 
-      const x = s*0.34, y1 = s*0.28, y2 = s*0.56;
-      ctx.beginPath();
-      ctx.moveTo(x, y1); ctx.lineTo(x, y2);
-      ctx.stroke();
+    // fork
+    const x = s*0.34, y1 = s*0.28, y2 = s*0.56;
 
-      ctx.beginPath();
-      ctx.moveTo(x - s*0.06, y1); ctx.lineTo(x - s*0.06, y1 + s*0.16);
-      ctx.moveTo(x, y1);         ctx.lineTo(x, y1 + s*0.16);
-      ctx.moveTo(x + s*0.06, y1); ctx.lineTo(x + s*0.06, y1 + s*0.16);
-      ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y1); ctx.lineTo(x, y2);
+    ctx.stroke();
 
-      ctx.beginPath();
-      ctx.moveTo(x - s*0.06, y1 + s*0.16);
-      ctx.lineTo(x + s*0.06, y1 + s*0.16);
-      ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x - s*0.06, y1); ctx.lineTo(x - s*0.06, y1 + s*0.16);
+    ctx.moveTo(x,           y1); ctx.lineTo(x,           y1 + s*0.16);
+    ctx.moveTo(x + s*0.06, y1); ctx.lineTo(x + s*0.06, y1 + s*0.16);
+    ctx.stroke();
 
-      // manico
-      ctx.beginPath();
-      ctx.moveTo(x, y2);
-      ctx.lineTo(x, s*0.74);
-      ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x - s*0.06, y1 + s*0.16);
+    ctx.lineTo(x + s*0.06, y1 + s*0.16);
+    ctx.stroke();
 
-      // coltello
-      const kx = s*0.62;
-      ctx.beginPath();
-      ctx.moveTo(kx, y1);
-      ctx.quadraticCurveTo(kx + s*0.08, y1 + s*0.10, kx, y1 + s*0.26);
-      ctx.lineTo(kx, s*0.74);
-      ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y2); ctx.lineTo(x, s*0.74);
+    ctx.stroke();
 
-      ctx.beginPath();
-      ctx.moveTo(kx, y1);
-      ctx.lineTo(kx + s*0.09, y1 + s*0.09);
-      ctx.stroke();
-    });
+    // knife
+    const kx = s*0.62;
+    ctx.beginPath();
+    ctx.moveTo(kx, y1);
+    ctx.quadraticCurveTo(kx + s*0.08, y1 + s*0.10, kx, y1 + s*0.26);
+    ctx.lineTo(kx, s*0.74);
+    ctx.stroke();
 
-    map.addImage("icon-ristoro", iconRistoro, { pixelRatio: 2 });
-  }
+    ctx.beginPath();
+    ctx.moveTo(kx, y1);
+    ctx.lineTo(kx + s*0.09, y1 + s*0.09);
+    ctx.stroke();
+  });
 
-  if (!map.hasImage("icon-impianto")) {
-    const iconImpianto = makeCanvasIcon((ctx, s) => {
-      // sfondo cerchio azzurro
-      ctx.beginPath();
-      ctx.arc(s/2, s/2, s*0.34, 0, Math.PI*2);
-      ctx.fillStyle = "#7dd3fc";
-      ctx.fill();
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = "#111";
-      ctx.stroke();
+  addIconFromCanvas("icon-impianto", (ctx, s) => {
+    // background
+    ctx.beginPath();
+    ctx.arc(s/2, s/2, s*0.34, 0, Math.PI*2);
+    ctx.fillStyle = "#7dd3fc";
+    ctx.fill();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#111";
+    ctx.stroke();
 
-      ctx.strokeStyle = "#111";
-      ctx.lineWidth = 4;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
 
-      // cavo
-      ctx.beginPath();
-      ctx.moveTo(s*0.26, s*0.34);
-      ctx.lineTo(s*0.74, s*0.34);
-      ctx.stroke();
+    // cable
+    ctx.beginPath();
+    ctx.moveTo(s*0.26, s*0.34);
+    ctx.lineTo(s*0.74, s*0.34);
+    ctx.stroke();
 
-      // hanger
-      ctx.beginPath();
-      ctx.moveTo(s*0.50, s*0.34);
-      ctx.lineTo(s*0.50, s*0.49);
-      ctx.stroke();
+    // hanger
+    ctx.beginPath();
+    ctx.moveTo(s*0.50, s*0.34);
+    ctx.lineTo(s*0.50, s*0.49);
+    ctx.stroke();
 
-      // traversa
-      ctx.beginPath();
-      ctx.moveTo(s*0.40, s*0.49);
-      ctx.lineTo(s*0.60, s*0.49);
-      ctx.stroke();
+    // bar
+    ctx.beginPath();
+    ctx.moveTo(s*0.40, s*0.49);
+    ctx.lineTo(s*0.60, s*0.49);
+    ctx.stroke();
 
-      // seggiola (gambe)
-      ctx.beginPath();
-      ctx.moveTo(s*0.40, s*0.52);
-      ctx.lineTo(s*0.40, s*0.68);
-      ctx.moveTo(s*0.60, s*0.52);
-      ctx.lineTo(s*0.60, s*0.68);
-      ctx.stroke();
+    // legs
+    ctx.beginPath();
+    ctx.moveTo(s*0.40, s*0.52);
+    ctx.lineTo(s*0.40, s*0.68);
+    ctx.moveTo(s*0.60, s*0.52);
+    ctx.lineTo(s*0.60, s*0.68);
+    ctx.stroke();
 
-      // seduta
-      ctx.beginPath();
-      ctx.moveTo(s*0.36, s*0.68);
-      ctx.lineTo(s*0.64, s*0.68);
-      ctx.stroke();
+    // seat
+    ctx.beginPath();
+    ctx.moveTo(s*0.36, s*0.68);
+    ctx.lineTo(s*0.64, s*0.68);
+    ctx.stroke();
 
-      // schienale
-      ctx.beginPath();
-      ctx.moveTo(s*0.40, s*0.60);
-      ctx.lineTo(s*0.60, s*0.60);
-      ctx.stroke();
-    });
-
-    map.addImage("icon-impianto", iconImpianto, { pixelRatio: 2 });
-  }
+    // back
+    ctx.beginPath();
+    ctx.moveTo(s*0.40, s*0.60);
+    ctx.lineTo(s*0.60, s*0.60);
+    ctx.stroke();
+  });
 }
 
 map.on("load", () => {
   try {
-    // Terrain
     map.setTerrain({ source:"terrainSource", exaggeration:1.4 });
 
-    // Slider esagerazione
     const ex = document.getElementById("ex");
     ex.addEventListener("input", () => {
-      map.setTerrain({
-        source: "terrainSource",
-        exaggeration: parseInt(ex.value)/100
-      });
+      map.setTerrain({ source: "terrainSource", exaggeration: parseInt(ex.value)/100 });
     });
 
-    // -------------------------
     // PISTE
-    // -------------------------
     map.addSource("runs", { type:"geojson", data:"./sauze_doulx.geojson" });
 
     map.addLayer({
@@ -368,71 +360,67 @@ map.on("load", () => {
     map.on("mouseenter", "runs-colored", () => { map.getCanvas().style.cursor = "pointer"; });
     map.on("mouseleave", "runs-colored", () => { map.getCanvas().style.cursor = ""; });
 
-    // ✅ aggiungi icone (sempre ok)
-    addIconsToMap();
+    // ✅ ICONS (qui sparisce per sempre il mismatch)
+    addAllIcons();
 
-    // -------------------------
     // RIFUGI
-    // -------------------------
-    map.addSource("rifugi", { type: "geojson", data: "./data/rifugi.geojson" });
+    map.addSource("rifugi", { type:"geojson", data:"./data/rifugi.geojson" });
 
     map.addLayer({
-      id: "rifugi-layer",
-      type: "symbol",
-      source: "rifugi",
-      filter: ["==", ["geometry-type"], "Point"],
-      layout: {
-        "icon-image": "icon-ristoro",
-        "icon-size": 0.6,
-        "icon-allow-overlap": true
+      id:"rifugi-layer",
+      type:"symbol",
+      source:"rifugi",
+      filter:["==",["geometry-type"],"Point"],
+      layout:{
+        "icon-image":"icon-ristoro",
+        "icon-size":0.6,
+        "icon-allow-overlap":true
       }
     });
 
     map.addLayer({
-      id: "rifugi-label",
-      type: "symbol",
-      source: "rifugi",
-      filter: ["==", ["geometry-type"], "Point"],
-      layout: {
-        "text-field": ["get", "name"],
-        "text-size": 13,
-        "text-offset": [0, 1.35],
-        "text-anchor": "top",
-        "text-allow-overlap": true
+      id:"rifugi-label",
+      type:"symbol",
+      source:"rifugi",
+      filter:["==",["geometry-type"],"Point"],
+      layout:{
+        "text-field":["get","name"],
+        "text-size":13,
+        "text-offset":[0,1.35],
+        "text-anchor":"top",
+        "text-allow-overlap":true
       },
-      paint: { "text-halo-color": "#ffffff", "text-halo-width": 2 }
+      paint:{ "text-halo-color":"#fff", "text-halo-width":2 }
     });
 
-    // -------------------------
     // IMPIANTI
-    // -------------------------
-    map.addSource("impianti", { type: "geojson", data: "./data/impianti.geojson" });
+    map.addSource("impianti", { type:"geojson", data:"./data/impianti.geojson" });
 
     map.addLayer({
-      id: "impianti-layer",
-      type: "symbol",
-      source: "impianti",
-      filter: ["==", ["geometry-type"], "Point"],
-      layout: {
-        "icon-image": "icon-impianto",
-        "icon-size": 0.6,
-        "icon-allow-overlap": true
+      id:"impianti-layer",
+      type:"symbol",
+      source:"impianti",
+      filter:["==",["geometry-type"],"Point"],
+      layout:{
+        "icon-image":"icon-impianto",
+        "icon-size":0.6,
+        "icon-allow-overlap":true
       }
     });
 
     map.addLayer({
-      id: "impianti-label",
-      type: "symbol",
-      source: "impianti",
-      filter: ["==", ["geometry-type"], "Point"],
-      layout: {
-        "text-field": ["coalesce", ["get","name"], ["get","ref"], "Impianto"],
-        "text-size": 13,
-        "text-offset": [0, 1.35],
-        "text-anchor": "top",
-        "text-allow-overlap": true
+      id:"impianti-label",
+      type:"symbol",
+      source:"impianti",
+      filter:["==",["geometry-type"],"Point"],
+      layout:{
+        "text-field":["coalesce",["get","name"],["get","ref"],"Impianto"],
+        "text-size":13,
+        "text-offset":[0,1.35],
+        "text-anchor":"top",
+        "text-allow-overlap":true
       },
-      paint: { "text-halo-color": "#ffffff", "text-halo-width": 2 }
+      paint:{ "text-halo-color":"#fff", "text-halo-width":2 }
     });
 
     // sopra le piste
@@ -440,18 +428,15 @@ map.on("load", () => {
     map.moveLayer("impianti-layer"); map.moveLayer("impianti-label");
 
     // popup rifugi
-    map.on("mouseenter", "rifugi-layer", () => { map.getCanvas().style.cursor = "pointer"; });
-    map.on("mouseleave", "rifugi-layer", () => { map.getCanvas().style.cursor = ""; });
-    map.on("click", "rifugi-layer", (e) => {
-      const f = e.features && e.features[0];
-      if (!f) return;
-      const name = f.properties?.name || "Rifugio";
-      const [lng, lat] = f.geometry.coordinates;
-
-      const googleUrl = googleMapsPlaceUrl(name, lat, lng);
-      const navUrl = googleMapsDirectionsUrl(lat, lng);
-
-      new maplibregl.Popup({ closeButton:true, closeOnClick:true })
+    map.on("mouseenter","rifugi-layer",()=>map.getCanvas().style.cursor="pointer");
+    map.on("mouseleave","rifugi-layer",()=>map.getCanvas().style.cursor="");
+    map.on("click","rifugi-layer",(e)=>{
+      const f=e.features&&e.features[0]; if(!f) return;
+      const name=f.properties?.name||"Rifugio";
+      const [lng,lat]=f.geometry.coordinates;
+      const googleUrl=googleMapsPlaceUrl(name,lat,lng);
+      const navUrl=googleMapsDirectionsUrl(lat,lng);
+      new maplibregl.Popup()
         .setLngLat(e.lngLat)
         .setHTML(`
           <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
@@ -467,23 +452,19 @@ map.on("load", () => {
               </a>
             </div>
           </div>
-        `)
-        .addTo(map);
+        `).addTo(map);
     });
 
     // popup impianti
-    map.on("mouseenter", "impianti-layer", () => { map.getCanvas().style.cursor = "pointer"; });
-    map.on("mouseleave", "impianti-layer", () => { map.getCanvas().style.cursor = ""; });
-    map.on("click", "impianti-layer", (e) => {
-      const f = e.features && e.features[0];
-      if (!f) return;
-      const name = f.properties?.name || f.properties?.ref || "Impianto";
-      const [lng, lat] = f.geometry.coordinates;
-
-      const googleUrl = googleMapsPlaceUrl(name, lat, lng);
-      const navUrl = googleMapsDirectionsUrl(lat, lng);
-
-      new maplibregl.Popup({ closeButton:true, closeOnClick:true })
+    map.on("mouseenter","impianti-layer",()=>map.getCanvas().style.cursor="pointer");
+    map.on("mouseleave","impianti-layer",()=>map.getCanvas().style.cursor="");
+    map.on("click","impianti-layer",(e)=>{
+      const f=e.features&&e.features[0]; if(!f) return;
+      const name=f.properties?.name||f.properties?.ref||"Impianto";
+      const [lng,lat]=f.geometry.coordinates;
+      const googleUrl=googleMapsPlaceUrl(name,lat,lng);
+      const navUrl=googleMapsDirectionsUrl(lat,lng);
+      new maplibregl.Popup()
         .setLngLat(e.lngLat)
         .setHTML(`
           <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
@@ -499,39 +480,33 @@ map.on("load", () => {
               </a>
             </div>
           </div>
-        `)
-        .addTo(map);
+        `).addTo(map);
     });
 
-    // -------------------------
-    // BOTTONI BASEMAP / LABELS
-    // -------------------------
-    const btnMap = document.getElementById("btnMap");
-    const btnSat = document.getElementById("btnSat");
-    const btnLabels = document.getElementById("btnLabels");
+    // bottoni basemap/labels
+    const btnMap=document.getElementById("btnMap");
+    const btnSat=document.getElementById("btnSat");
+    const btnLabels=document.getElementById("btnLabels");
+    let labelsOn=false;
 
-    let labelsOn = false;
-
-    btnMap.onclick = () => {
+    btnMap.onclick=()=>{
       map.setLayoutProperty("base","visibility","visible");
       map.setLayoutProperty("satellite","visibility","none");
       map.setLayoutProperty("labels","visibility","none");
-      labelsOn = false;
-      btnLabels.textContent = "🔤 Labels: OFF";
+      labelsOn=false;
+      btnLabels.textContent="🔤 Labels: OFF";
       setMsg("✅ Modalità: Mappa");
     };
-
-    btnSat.onclick = () => {
+    btnSat.onclick=()=>{
       map.setLayoutProperty("base","visibility","none");
       map.setLayoutProperty("satellite","visibility","visible");
-      map.setLayoutProperty("labels","visibility", labelsOn ? "visible" : "none");
+      map.setLayoutProperty("labels","visibility",labelsOn?"visible":"none");
       setMsg("✅ Modalità: Satellite");
     };
-
-    btnLabels.onclick = () => {
-      labelsOn = !labelsOn;
-      map.setLayoutProperty("labels","visibility", labelsOn ? "visible" : "none");
-      btnLabels.textContent = "🔤 Labels: " + (labelsOn ? "ON" : "OFF");
+    btnLabels.onclick=()=>{
+      labelsOn=!labelsOn;
+      map.setLayoutProperty("labels","visibility",labelsOn?"visible":"none");
+      btnLabels.textContent="🔤 Labels: "+(labelsOn?"ON":"OFF");
     };
 
     setMsg("✅ 3D pronto. Piste + Rifugi + Impianti");
