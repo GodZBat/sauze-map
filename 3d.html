@@ -57,6 +57,12 @@
     <button class="btn-light" id="btnLabels">🔤 Labels: OFF</button>
   </div>
 
+  <!-- ✅ Toggle Rifugi / Impianti -->
+  <div class="row">
+    <button class="btn-dark" id="btnRifugi">🍽 Rifugi: ON</button>
+    <button class="btn-dark" id="btnImpianti">🚡 Impianti: ON</button>
+  </div>
+
   <div class="small">Esagerazione rilievo</div>
   <input id="ex" type="range" min="50" max="300" value="140">
 
@@ -151,7 +157,6 @@ function googleMapsDirectionsUrl(lat, lng) {
 
 // -------------------------
 // ICONS: CANVAS -> IMAGEDATA -> addImage({width,height,data})
-// (compatibile, niente mismatch)
 // -------------------------
 function addIconFromCanvas(name, drawFn, size=64, pixelRatio=2) {
   if (map.hasImage(name)) return;
@@ -163,14 +168,12 @@ function addIconFromCanvas(name, drawFn, size=64, pixelRatio=2) {
   drawFn(ctx, size);
 
   const img = ctx.getImageData(0, 0, size, size);
-  const data = new Uint8Array(img.data.buffer); // Uint8ClampedArray -> Uint8Array
-
+  const data = new Uint8Array(img.data.buffer);
   map.addImage(name, { width: size, height: size, data }, { pixelRatio });
 }
 
 function addAllIcons() {
   addIconFromCanvas("icon-ristoro", (ctx, s) => {
-    // background
     ctx.beginPath();
     ctx.arc(s/2, s/2, s*0.34, 0, Math.PI*2);
     ctx.fillStyle = "#ffcc00";
@@ -184,7 +187,6 @@ function addAllIcons() {
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
-    // fork
     const x = s*0.34, y1 = s*0.28, y2 = s*0.56;
 
     ctx.beginPath();
@@ -206,7 +208,6 @@ function addAllIcons() {
     ctx.moveTo(x, y2); ctx.lineTo(x, s*0.74);
     ctx.stroke();
 
-    // knife
     const kx = s*0.62;
     ctx.beginPath();
     ctx.moveTo(kx, y1);
@@ -221,7 +222,6 @@ function addAllIcons() {
   });
 
   addIconFromCanvas("icon-impianto", (ctx, s) => {
-    // background
     ctx.beginPath();
     ctx.arc(s/2, s/2, s*0.34, 0, Math.PI*2);
     ctx.fillStyle = "#7dd3fc";
@@ -235,25 +235,21 @@ function addAllIcons() {
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
-    // cable
     ctx.beginPath();
     ctx.moveTo(s*0.26, s*0.34);
     ctx.lineTo(s*0.74, s*0.34);
     ctx.stroke();
 
-    // hanger
     ctx.beginPath();
     ctx.moveTo(s*0.50, s*0.34);
     ctx.lineTo(s*0.50, s*0.49);
     ctx.stroke();
 
-    // bar
     ctx.beginPath();
     ctx.moveTo(s*0.40, s*0.49);
     ctx.lineTo(s*0.60, s*0.49);
     ctx.stroke();
 
-    // legs
     ctx.beginPath();
     ctx.moveTo(s*0.40, s*0.52);
     ctx.lineTo(s*0.40, s*0.68);
@@ -261,18 +257,22 @@ function addAllIcons() {
     ctx.lineTo(s*0.60, s*0.68);
     ctx.stroke();
 
-    // seat
     ctx.beginPath();
     ctx.moveTo(s*0.36, s*0.68);
     ctx.lineTo(s*0.64, s*0.68);
     ctx.stroke();
 
-    // back
     ctx.beginPath();
     ctx.moveTo(s*0.40, s*0.60);
     ctx.lineTo(s*0.60, s*0.60);
     ctx.stroke();
   });
+}
+
+// helper visibilità layer
+function setLayerVisible(id, visible) {
+  if (!map.getLayer(id)) return;
+  map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
 }
 
 map.on("load", () => {
@@ -360,7 +360,7 @@ map.on("load", () => {
     map.on("mouseenter", "runs-colored", () => { map.getCanvas().style.cursor = "pointer"; });
     map.on("mouseleave", "runs-colored", () => { map.getCanvas().style.cursor = ""; });
 
-    // ✅ ICONS (qui sparisce per sempre il mismatch)
+    // ICONS
     addAllIcons();
 
     // RIFUGI
@@ -374,7 +374,8 @@ map.on("load", () => {
       layout:{
         "icon-image":"icon-ristoro",
         "icon-size":0.6,
-        "icon-allow-overlap":true
+        "icon-allow-overlap":true,
+        "visibility":"visible"
       }
     });
 
@@ -388,7 +389,8 @@ map.on("load", () => {
         "text-size":13,
         "text-offset":[0,1.35],
         "text-anchor":"top",
-        "text-allow-overlap":true
+        "text-allow-overlap":true,
+        "visibility":"visible"
       },
       paint:{ "text-halo-color":"#fff", "text-halo-width":2 }
     });
@@ -404,7 +406,8 @@ map.on("load", () => {
       layout:{
         "icon-image":"icon-impianto",
         "icon-size":0.6,
-        "icon-allow-overlap":true
+        "icon-allow-overlap":true,
+        "visibility":"visible"
       }
     });
 
@@ -418,7 +421,8 @@ map.on("load", () => {
         "text-size":13,
         "text-offset":[0,1.35],
         "text-anchor":"top",
-        "text-allow-overlap":true
+        "text-allow-overlap":true,
+        "visibility":"visible"
       },
       paint:{ "text-halo-color":"#fff", "text-halo-width":2 }
     });
@@ -483,7 +487,9 @@ map.on("load", () => {
         `).addTo(map);
     });
 
-    // bottoni basemap/labels
+    // -------------------------
+    // BOTTONI BASEMAP / LABELS
+    // -------------------------
     const btnMap=document.getElementById("btnMap");
     const btnSat=document.getElementById("btnSat");
     const btnLabels=document.getElementById("btnLabels");
@@ -507,6 +513,29 @@ map.on("load", () => {
       labelsOn=!labelsOn;
       map.setLayoutProperty("labels","visibility",labelsOn?"visible":"none");
       btnLabels.textContent="🔤 Labels: "+(labelsOn?"ON":"OFF");
+    };
+
+    // -------------------------
+    // ✅ TOGGLE RIFUGI / IMPIANTI
+    // -------------------------
+    const btnRifugi = document.getElementById("btnRifugi");
+    const btnImpianti = document.getElementById("btnImpianti");
+
+    let rifugiOn = true;
+    let impiantiOn = true;
+
+    btnRifugi.onclick = () => {
+      rifugiOn = !rifugiOn;
+      setLayerVisible("rifugi-layer", rifugiOn);
+      setLayerVisible("rifugi-label", rifugiOn);
+      btnRifugi.textContent = "🍽 Rifugi: " + (rifugiOn ? "ON" : "OFF");
+    };
+
+    btnImpianti.onclick = () => {
+      impiantiOn = !impiantiOn;
+      setLayerVisible("impianti-layer", impiantiOn);
+      setLayerVisible("impianti-label", impiantiOn);
+      btnImpianti.textContent = "🚡 Impianti: " + (impiantiOn ? "ON" : "OFF");
     };
 
     setMsg("✅ 3D pronto. Piste + Rifugi + Impianti");
