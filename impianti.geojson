@@ -1,0 +1,2362 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-03-04T22:08:21Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44394866",
+        "aerialway": "chair_lift",
+        "aerialway:duration": "7",
+        "aerialway:occupancy": "4",
+        "name": "Clotes",
+        "oneway": "no",
+        "ref": "1",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8646249,
+          45.0235256
+        ]
+      },
+      "id": "way/44394866"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44394867",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:duration": "8",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Lago Nero",
+        "ref": "2",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8719161,
+          45.0123642
+        ]
+      },
+      "id": "way/44394867"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44394869",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:duration": "11",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Sportinia",
+        "oneway": "no",
+        "ref": "7",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8638709,
+          45.0146103
+        ]
+      },
+      "id": "way/44394869"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44394870",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:duration": "5",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Rocce Nere",
+        "ref": "8",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8679365,
+          45.0008843
+        ]
+      },
+      "id": "way/44394870"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44394876",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:capacity": "2400",
+        "aerialway:detachable": "yes",
+        "aerialway:duration": "8",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Chisonetto-Banchetta",
+        "oneway": "yes",
+        "ref": "19",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9032666,
+          44.9584637
+        ]
+      },
+      "id": "way/44394876"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44394877",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:detachable": "no",
+        "aerialway:duration": "12",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Garnel 2",
+        "oneway": "yes",
+        "ref": "30",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8831988,
+          44.9505059
+        ]
+      },
+      "id": "way/44394877"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44394878",
+        "aerialway": "gondola",
+        "aerialway:detachable": "yes",
+        "aerialway:duration": "11",
+        "aerialway:occupancy": "6",
+        "bicycle": "yes",
+        "name": "Sestriere - Fraiteve 1",
+        "oneway": "no",
+        "ref": "32",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8685629,
+          44.959603
+        ]
+      },
+      "id": "way/44394878"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44394879",
+        "aerialway": "magic_carpet",
+        "name": "Fraiteve",
+        "ref": "33",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8594925,
+          44.9764342
+        ]
+      },
+      "id": "way/44394879"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44394880",
+        "aerialway": "platter",
+        "aerialway:duration": "5",
+        "name": "Fraiteve",
+        "ref": "34",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.855069,
+          44.9729547
+        ]
+      },
+      "id": "way/44394880"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44394881",
+        "aerialway": "platter",
+        "aerialway:duration": "5",
+        "name": "Fraiteve",
+        "ref": "35",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8550165,
+          44.9729812
+        ]
+      },
+      "id": "way/44394881"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44394882",
+        "aerialway": "platter",
+        "aerialway:duration": "7",
+        "name": "Rio Nero",
+        "ref": "13",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8560101,
+          44.98402
+        ]
+      },
+      "id": "way/44394882"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44394883",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:capacity": "2400",
+        "aerialway:detachable": "yes",
+        "aerialway:duration": "7",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "TSD4 Soleil Boeuf - Roccia Rotonda",
+        "oneway": "yes",
+        "ref": "36",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8443932,
+          44.9680151
+        ]
+      },
+      "id": "way/44394883"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44404579",
+        "aerialway": "chair_lift",
+        "aerialway:duration": "5.3",
+        "aerialway:occupancy": "6",
+        "name": "6 Gigante",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.7441317,
+          45.0862987
+        ]
+      },
+      "id": "way/44404579"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/44404582",
+        "aerialway": "chair_lift",
+        "aerialway:capacity": "1200",
+        "aerialway:duration": "9.1",
+        "aerialway:occupancy": "2",
+        "name": "Ban",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.7596074,
+          45.0885075
+        ]
+      },
+      "id": "way/44404582"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54611727",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:detachable": "no",
+        "aerialway:duration": "7",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Trebials",
+        "ref": "23",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8891971,
+          44.9611123
+        ]
+      },
+      "id": "way/54611727"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54611728",
+        "aerialway": "platter",
+        "name": "Baby 1",
+        "ref": "26",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8857627,
+          44.9554839
+        ]
+      },
+      "id": "way/54611728"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54611729",
+        "aerialway": "platter",
+        "name": "Baby 2",
+        "ref": "27",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8857942,
+          44.9555211
+        ]
+      },
+      "id": "way/54611729"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54611739",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:capacity": "2600",
+        "aerialway:detachable": "no",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "6",
+        "name": "Cit Roc",
+        "oneway": "yes",
+        "ref": "28",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.884807,
+          44.951396
+        ]
+      },
+      "id": "way/54611739"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54611747",
+        "aerialway": "platter",
+        "aerialway:detachable": "no",
+        "name": "La Motta 1",
+        "ref": "20",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9145648,
+          44.9548359
+        ]
+      },
+      "id": "way/54611747"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54611751",
+        "aerialway": "chair_lift",
+        "aerialway:duration": "11",
+        "aerialway:occupancy": "2",
+        "name": "Colò",
+        "ref": "12",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8583213,
+          44.9840547
+        ]
+      },
+      "id": "way/54611751"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54611758",
+        "aerialway": "chair_lift",
+        "aerialway:duration": "8",
+        "aerialway:occupancy": "4",
+        "name": "Chamonier",
+        "ref": "11",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8621573,
+          44.9933504
+        ]
+      },
+      "id": "way/54611758"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54611766",
+        "aerialway": "platter",
+        "aerialway:capacity": "720",
+        "aerialway:duration": "8",
+        "name": "Tuassieres",
+        "ref": "3",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8966691,
+          45.0180955
+        ]
+      },
+      "id": "way/54611766"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54621604",
+        "aerialway": "cable_car",
+        "aerialway:duration": "8",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "60",
+        "name": "Pattemouche-Anfiteatro",
+        "ref": "14",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9113371,
+          44.9778826
+        ]
+      },
+      "id": "way/54621604"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54621605",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:detachable": "no",
+        "aerialway:duration": "10",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Nube d'Argento",
+        "oneway": "yes",
+        "ref": "17",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8965832,
+          44.9657962
+        ]
+      },
+      "id": "way/54621605"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54621606",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:detachable": "no",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Capret",
+        "oneway": "yes",
+        "ref": "22",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8870491,
+          44.9633633
+        ]
+      },
+      "id": "way/54621606"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54621607",
+        "aerialway": "platter",
+        "name": "Jolly",
+        "ref": "25",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8830307,
+          44.9575583
+        ]
+      },
+      "id": "way/54621607"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/54621608",
+        "aerialway": "platter",
+        "aerialway:capacity": "840",
+        "aerialway:detachable": "no",
+        "name": "Orsiera",
+        "ref": "16",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9090014,
+          44.9645842
+        ]
+      },
+      "id": "way/54621608"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/100875567",
+        "aerialway": "magic_carpet",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8188043,
+          44.9632332
+        ]
+      },
+      "id": "way/100875567"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/100875568",
+        "aerialway": "magic_carpet",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8162015,
+          44.9678442
+        ]
+      },
+      "id": "way/100875568"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/100875578",
+        "aerialway": "gondola",
+        "aerialway:capacity": "1800",
+        "aerialway:duration": "7",
+        "aerialway:occupancy": "8",
+        "name": "Cesana-Ski Lodge 2",
+        "ref": "39",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8118766,
+          44.9572085
+        ]
+      },
+      "id": "way/100875578"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/100875588",
+        "aerialway": "magic_carpet",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8157428,
+          44.9679685
+        ]
+      },
+      "id": "way/100875588"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/100875595",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:detachable": "yes",
+        "aerialway:duration": "8",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "TSD4 Ski Lodge - La Sellette",
+        "oneway": "yes",
+        "ref": "37",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8313854,
+          44.963945
+        ]
+      },
+      "id": "way/100875595"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/100875596",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:detachable": "no",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Baby Sansicario",
+        "oneway": "yes",
+        "ref": "38",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.819826,
+          44.9687688
+        ]
+      },
+      "id": "way/100875596"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/233500945",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:duration": "11",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Jouvenceaux - Sportinia 1",
+        "ref": "10",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8547401,
+          45.0172189
+        ]
+      },
+      "id": "way/233500945"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/233500950",
+        "aerialway": "magic_carpet",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8502263,
+          45.0230034
+        ]
+      },
+      "id": "way/233500950"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/239353854",
+        "abandoned": "yes",
+        "aerialway": "platter",
+        "name": "Belotte Piz",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9526671,
+          44.9818688
+        ]
+      },
+      "id": "way/239353854"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/239353856",
+        "abandoned": "yes",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "2",
+        "name": "Conca del Sole",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9301447,
+          44.9866405
+        ]
+      },
+      "id": "way/239353856"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/240355515",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:capacity": "2400",
+        "aerialway:detachable": "yes",
+        "aerialway:duration": "7.55",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Nuova Nube",
+        "oneway": "yes",
+        "ref": "18",
+        "source": "bing",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9021506,
+          44.9632664
+        ]
+      },
+      "id": "way/240355515"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/261134871",
+        "abandoned": "yes",
+        "aerialway": "platter",
+        "name": "Cristallo",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9419128,
+          44.9815848
+        ]
+      },
+      "id": "way/261134871"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/261148443",
+        "abandoned": "yes",
+        "aerialway": "platter",
+        "name": "Smeraldo",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9448114,
+          44.9864259
+        ]
+      },
+      "id": "way/261148443"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/309226132",
+        "aerialway": "platter",
+        "aerialway:duration": "5",
+        "name": "Bourget",
+        "ref": "5",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8831716,
+          45.0046737
+        ]
+      },
+      "id": "way/309226132"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/322162752",
+        "aerialway": "magic_carpet",
+        "name": "Jolly DX",
+        "ref": "24",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8826896,
+          44.9570875
+        ]
+      },
+      "id": "way/322162752"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/322162954",
+        "aerialway": "platter",
+        "name": "Combetta",
+        "ref": "21",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8877351,
+          44.9672848
+        ]
+      },
+      "id": "way/322162954"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/322168492",
+        "aerialway": "platter",
+        "name": "Sciovia Baby",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9420718,
+          45.0088413
+        ]
+      },
+      "id": "way/322168492"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/405006164",
+        "aerialway": "chair_lift",
+        "aerialway:duration": "8",
+        "aerialway:occupancy": "3",
+        "name": "Triplex",
+        "ref": "6",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8737709,
+          44.9986747
+        ]
+      },
+      "id": "way/405006164"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/517973334",
+        "aerialway": "chair_lift",
+        "name": "Trampolini (in disuso)",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9406665,
+          45.0068389
+        ]
+      },
+      "id": "way/517973334"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280017",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8507783,
+          44.9697152
+        ]
+      },
+      "id": "node/564280017"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280018",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8507315,
+          44.9697468
+        ]
+      },
+      "id": "node/564280018"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280020",
+        "aerialway": "station",
+        "name": "Roccia Rotonda"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8541436,
+          44.9681669
+        ]
+      },
+      "id": "node/564280020"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280022",
+        "aerialway": "station",
+        "name": "Soleil Boeuf"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8346428,
+          44.9678632
+        ]
+      },
+      "id": "node/564280022"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280025",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8534993,
+          44.9792931
+        ]
+      },
+      "id": "node/564280025"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280027",
+        "aerialway": "station",
+        "name": "Sestriere"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8742448,
+          44.9538471
+        ]
+      },
+      "id": "node/564280027"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280031",
+        "aerialway": "station",
+        "name": "Garnel",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8748514,
+          44.9537913
+        ]
+      },
+      "id": "node/564280031"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280039",
+        "aerialway": "station",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8628811,
+          44.965359
+        ]
+      },
+      "id": "node/564280039"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280042",
+        "aerialway": "station",
+        "name": "Fraiteve",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8598769,
+          44.9764541
+        ]
+      },
+      "id": "node/564280042"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280057",
+        "aerialway": "station",
+        "name": "Chisonetto"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8898833,
+          44.9606916
+        ]
+      },
+      "id": "node/564280057"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280104",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8676504,
+          44.9953465
+        ]
+      },
+      "id": "node/564280104"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280112",
+        "aerialway": "station",
+        "name": "Nuova Nube"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9137502,
+          44.9580276
+        ]
+      },
+      "id": "node/564280112"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280115",
+        "aerialway": "station",
+        "name": "Banchetta",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.91665,
+          44.9562359
+        ]
+      },
+      "id": "node/564280115"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280124",
+        "aerialway": "station",
+        "name": "Sportinia"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8676052,
+          45.0063684
+        ]
+      },
+      "id": "node/564280124"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280127",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8682227,
+          45.0064221
+        ]
+      },
+      "id": "node/564280127"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280132",
+        "aerialway": "station",
+        "name": "Clotes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8686593,
+          45.0211716
+        ]
+      },
+      "id": "node/564280132"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280135",
+        "aerialway": "station",
+        "name": "Nuovo Lago Nero"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8687507,
+          45.0213706
+        ]
+      },
+      "id": "node/564280135"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280145",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8750815,
+          45.0033577
+        ]
+      },
+      "id": "node/564280145"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280147",
+        "aerialway": "station",
+        "name": "Prariond",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8601366,
+          45.0228522
+        ]
+      },
+      "id": "node/564280147"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564280152",
+        "aerialway": "station",
+        "name": "Clotes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8605904,
+          45.0258795
+        ]
+      },
+      "id": "node/564280152"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564435016",
+        "aerialway": "station",
+        "ele": "2650"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.763681,
+          45.0851366
+        ]
+      },
+      "id": "node/564435016"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564435018",
+        "aerialway": "station",
+        "ele": "2694",
+        "name": "Ban"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.7665585,
+          45.0872405
+        ]
+      },
+      "id": "node/564435018"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/564435021",
+        "aerialway": "station",
+        "ele": "2278",
+        "name": "Ban"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.7526563,
+          45.0897744
+        ]
+      },
+      "id": "node/564435021"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/606066060",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:duration": "12",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "3",
+        "alt_name": "Cot d'Pin Faure",
+        "name": "Cote Faure",
+        "ref": "4",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8916587,
+          45.012344
+        ]
+      },
+      "id": "way/606066060"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/667720193",
+        "aerialway": "magic_carpet",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8597938,
+          45.0253249
+        ]
+      },
+      "id": "way/667720193"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/669770622",
+        "aerialway": "magic_carpet",
+        "operator": "Scuola Sci Sauze Project",
+        "website": "https://www.sauzedoulxproject.it/",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8649543,
+          45.0242533
+        ]
+      },
+      "id": "way/669770622"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687482692",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8168551,
+          44.9671682
+        ]
+      },
+      "id": "node/687482692"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687482701",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8351561,
+          44.969274
+        ]
+      },
+      "id": "node/687482701"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687482780",
+        "aerialway": "station",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8793114,
+          44.9520289
+        ]
+      },
+      "id": "node/687482780"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687482808",
+        "aerialway": "station",
+        "name": "Cit Roc",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8810894,
+          44.9559772
+        ]
+      },
+      "id": "node/687482808"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687482815",
+        "aerialway": "station",
+        "name": "Trebials"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8881271,
+          44.9544212
+        ]
+      },
+      "id": "node/687482815"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687482875",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9120804,
+          44.9550938
+        ]
+      },
+      "id": "node/687482875"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687483096",
+        "aerialway": "station",
+        "name": "Colò"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8598879,
+          44.9768368
+        ]
+      },
+      "id": "node/687483096"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687483138",
+        "aerialway": "station",
+        "name": "Nuova Nube",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.890551,
+          44.9685052
+        ]
+      },
+      "id": "node/687483138"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687483139",
+        "aerialway": "station",
+        "name": "Trebials",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8902671,
+          44.9678034
+        ]
+      },
+      "id": "node/687483139"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687483178",
+        "aerialway": "station",
+        "name": "Chamonier"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8570154,
+          44.9915664
+        ]
+      },
+      "id": "node/687483178"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687483180",
+        "aerialway": "station",
+        "name": "Colò"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8567547,
+          44.9912725
+        ]
+      },
+      "id": "node/687483180"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687483222",
+        "aerialway": "station",
+        "name": "Chamonier"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8672992,
+          44.9951343
+        ]
+      },
+      "id": "node/687483222"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687483557",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8921744,
+          45.0194099
+        ]
+      },
+      "id": "node/687483557"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687483622",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9011638,
+          45.0167811
+        ]
+      },
+      "id": "node/687483622"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687619183",
+        "aerialway": "station",
+        "name": "Capret",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8839348,
+          44.958567
+        ]
+      },
+      "id": "node/687619183"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687619184",
+        "aerialway": "station",
+        "name": "Capret"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8901634,
+          44.9681597
+        ]
+      },
+      "id": "node/687619184"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687619185",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8928554,
+          44.9698194
+        ]
+      },
+      "id": "node/687619185"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687619186",
+        "aerialway": "station",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9003111,
+          44.961773
+        ]
+      },
+      "id": "node/687619186"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687619197",
+        "aerialway": "station",
+        "name": "Anfiteatro",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9044447,
+          44.9675963
+        ]
+      },
+      "id": "node/687619197"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687619198",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9032833,
+          44.9670692
+        ]
+      },
+      "id": "node/687619198"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/687619204",
+        "aerialway": "station",
+        "name": "Pattemouche",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9182295,
+          44.9881688
+        ]
+      },
+      "id": "node/687619204"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/760701251",
+        "aerialway": "magic_carpet",
+        "name": "Anfiteatro",
+        "ref": "15",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9038268,
+          44.9675232
+        ]
+      },
+      "id": "way/760701251"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1123874847",
+        "aerialway": "magic_carpet",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9035229,
+          44.9681346
+        ]
+      },
+      "id": "way/1123874847"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1123936425",
+        "aerialway": "magic_carpet",
+        "name": "Principi",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8750133,
+          44.9527757
+        ]
+      },
+      "id": "way/1123936425"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1136456696",
+        "aerialway": "magic_carpet",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8636498,
+          45.024221
+        ]
+      },
+      "id": "way/1136456696"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1165766903",
+        "aerialway": "station",
+        "aerialway:station": "mid",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8052929,
+          44.9520117
+        ]
+      },
+      "id": "node/1165766903"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1165767278",
+        "aerialway": "station",
+        "aerialway:station": "top",
+        "name": "Ski Lodge",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8184602,
+          44.9624053
+        ]
+      },
+      "id": "node/1165767278"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1165767311",
+        "aerialway": "station",
+        "name": "Baby Sansicario"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8164823,
+          44.9683426
+        ]
+      },
+      "id": "node/1165767311"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1165767531",
+        "aerialway": "station",
+        "name": "La Sellette",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8438298,
+          44.9641161
+        ]
+      },
+      "id": "node/1165767531"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1165767587",
+        "aerialway": "station",
+        "name": "Ski Lodge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.818941,
+          44.9637738
+        ]
+      },
+      "id": "node/1165767587"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1165768248",
+        "aerialway": "station",
+        "name": "Baby Sansicario"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8231697,
+          44.969195
+        ]
+      },
+      "id": "node/1165768248"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/1165810009",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8567109,
+          44.9887469
+        ]
+      },
+      "id": "node/1165810009"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1227922141",
+        "aerialway": "magic_carpet",
+        "name": "Mini Sportinia",
+        "ref": "9",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8671364,
+          45.0067267
+        ]
+      },
+      "id": "way/1227922141"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1258651620",
+        "aerialway": "gondola",
+        "aerialway:capacity": "1800",
+        "aerialway:duration": "4.5",
+        "aerialway:occupancy": "8",
+        "name": "Cesana-Ski Lodge 1",
+        "ref": "39",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8012902,
+          44.9488517
+        ]
+      },
+      "id": "way/1258651620"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1258678034",
+        "aerialway": "gondola",
+        "aerialway:duration": "11",
+        "aerialway:occupancy": "6",
+        "bicycle": "yes",
+        "name": "Sestriere - Fraiteve",
+        "oneway": "no",
+        "ref": "32",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.861379,
+          44.9709066
+        ]
+      },
+      "id": "way/1258678034"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1258678035",
+        "aerialway": "platter",
+        "aerialway:detachable": "no",
+        "name": "La Motta 2",
+        "ref": "20",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9193384,
+          44.9543404
+        ]
+      },
+      "id": "way/1258678035"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1258678036",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:duration": "11",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Jouvenceaux - Sportinia 2",
+        "ref": "10",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8624158,
+          45.0079418
+        ]
+      },
+      "id": "way/1258678036"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1258678037",
+        "aerialway": "chair_lift",
+        "aerialway:bubble": "no",
+        "aerialway:detachable": "no",
+        "aerialway:duration": "12",
+        "aerialway:heating": "no",
+        "aerialway:occupancy": "4",
+        "name": "Garnel 1",
+        "oneway": "yes",
+        "ref": "30",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8770814,
+          44.9529101
+        ]
+      },
+      "id": "way/1258678037"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2418789252",
+        "aerialway": "station",
+        "aerialway:access": "both",
+        "name": "Jouvenceaux",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8494386,
+          45.0226732
+        ]
+      },
+      "id": "node/2418789252"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2418789253",
+        "aerialway": "station",
+        "aerialway:access": "both",
+        "name": "Sarnas",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8600416,
+          45.0117646
+        ]
+      },
+      "id": "node/2418789253"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2418789254",
+        "aerialway": "station",
+        "aerialway:access": "both",
+        "name": "Sportinia",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8647901,
+          45.0041189
+        ]
+      },
+      "id": "node/2418789254"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2471485494",
+        "abandoned": "yes",
+        "aerialway": "station",
+        "name": "Ex partenza skilift Belotte Piz",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9452112,
+          44.9819455
+        ]
+      },
+      "id": "node/2471485494"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2471485508",
+        "aerialway": "station",
+        "name": "Conca del Sole",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.939486,
+          44.9851136
+        ]
+      },
+      "id": "node/2471485508"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2471485511",
+        "aerialway": "station",
+        "name": "Conca del Sole",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9208034,
+          44.9881674
+        ]
+      },
+      "id": "node/2471485511"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2667619324",
+        "abandoned": "yes",
+        "aerialway": "station",
+        "name": "Ex partenza skilift Cristallo",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9376364,
+          44.9815382
+        ]
+      },
+      "id": "node/2667619324"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2667619326",
+        "abandoned": "yes",
+        "aerialway": "station",
+        "name": "Ex arrivo skilift Cristallo",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9461891,
+          44.9816315
+        ]
+      },
+      "id": "node/2667619326"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2667744619",
+        "aerialway": "station",
+        "name": "Ex partenza skilift Smeraldo",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9380334,
+          44.9859869
+        ]
+      },
+      "id": "node/2667744619"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3145554199",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.88508,
+          45.0014225
+        ]
+      },
+      "id": "node/3145554199"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3145554203",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8812633,
+          45.0079249
+        ]
+      },
+      "id": "node/3145554203"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3289193748",
+        "aerialway": "station",
+        "name": "Combetta",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8855083,
+          44.9659037
+        ]
+      },
+      "id": "node/3289193748"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3289193749",
+        "aerialway": "station",
+        "name": "Combetta",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8904008,
+          44.9689435
+        ]
+      },
+      "id": "node/3289193749"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4072368523",
+        "aerialway": "station",
+        "name": "Triplex"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8706032,
+          44.994701
+        ]
+      },
+      "id": "node/4072368523"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4072368524",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8769386,
+          45.0026484
+        ]
+      },
+      "id": "node/4072368524"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4344349175",
+        "aerialway": "station",
+        "ele": "2244",
+        "name": "6 Gigante",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.7541938,
+          45.0866737
+        ]
+      },
+      "id": "node/4344349175"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5747099361",
+        "aerialway": "station",
+        "aerialway:station": "bottom",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8833215,
+          45.0106963
+        ]
+      },
+      "id": "node/5747099361"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6251856227",
+        "aerialway": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8999959,
+          45.0139917
+        ]
+      },
+      "id": "node/6251856227"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9757358473",
+        "aerialway": "station",
+        "name": "Staion intermédiaire du \"Pian Della Marmotte\"",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.7651489,
+          44.9623191
+        ]
+      },
+      "id": "node/9757358473"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11553700696",
+        "aerialway": "station",
+        "name": "Solomiac",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8131061,
+          44.9835598
+        ]
+      },
+      "id": "node/11553700696"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11553700697",
+        "aerialway": "station",
+        "name": "Sansicario",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8212578,
+          44.9693952
+        ]
+      },
+      "id": "node/11553700697"
+    }
+  ]
+}
