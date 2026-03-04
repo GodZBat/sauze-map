@@ -1,0 +1,68 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Capanna Kind",
+        "google": "https://www.google.com/maps/search/?api=1&query=Capanna%20Kind%2C%2045.0055%2C6.8668888889",
+        "navigate": "https://www.google.com/maps/dir/?api=1&destination=45.0055,6.8668888889"
+      },
+      "geometry": { "type": "Point", "coordinates": [6.8668888889, 45.0055] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Capanna Mollino",
+        "google": "https://www.google.com/maps/search/?api=1&query=Capanna%20Mollino%2C%2045.0029444444%2C6.8751388889",
+        "navigate": "https://www.google.com/maps/dir/?api=1&destination=45.0029444444,6.8751388889"
+      },
+      "geometry": { "type": "Point", "coordinates": [6.8751388889, 45.0029444444] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Chalet Capannina (Sportinia)",
+        "google": "https://www.google.com/maps/search/?api=1&query=Chalet%20Capannina%2C%2045.0052777778%2C6.8662222222",
+        "navigate": "https://www.google.com/maps/dir/?api=1&destination=45.0052777778,6.8662222222"
+      },
+      "geometry": { "type": "Point", "coordinates": [6.8662222222, 45.0052777778] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ciao Pais",
+        "google": "https://www.google.com/maps/search/?api=1&query=Ciao%20Pais%2C%2045.0188888889%2C6.8765277778",
+        "navigate": "https://www.google.com/maps/dir/?api=1&destination=45.0188888889,6.8765277778"
+      },
+      "geometry": { "type": "Point", "coordinates": [6.8765277778, 45.0188888889] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rifugio Clot Bourget",
+        "google": "https://www.google.com/maps/search/?api=1&query=Rifugio%20Clot%20Bourget%2C%2045.0116944444%2C6.8851388889",
+        "navigate": "https://www.google.com/maps/dir/?api=1&destination=45.0116944444,6.8851388889"
+      },
+      "geometry": { "type": "Point", "coordinates": [6.8851388889, 45.0116944444] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rocce Nere (Sportinia)",
+        "google": "https://www.google.com/maps/search/?api=1&query=Rocce%20Nere%2C%2045.0058611111%2C6.86775",
+        "navigate": "https://www.google.com/maps/dir/?api=1&destination=45.0058611111,6.86775"
+      },
+      "geometry": { "type": "Point", "coordinates": [6.86775, 45.0058611111] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Monte Triplex",
+        "google": "https://www.google.com/maps/search/?api=1&query=Monte%20Triplex%2C%2045.0054166667%2C6.8682222222",
+        "navigate": "https://www.google.com/maps/dir/?api=1&destination=45.0054166667,6.8682222222"
+      },
+      "geometry": { "type": "Point", "coordinates": [6.8682222222, 45.0054166667] }
+    }
+  ]
+}
