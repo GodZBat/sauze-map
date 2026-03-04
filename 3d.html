@@ -140,9 +140,58 @@ const map = new maplibregl.Map({
 
 map.addControl(new maplibregl.NavigationControl({ visualizePitch:true }), "top-right");
 
+// --- Google links ---
+function googleMapsPlaceUrl(name, lat, lng) {
+  const q = encodeURIComponent(`${name}, ${lat},${lng}`);
+  return `https://www.google.com/maps/search/?api=1&query=${q}`;
+}
+function googleMapsDirectionsUrl(lat, lng) {
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+}
+
+// --- SVG ICONS (generate in code, no assets) ---
+function svgDataUri(svg) {
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+
+// Punto ristoro (forchetta/coltello)
+const SVG_RISTORO = `
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <g fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- plate circle -->
+    <circle cx="32" cy="32" r="22" fill="#ffcc00" stroke="#111"/>
+    <!-- fork -->
+    <path d="M22 18v16"/>
+    <path d="M18 18v10"/>
+    <path d="M26 18v10"/>
+    <path d="M18 28h8"/>
+    <path d="M22 34v12"/>
+    <!-- knife -->
+    <path d="M40 18c4 4 4 10 0 16v12"/>
+    <path d="M40 18l6 6"/>
+  </g>
+</svg>`;
+
+// Impianto (seggiovia stilizzata)
+const SVG_IMPIANTO = `
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <g fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="32" cy="32" r="22" fill="#7dd3fc" stroke="#111"/>
+    <!-- cable -->
+    <path d="M14 22h36"/>
+    <!-- hanger -->
+    <path d="M32 22v10"/>
+    <path d="M26 32h12"/>
+    <!-- chair -->
+    <path d="M24 34v10"/>
+    <path d="M40 34v10"/>
+    <path d="M22 44h20"/>
+    <path d="M24 40h16"/>
+  </g>
+</svg>`;
+
 map.on("load", () => {
   try {
-
     // Terrain
     map.setTerrain({ source:"terrainSource", exaggeration:1.4 });
 
@@ -193,7 +242,6 @@ map.on("load", () => {
       }
     });
 
-    // evidenziazione (funziona solo se c'è un id; se non c'è non rompe nulla)
     map.addLayer({
       id:"runs-selected",
       type:"line",
@@ -214,7 +262,6 @@ map.on("load", () => {
       const diff = runDifficultyFromProps(p);
       const color = runColorFromDifficulty(diff);
 
-      // highlight solo se esiste f.id
       if (f.id !== undefined && f.id !== null) {
         map.setFilter("runs-selected", ["==", ["id"], f.id]);
       } else {
@@ -239,7 +286,20 @@ map.on("load", () => {
     map.on("mouseleave", "runs-colored", () => { map.getCanvas().style.cursor = ""; });
 
     // -------------------------
-    // RIFUGI (✅ QUI era assente)
+    // ICONE (load from SVG data URI)
+    // -------------------------
+    map.loadImage(svgDataUri(SVG_RISTORO), (err, image) => {
+      if (err) { console.error("Icon ristoro load error:", err); return; }
+      if (!map.hasImage("icon-ristoro")) map.addImage("icon-ristoro", image);
+    });
+
+    map.loadImage(svgDataUri(SVG_IMPIANTO), (err, image) => {
+      if (err) { console.error("Icon impianto load error:", err); return; }
+      if (!map.hasImage("icon-impianto")) map.addImage("icon-impianto", image);
+    });
+
+    // -------------------------
+    // RIFUGI (punto ristoro)
     // -------------------------
     map.addSource("rifugi", {
       type: "geojson",
@@ -248,13 +308,12 @@ map.on("load", () => {
 
     map.addLayer({
       id: "rifugi-layer",
-      type: "circle",
+      type: "symbol",
       source: "rifugi",
-      paint: {
-        "circle-radius": 9,
-        "circle-color": "#ffcc00",
-        "circle-stroke-color": "#111",
-        "circle-stroke-width": 2
+      layout: {
+        "icon-image": "icon-ristoro",
+        "icon-size": 0.6,
+        "icon-allow-overlap": true
       }
     });
 
@@ -265,7 +324,7 @@ map.on("load", () => {
       layout: {
         "text-field": ["get", "name"],
         "text-size": 13,
-        "text-offset": [0, 1.3],
+        "text-offset": [0, 1.35],
         "text-anchor": "top",
         "text-allow-overlap": true
       },
@@ -275,18 +334,49 @@ map.on("load", () => {
       }
     });
 
-    // porta rifugi in cima
+    // -------------------------
+    // IMPIANTI (icona seggiovia)
+    // -------------------------
+    map.addSource("impianti", {
+      type: "geojson",
+      data: "./data/impianti.geojson"
+    });
+
+    map.addLayer({
+      id: "impianti-layer",
+      type: "symbol",
+      source: "impianti",
+      layout: {
+        "icon-image": "icon-impianto",
+        "icon-size": 0.6,
+        "icon-allow-overlap": true
+      }
+    });
+
+    map.addLayer({
+      id: "impianti-label",
+      type: "symbol",
+      source: "impianti",
+      layout: {
+        "text-field": ["get", "name"],
+        "text-size": 13,
+        "text-offset": [0, 1.35],
+        "text-anchor": "top",
+        "text-allow-overlap": true
+      },
+      paint: {
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 2
+      }
+    });
+
+    // Porta simboli sopra le piste
     map.moveLayer("rifugi-layer");
     map.moveLayer("rifugi-label");
+    map.moveLayer("impianti-layer");
+    map.moveLayer("impianti-label");
 
-    function googleMapsPlaceUrl(name, lat, lng) {
-      const q = encodeURIComponent(`${name}, ${lat},${lng}`);
-      return `https://www.google.com/maps/search/?api=1&query=${q}`;
-    }
-    function googleMapsDirectionsUrl(lat, lng) {
-      return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-    }
-
+    // Click rifugio -> popup Google
     map.on("mouseenter", "rifugi-layer", () => { map.getCanvas().style.cursor = "pointer"; });
     map.on("mouseleave", "rifugi-layer", () => { map.getCanvas().style.cursor = ""; });
 
@@ -304,7 +394,41 @@ map.on("load", () => {
         .setLngLat(e.lngLat)
         .setHTML(`
           <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
-            <div style="font-weight:900;font-size:14px;margin-bottom:8px;">${name}</div>
+            <div style="font-weight:900;font-size:14px;margin-bottom:8px;">🍽️ ${name}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
+                 style="display:inline-block;padding:8px 10px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font-weight:900;">
+                Apri su Google
+              </a>
+              <a href="${navUrl}" target="_blank" rel="noopener noreferrer"
+                 style="display:inline-block;padding:8px 10px;border-radius:10px;background:#eee;color:#111;text-decoration:none;font-weight:900;">
+                Naviga
+              </a>
+            </div>
+          </div>
+        `)
+        .addTo(map);
+    });
+
+    // Click impianto -> popup Google
+    map.on("mouseenter", "impianti-layer", () => { map.getCanvas().style.cursor = "pointer"; });
+    map.on("mouseleave", "impianti-layer", () => { map.getCanvas().style.cursor = ""; });
+
+    map.on("click", "impianti-layer", (e) => {
+      const f = e.features && e.features[0];
+      if (!f) return;
+
+      const name = f.properties?.name || "Impianto";
+      const [lng, lat] = f.geometry.coordinates;
+
+      const googleUrl = googleMapsPlaceUrl(name, lat, lng);
+      const navUrl = googleMapsDirectionsUrl(lat, lng);
+
+      new maplibregl.Popup({ closeButton:true, closeOnClick:true })
+        .setLngLat(e.lngLat)
+        .setHTML(`
+          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
+            <div style="font-weight:900;font-size:14px;margin-bottom:8px;">🚡 ${name}</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
                  style="display:inline-block;padding:8px 10px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font-weight:900;">
@@ -332,28 +456,26 @@ map.on("load", () => {
     btnMap.onclick = () => {
       map.setLayoutProperty("base","visibility","visible");
       map.setLayoutProperty("satellite","visibility","none");
-
-      // in mappa: se vuoi, spegni labels (consigliato)
       map.setLayoutProperty("labels","visibility","none");
       labelsOn = false;
       btnLabels.textContent = "🔤 Labels: OFF";
+      setMsg("✅ Modalità: Mappa");
     };
 
     btnSat.onclick = () => {
       map.setLayoutProperty("base","visibility","none");
       map.setLayoutProperty("satellite","visibility","visible");
-
-      // labels solo se attivati
       map.setLayoutProperty("labels","visibility", labelsOn ? "visible" : "none");
+      setMsg("✅ Modalità: Satellite");
     };
 
     btnLabels.onclick = () => {
       labelsOn = !labelsOn;
-      map.setLayoutProperty("labels","visibility",labelsOn ? "visible" : "none");
+      map.setLayoutProperty("labels","visibility", labelsOn ? "visible" : "none");
       btnLabels.textContent = "🔤 Labels: " + (labelsOn ? "ON" : "OFF");
     };
 
-    setMsg("✅ 3D pronto. (Piste + Rifugi)");
+    setMsg("✅ 3D pronto. Piste + Rifugi + Impianti");
 
   } catch(e){
     console.error(e);
