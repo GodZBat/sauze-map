@@ -38,25 +38,28 @@
       white-space:pre-wrap;
     }
 
-    /* ✅ Pannello quota (sotto al pannello principale) */
+    /* ✅ Pannello quota separato */
     .elev{
       position:absolute;
       left:12px;
-      top: 260px;              /* se vuoi: regola a piacere */
+      top: 248px; /* regola se vuoi più su/giù */
       z-index:15;
       background:rgba(255,255,255,0.95);
       padding:10px 12px;
       border-radius:14px;
       box-shadow:0 8px 20px rgba(0,0,0,0.18);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      font-weight:900;
       width:340px; max-width: calc(100% - 24px);
     }
-    .elev small{
+    .elev #elevValue{
+      font-weight:1000;
       display:block;
-      font-weight:700;
-      opacity:0.7;
+    }
+    .elev #elevHint{
+      display:block;
       margin-top:4px;
+      font-size:12px;
+      opacity:0.75;
     }
   </style>
 </head>
@@ -92,8 +95,8 @@
 
 <!-- ✅ Pannello quota -->
 <div class="elev" id="elevPanel">
-  Quota: --
-  <small id="elevHint">Muovi il mouse sulla mappa</small>
+  <span id="elevValue">Quota: --</span>
+  <small id="elevHint">Inizializzo…</small>
 </div>
 
 <div class="msg" id="msg">Avvio…</div>
@@ -105,9 +108,11 @@ const MAPTILER_KEY = "ORUgXv14fwE911CA6MdX";
 const msg = document.getElementById("msg");
 const setMsg = (t) => msg.textContent = t;
 
+const elevValue = document.getElementById("elevValue");
+const elevHint  = document.getElementById("elevHint");
+
 const CENTER = [6.86, 45.03];
 
-// ✅ util quota
 function fmtMeters(v){
   if (v === null || v === undefined || Number.isNaN(v)) return "--";
   return `${Math.round(v)} m`;
@@ -128,9 +133,10 @@ function runColorFromDifficulty(diffRaw){
   return "#7aa6d8";
 }
 
+// ✅ Popup unico, NON closeOnClick (se no sembra “non funziona”)
 const popup = new maplibregl.Popup({
   closeButton: true,
-  closeOnClick: true,
+  closeOnClick: false,
   maxWidth: "280px"
 });
 
@@ -310,7 +316,7 @@ function setLayerVisible(id, visible) {
 
 map.on("load", () => {
   try {
-    // ✅ terrain ON (già ok)
+    // ✅ Terrain
     map.setTerrain({ source:"terrainSource", exaggeration:1.4 });
 
     const ex = document.getElementById("ex");
@@ -318,29 +324,26 @@ map.on("load", () => {
       map.setTerrain({ source: "terrainSource", exaggeration: parseInt(ex.value)/100 });
     });
 
-    // ✅ QUOTA: pannello hover/center + hint
-    const elevPanel = document.getElementById("elevPanel");
-    const elevHint  = document.getElementById("elevHint");
+    // ✅ Quota pannello: desktop hover / mobile center
     const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
     if (isTouch) {
-      elevHint.textContent = "Su mobile: quota al centro mappa";
-      const updateCenterElev = () => {
+      elevHint.textContent = "Mobile: quota al centro mappa";
+      const update = () => {
         const c = map.getCenter();
-        const elev = map.queryTerrainElevation(c);
-        elevPanel.firstChild.textContent = `Quota: ${fmtMeters(elev)}`;
+        const z = map.queryTerrainElevation(c);
+        elevValue.textContent = `Quota: ${fmtMeters(z)}`;
       };
-      map.on("move", () => updateCenterElev());
-      map.once("idle", () => updateCenterElev());
+      map.on("move", update);
+      map.once("idle", update);
     } else {
       elevHint.textContent = "Desktop: quota sotto il mouse";
-      let lastElevUpdate = 0;
+      let last = 0;
       map.on("mousemove", (e) => {
         const now = performance.now();
-        if (now - lastElevUpdate < 80) return; // throttle
-        lastElevUpdate = now;
-        const elev = map.queryTerrainElevation(e.lngLat);
-        elevPanel.firstChild.textContent = `Quota: ${fmtMeters(elev)}`;
+        if (now - last < 80) return;
+        last = now;
+        const z = map.queryTerrainElevation(e.lngLat);
+        elevValue.textContent = `Quota: ${fmtMeters(z)}`;
       });
     }
 
@@ -389,6 +392,10 @@ map.on("load", () => {
     });
 
     map.on("click", "runs-colored", (e) => {
+      // ✅ evita click globale che chiude il popup
+      e.originalEvent?.stopPropagation?.();
+      e.originalEvent && (e.originalEvent.cancelBubble = true);
+
       const f = e.features && e.features[0];
       if (!f) return;
       const p = f.properties || {};
@@ -397,8 +404,8 @@ map.on("load", () => {
       const diff = runDifficultyFromProps(p);
       const color = runColorFromDifficulty(diff);
 
-      // ✅ quota al punto click (per pista)
-      const elev = map.queryTerrainElevation(e.lngLat);
+      // quota sul click
+      const z = map.queryTerrainElevation(e.lngLat);
 
       if (f.id !== undefined && f.id !== null) {
         map.setFilter("runs-selected", ["==", ["id"], f.id]);
@@ -406,6 +413,7 @@ map.on("load", () => {
         map.setFilter("runs-selected", ["==", ["id"], "__none__"]);
       }
 
+      popup.remove();
       popup
         .setLngLat(e.lngLat)
         .setHTML(`
@@ -415,7 +423,7 @@ map.on("load", () => {
               Difficoltà:
               <span style="color:${color};font-weight:800">${diff || "N/D"}</span>
             </div>
-            <div style="margin-top:6px;font-weight:900">Quota: ${fmtMeters(elev)}</div>
+            <div style="margin-top:6px;font-weight:900">Quota: ${fmtMeters(z)}</div>
           </div>
         `)
         .addTo(map);
@@ -499,21 +507,25 @@ map.on("load", () => {
     map.on("mouseenter","rifugi-layer",()=>map.getCanvas().style.cursor="pointer");
     map.on("mouseleave","rifugi-layer",()=>map.getCanvas().style.cursor="");
     map.on("click","rifugi-layer",(e)=>{
+      e.originalEvent?.stopPropagation?.();
+      e.originalEvent && (e.originalEvent.cancelBubble = true);
+
       const f=e.features&&e.features[0]; if(!f) return;
       const name=f.properties?.name||"Rifugio";
       const [lng,lat]=f.geometry.coordinates;
 
-      // ✅ quota (usa click per precisione)
-      const elev = map.queryTerrainElevation(e.lngLat);
+      const z = map.queryTerrainElevation(e.lngLat);
 
       const googleUrl=googleMapsPlaceUrl(name,lat,lng);
       const navUrl=googleMapsDirectionsUrl(lat,lng);
-      new maplibregl.Popup()
+
+      popup.remove();
+      popup
         .setLngLat(e.lngLat)
         .setHTML(`
           <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
             <div style="font-weight:900;font-size:14px;margin-bottom:6px;">🍽️ ${name}</div>
-            <div style="font-weight:900;margin-bottom:10px;">Quota: ${fmtMeters(elev)}</div>
+            <div style="font-weight:900;margin-bottom:10px;">Quota: ${fmtMeters(z)}</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
                  style="display:inline-block;padding:8px 10px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font-weight:900;">
@@ -525,28 +537,33 @@ map.on("load", () => {
               </a>
             </div>
           </div>
-        `).addTo(map);
+        `)
+        .addTo(map);
     });
 
     // popup impianti
     map.on("mouseenter","impianti-layer",()=>map.getCanvas().style.cursor="pointer");
     map.on("mouseleave","impianti-layer",()=>map.getCanvas().style.cursor="");
     map.on("click","impianti-layer",(e)=>{
+      e.originalEvent?.stopPropagation?.();
+      e.originalEvent && (e.originalEvent.cancelBubble = true);
+
       const f=e.features&&e.features[0]; if(!f) return;
       const name=f.properties?.name||f.properties?.ref||"Impianto";
       const [lng,lat]=f.geometry.coordinates;
 
-      // ✅ quota
-      const elev = map.queryTerrainElevation(e.lngLat);
+      const z = map.queryTerrainElevation(e.lngLat);
 
       const googleUrl=googleMapsPlaceUrl(name,lat,lng);
       const navUrl=googleMapsDirectionsUrl(lat,lng);
-      new maplibregl.Popup()
+
+      popup.remove();
+      popup
         .setLngLat(e.lngLat)
         .setHTML(`
           <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
             <div style="font-weight:900;font-size:14px;margin-bottom:6px;">🚡 ${name}</div>
-            <div style="font-weight:900;margin-bottom:10px;">Quota: ${fmtMeters(elev)}</div>
+            <div style="font-weight:900;margin-bottom:10px;">Quota: ${fmtMeters(z)}</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
                  style="display:inline-block;padding:8px 10px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font-weight:900;">
@@ -558,23 +575,25 @@ map.on("load", () => {
               </a>
             </div>
           </div>
-        `).addTo(map);
+        `)
+        .addTo(map);
     });
 
-    // ✅ click "vuoto": popup quota (evita doppioni)
+    // ✅ click vuoto (solo quota), con guardia
     map.on("click", (e) => {
       const hits = map.queryRenderedFeatures(e.point, {
         layers: ["runs-colored", "rifugi-layer", "impianti-layer"]
       });
       if (hits && hits.length) return;
 
-      const elev = map.queryTerrainElevation(e.lngLat);
-      new maplibregl.Popup()
+      const z = map.queryTerrainElevation(e.lngLat);
+      popup.remove();
+      popup
         .setLngLat(e.lngLat)
         .setHTML(`
           <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
             <div style="font-weight:900">Quota</div>
-            <div style="margin-top:6px;font-weight:900;font-size:16px">${fmtMeters(elev)}</div>
+            <div style="margin-top:6px;font-weight:1000;font-size:16px">${fmtMeters(z)}</div>
           </div>
         `)
         .addTo(map);
