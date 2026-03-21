@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Sauze Freestyle Map</title>
 
-<!-- PWA / iPhone Home Screen -->
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="icon" type="image/png" href="./icon-192.png">
@@ -19,7 +18,6 @@
 html, body { height:100%; margin:0; }
 #map { height:100%; }
 
-/* --- Panel base (desktop) + drawer (mobile) --- */
 .panel{
   position:absolute;
   top:12px;
@@ -32,8 +30,6 @@ html, body { height:100%; margin:0; }
   width:320px;
   max-height: calc(100% - 24px);
   overflow:hidden;
-
-  /* ✅ scroll iOS: layout a colonne */
   display:flex;
   flex-direction:column;
 }
@@ -65,22 +61,16 @@ html, body { height:100%; margin:0; }
 
 .panel-body{
   padding:12px;
-
-  /* ✅ scroll vero su iPhone */
   overflow-y:auto;
   -webkit-overflow-scrolling: touch;
-
-  /* ✅ prende lo spazio disponibile */
   flex: 1 1 auto;
   max-height: none;
 }
 
-/* Stato CHIUSO */
 .panel.collapsed .panel-body{
   display:none;
 }
 
-/* Mobile: bottom sheet */
 @media (max-width: 600px){
   .panel{
     left: 10px;
@@ -139,6 +129,26 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
   font-size:12px;
   font-weight:800;
   margin-top:6px;
+}
+
+.history-card{
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius:12px;
+  padding:10px;
+  margin-top:8px;
+  background:#fff;
+}
+
+.history-title{
+  font-weight:900;
+  font-size:13px;
+}
+
+.history-meta{
+  font-size:12px;
+  color:#444;
+  margin-top:4px;
+  line-height:1.35;
 }
 </style>
 </head>
@@ -199,13 +209,16 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
 
     <hr/>
 
-    <div class="section-title">🎬 Replay giornata</div>
+    <div class="section-title">🎬 Tracking giornata</div>
     <div class="row">
-      <button class="btn-orange" id="trackStart">⏺ Registra</button>
-      <button class="btn-light" id="trackStop">⏹ Stop</button>
-      <button class="btn-dark" id="trackReplay">▶︎ Replay</button>
+      <button class="btn-orange" id="trackStart">⏺ START</button>
+      <button class="btn-light" id="trackStop">⏹ STOP</button>
+      <button class="btn-dark" id="trackReplayLatest">▶︎ Ultima</button>
     </div>
-    <div class="small" id="trackInfo">Traccia: nessuna</div>
+    <div class="small" id="trackInfo">Tracking fermo</div>
+
+    <div class="section-title">🗂️ Storico registrazioni</div>
+    <div id="trackHistory" class="small">Nessuna registrazione salvata.</div>
 
     <hr/>
 
@@ -235,25 +248,21 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
    ========================= */
 const map = L.map("map");
 
-// OSM
 const osm = L.tileLayer(
   "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   { maxZoom:19, attribution:"© OpenStreetMap contributors" }
 );
 
-// ESRI Satellite
 const esriSat = L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
   { maxZoom:19, attribution:"Tiles © Esri" }
 );
 
-// ESRI Hillshade overlay
 const hillshade = L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
   { maxZoom:19, opacity: 0.35, attribution:"Hillshade © Esri" }
 );
 
-// ✅ Labels overlay (nomi località/strade) sopra satellite
 const esriLabels = L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
   { maxZoom: 19, opacity: 1.0, zIndex: 650, attribution:"Labels © Esri" }
@@ -270,7 +279,6 @@ L.control.layers(
 
 map.setView([45.03,6.86],12);
 
-// Labels: ON in satellite, OFF in OSM (rispetta toggle in menu)
 function setLabelsActive(active){
   const toggle = document.getElementById("toggleLabels");
   if (toggle && !toggle.checked) active = false;
@@ -287,7 +295,6 @@ document.getElementById("toggleLabels").addEventListener("change", () => {
   setLabelsActive(isSat);
 });
 
-// Hillshade UI
 const hillToggle = document.getElementById("toggleHillshade");
 const hillOpacity = document.getElementById("hillshadeOpacity");
 hillToggle.addEventListener("change", () => {
@@ -329,7 +336,6 @@ let cachedData = null;
 let currentFilter = "all";
 let lastHighlighted = null;
 
-// ✅ Search focus
 let focusLayer = null;
 let isFocus = false;
 
@@ -356,13 +362,11 @@ function enterFocus(runLayer){
   if(!runLayer) return;
   isFocus = true;
 
-  // "spegni" le altre piste
   runsLayer.eachLayer(l => {
     if(l === runLayer) return;
     l.setStyle({ opacity: 0.03, weight: 2 });
   });
 
-  // layer sopra con SOLO la pista trovata
   if (focusLayer) map.removeLayer(focusLayer);
 
   const diff = runLayer.feature?.properties?.["piste:difficulty"];
@@ -381,7 +385,6 @@ function exitFocus(){
     focusLayer = null;
   }
 
-  // ripristina stile normale
   runsLayer.eachLayer(l => {
     const diff = l.feature?.properties?.["piste:difficulty"];
     l.setStyle({ color: pisteColor(diff), weight: 5, opacity: 0.95 });
@@ -391,7 +394,6 @@ function exitFocus(){
 function rebuild(keepView=false){
   if(!cachedData) return;
 
-  // se rebuild avviene, meglio uscire dal focus (coerenza stili)
   if (isFocus) exitFocus();
 
   map.removeLayer(runsLayer);
@@ -491,10 +493,7 @@ document.getElementById("searchBtn").onclick = () => {
   }
   document.getElementById("searchHint").textContent = "Trovata! Modalità focus attiva.";
   highlight(run, false);
-
-  // ✅ focus: le altre piste quasi invisibili
   enterFocus(run);
-
   map.fitBounds(run.getBounds().pad(0.25));
   run.openPopup();
 };
@@ -526,17 +525,15 @@ document.getElementById("locateBtn").onclick = () => {
 };
 
 /* =========================
-   SNOW DEPTH (Open-Meteo) -> cm
+   SNOW DEPTH
    ========================= */
 const snowDepthEl = document.getElementById("snowDepth");
 const snowMetaEl  = document.getElementById("snowMeta");
 const snowRefreshBtn = document.getElementById("snowRefresh");
 
-// punto rappresentativo Sauze d'Oulx (centro area)
 const SNOW_LAT = 45.03;
 const SNOW_LON = 6.86;
 
-// trova indice dell'ora più vicina al "now"
 function nearestTimeIndex(times){
   const now = Date.now();
   let bestI = 0;
@@ -552,7 +549,6 @@ function nearestTimeIndex(times){
 async function refreshSnow(){
   try{
     snowDepthEl.textContent = "Neve al suolo: caricamento…";
-    // Open-Meteo: snow_depth è in metri → convertiamo in cm
     const url =
       `https://api.open-meteo.com/v1/forecast` +
       `?latitude=${SNOW_LAT}&longitude=${SNOW_LON}` +
@@ -583,12 +579,11 @@ async function refreshSnow(){
 }
 
 snowRefreshBtn.onclick = refreshSnow;
-// auto refresh ogni 30 min
 refreshSnow();
 setInterval(refreshSnow, 30 * 60 * 1000);
 
 /* =========================
-   SPOTS (saved) + DELETE SINGLE
+   SPOTS
    ========================= */
 const STORAGE_SPOTS = "ski_spots_v5";
 let mode = null;
@@ -639,7 +634,6 @@ document.getElementById("clearSpots").onclick = () => {
   }
 };
 
-// Click mappa: aggiungi spot se mode attiva
 map.on("click", (e) => {
   if(!mode) return;
   const title = prompt(mode==="jump" ? "Nome spot salto (opzionale)" : "Nome spot powder (opzionale)", "") || "";
@@ -655,7 +649,6 @@ map.on("click", (e) => {
   });
 });
 
-// Delete singolo spot (event delegation)
 document.addEventListener("click", (ev) => {
   const btn = ev.target.closest(".delete-spot");
   if(!btn) return;
@@ -692,8 +685,6 @@ document.getElementById("importSpots").onclick = () => {
       try{
         const imported = JSON.parse(String(reader.result || "[]"));
         if(!Array.isArray(imported)) throw new Error("Formato non valido");
-
-        // se import vecchio senza id, glielo aggiungiamo
         const fixed = imported.map(s => ({ id: s.id || newSpotId(), ...s }));
         const merged = loadSpots().concat(fixed);
         saveSpots(merged);
@@ -711,22 +702,22 @@ document.getElementById("importSpots").onclick = () => {
 renderSpots();
 
 /* =========================
-   (10) REPLAY GIORNATA: record + animate
+   TRACKING MIGLIORATO + STORICO
    ========================= */
-const STORAGE_TRACK = "ski_track_v1";
-let watchId = null;
-let currentTrack = [];
-let trackPolyline = null;
+const STORAGE_TRACK_SESSIONS = "ski_track_sessions_v2";
 
-function setTrackInfo(txt){ document.getElementById("trackInfo").textContent = txt; }
+let trackingWatchId = null;
+let trackingActiveSession = null;
+let trackingLivePolyline = null;
+let trackingHistoryPolyline = null;
 
-function saveTrack(track){
-  localStorage.setItem(STORAGE_TRACK, JSON.stringify(track));
+function loadTrackSessions(){
+  const raw = localStorage.getItem(STORAGE_TRACK_SESSIONS);
+  return raw ? JSON.parse(raw) : [];
 }
 
-function loadTrack(){
-  const raw = localStorage.getItem(STORAGE_TRACK);
-  return raw ? JSON.parse(raw) : [];
+function saveTrackSessions(sessions){
+  localStorage.setItem(STORAGE_TRACK_SESSIONS, JSON.stringify(sessions));
 }
 
 function metersBetween(a,b){
@@ -740,83 +731,265 @@ function metersBetween(a,b){
   return 2*R*Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
-function trackSummary(track){
-  if(track.length < 2) return "Traccia: troppo corta";
-  let dist = 0;
-  for(let i=1;i<track.length;i++) dist += metersBetween(track[i-1], track[i]);
-  return `Traccia: ${track.length} punti • ~${Math.round(dist)} m`;
+function formatDistance(m){
+  if(m < 1000) return `${Math.round(m)} m`;
+  return `${(m / 1000).toFixed(2)} km`;
 }
 
-document.getElementById("trackStart").onclick = () => {
+function formatDuration(sec){
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  if(h > 0) return `${h}h ${m}m ${s}s`;
+  if(m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+function formatDateTime(iso){
+  return new Date(iso).toLocaleString("it-IT", {
+    year:"numeric",
+    month:"2-digit",
+    day:"2-digit",
+    hour:"2-digit",
+    minute:"2-digit"
+  });
+}
+
+function makeSessionId(){
+  if (crypto?.randomUUID) return crypto.randomUUID();
+  return "trk_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+}
+
+function summarizeSession(session){
+  const points = session.points || [];
+  let distanceM = 0;
+
+  for(let i=1; i<points.length; i++){
+    distanceM += metersBetween(points[i-1], points[i]);
+  }
+
+  const endIso = session.endedAt || new Date().toISOString();
+  const durationSec = Math.max(0, Math.round((new Date(endIso) - new Date(session.startedAt)) / 1000));
+
+  session.distanceM = distanceM;
+  session.durationSec = durationSec;
+  return session;
+}
+
+function updateTrackInfo(){
+  const el = document.getElementById("trackInfo");
+
+  if(!trackingActiveSession){
+    el.textContent = "Tracking fermo";
+    return;
+  }
+
+  summarizeSession(trackingActiveSession);
+  el.textContent =
+    `Tracking attivo • ${trackingActiveSession.points.length} punti • ` +
+    `${formatDistance(trackingActiveSession.distanceM || 0)} • ` +
+    `${formatDuration(trackingActiveSession.durationSec || 0)}`;
+}
+
+function updateTrackButtons(){
+  const btnStart = document.getElementById("trackStart");
+  const btnStop = document.getElementById("trackStop");
+
+  const active = trackingWatchId !== null;
+
+  btnStart.disabled = active;
+  btnStop.disabled = !active;
+  btnStart.style.opacity = active ? "0.5" : "1";
+  btnStop.style.opacity = active ? "1" : "0.5";
+}
+
+function redrawLiveTrack(){
+  if(trackingLivePolyline) map.removeLayer(trackingLivePolyline);
+
+  if(!trackingActiveSession || trackingActiveSession.points.length < 2) return;
+
+  trackingLivePolyline = L.polyline(
+    trackingActiveSession.points.map(p => [p.lat, p.lng]),
+    { color:"#00c2ff", weight:5, opacity:0.95 }
+  ).addTo(map);
+}
+
+function renderTrackHistory(){
+  const box = document.getElementById("trackHistory");
+  const sessions = loadTrackSessions().sort((a,b) => new Date(b.startedAt) - new Date(a.startedAt));
+
+  if(!sessions.length){
+    box.innerHTML = "Nessuna registrazione salvata.";
+    return;
+  }
+
+  box.innerHTML = sessions.map(s => `
+    <div class="history-card">
+      <div class="history-title">${formatDateTime(s.startedAt)}</div>
+      <div class="history-meta">
+        Durata: ${formatDuration(s.durationSec || 0)}<br>
+        Distanza: ${formatDistance(s.distanceM || 0)}<br>
+        Punti: ${(s.points || []).length}
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <button class="btn-dark track-view" data-track-id="${s.id}">Rivedi</button>
+        <button class="btn-light track-delete" data-track-id="${s.id}">Elimina</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function startTrackingSession(){
   if(!navigator.geolocation){
     alert("Geolocalizzazione non supportata.");
     return;
   }
-  if(watchId !== null){
+  if(trackingWatchId !== null){
     alert("Registrazione già attiva.");
     return;
   }
-  currentTrack = [];
-  setTrackInfo("Registrazione… (muoviti, poi Stop)");
 
-  watchId = navigator.geolocation.watchPosition((pos) => {
-    const pt = { lat: pos.coords.latitude, lng: pos.coords.longitude, t: Date.now() };
+  if(trackingHistoryPolyline){
+    map.removeLayer(trackingHistoryPolyline);
+    trackingHistoryPolyline = null;
+  }
 
-    const last = currentTrack[currentTrack.length - 1];
+  trackingActiveSession = {
+    id: makeSessionId(),
+    startedAt: new Date().toISOString(),
+    endedAt: null,
+    points: [],
+    distanceM: 0,
+    durationSec: 0
+  };
+
+  redrawLiveTrack();
+  updateTrackInfo();
+  updateTrackButtons();
+
+  trackingWatchId = navigator.geolocation.watchPosition((pos) => {
+    const pt = {
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      accuracy: pos.coords.accuracy,
+      speed: pos.coords.speed,
+      timestamp: new Date(pos.timestamp).toISOString()
+    };
+
+    const last = trackingActiveSession.points[trackingActiveSession.points.length - 1];
     if(last){
       const d = metersBetween(last, pt);
-      if(d < 6) return; // riduce rumore
+      if(d < 6) return;
     }
 
-    currentTrack.push(pt);
-    saveTrack(currentTrack);
-    setTrackInfo(trackSummary(currentTrack));
+    trackingActiveSession.points.push(pt);
+    summarizeSession(trackingActiveSession);
+    redrawLiveTrack();
+    updateTrackInfo();
 
-    if(trackPolyline) map.removeLayer(trackPolyline);
-    trackPolyline = L.polyline(currentTrack.map(p => [p.lat,p.lng]), { weight:4, opacity:0.9 }).addTo(map);
+  }, (err) => {
+    alert("Errore GPS: " + err.message);
+  }, {
+    enableHighAccuracy:true,
+    maximumAge:1000,
+    timeout:8000
+  });
+}
 
-  }, (err) => alert("Errore GPS: " + err.message),
-  { enableHighAccuracy:true, maximumAge:1000, timeout:8000 });
-};
-
-document.getElementById("trackStop").onclick = () => {
-  if(watchId !== null){
-    navigator.geolocation.clearWatch(watchId);
-    watchId = null;
+function stopTrackingSession(){
+  if(trackingWatchId !== null){
+    navigator.geolocation.clearWatch(trackingWatchId);
+    trackingWatchId = null;
   }
-  const saved = loadTrack();
-  setTrackInfo(saved.length ? trackSummary(saved) : "Traccia: nessuna");
-};
 
-document.getElementById("trackReplay").onclick = () => {
-  const track = loadTrack();
-  if(track.length < 2){
-    alert("Nessuna traccia da riprodurre. Registra prima!");
+  if(trackingActiveSession){
+    trackingActiveSession.endedAt = new Date().toISOString();
+    summarizeSession(trackingActiveSession);
+
+    const sessions = loadTrackSessions();
+    sessions.push(trackingActiveSession);
+    saveTrackSessions(sessions);
+
+    trackingActiveSession = null;
+  }
+
+  updateTrackButtons();
+  updateTrackInfo();
+  renderTrackHistory();
+}
+
+function viewTrackSession(id){
+  const sessions = loadTrackSessions();
+  const session = sessions.find(s => s.id === id);
+  if(!session || !session.points || session.points.length < 2){
+    alert("Traccia troppo corta o non disponibile.");
     return;
   }
 
-  if(trackPolyline) map.removeLayer(trackPolyline);
+  if(trackingHistoryPolyline) map.removeLayer(trackingHistoryPolyline);
+  if(trackingLivePolyline) map.removeLayer(trackingLivePolyline);
 
-  trackPolyline = L.polyline(track.map(p => [p.lat,p.lng]), { weight:5, opacity:0.95 }).addTo(map);
-  map.fitBounds(trackPolyline.getBounds().pad(0.20));
+  trackingHistoryPolyline = L.polyline(
+    session.points.map(p => [p.lat, p.lng]),
+    { color:"#ff006e", weight:5, opacity:0.95 }
+  ).addTo(map);
 
-  if(typeof trackPolyline.snakeIn === "function"){
-    trackPolyline.snakeIn();
-  } else {
-    alert("Plugin animazione non caricato: replay senza animazione.");
+  map.fitBounds(trackingHistoryPolyline.getBounds().pad(0.20));
+
+  if(typeof trackingHistoryPolyline.snakeIn === "function"){
+    trackingHistoryPolyline.snakeIn();
   }
-};
+}
 
-const initialTrack = loadTrack();
-setTrackInfo(initialTrack.length ? trackSummary(initialTrack) : "Traccia: nessuna");
+function replayLatestTrack(){
+  const sessions = loadTrackSessions().sort((a,b) => new Date(b.startedAt) - new Date(a.startedAt));
+  if(!sessions.length){
+    alert("Nessuna registrazione salvata.");
+    return;
+  }
+  viewTrackSession(sessions[0].id);
+}
+
+function deleteTrackSession(id){
+  if(!confirm("Vuoi eliminare questa registrazione?")) return;
+
+  const sessions = loadTrackSessions().filter(s => s.id !== id);
+  saveTrackSessions(sessions);
+  renderTrackHistory();
+
+  if(trackingHistoryPolyline){
+    map.removeLayer(trackingHistoryPolyline);
+    trackingHistoryPolyline = null;
+  }
+}
+
+document.getElementById("trackStart").onclick = startTrackingSession;
+document.getElementById("trackStop").onclick = stopTrackingSession;
+document.getElementById("trackReplayLatest").onclick = replayLatestTrack;
+
+document.addEventListener("click", (ev) => {
+  const viewBtn = ev.target.closest(".track-view");
+  if(viewBtn){
+    viewTrackSession(viewBtn.getAttribute("data-track-id"));
+    return;
+  }
+
+  const delBtn = ev.target.closest(".track-delete");
+  if(delBtn){
+    deleteTrackSession(delBtn.getAttribute("data-track-id"));
+  }
+});
+
+updateTrackButtons();
+updateTrackInfo();
+renderTrackHistory();
 
 /* =========================
-   PANEL TOGGLE (mobile drawer)
+   PANEL TOGGLE
    ========================= */
 const panel = document.getElementById("panel");
 const panelToggle = document.getElementById("panelToggle");
 
-// desktop: aperto di default
 if (!window.matchMedia("(max-width: 600px)").matches) {
   panel.classList.remove("collapsed");
 }
@@ -825,7 +998,6 @@ panelToggle.addEventListener("click", () => {
   panel.classList.toggle("collapsed");
 });
 
-// chiudi quando tocchi la mappa (mobile) — NON rompe map.on("click") degli spot
 map.getContainer().addEventListener("pointerdown", () => {
   if (window.matchMedia("(max-width: 600px)").matches) {
     panel.classList.add("collapsed");
@@ -835,4 +1007,3 @@ map.getContainer().addEventListener("pointerdown", () => {
 
 </body>
 </html>
-
