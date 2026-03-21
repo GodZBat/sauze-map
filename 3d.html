@@ -1,613 +1,160 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Sauze 3D</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Sauze 3D</title>
 
-  <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
+<link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
 
-  <style>
-    html, body { margin:0; height:100% }
-    #map { height:100%; background:#0b1220; }
+<style>
+html, body { margin:0; height:100% }
+#map { height:100%; background:#0b1220; }
 
-    .panel{
-      position:absolute;
-      top:12px;
-      left:12px;
-      bottom:88px;
-      z-index:30;
-      background:rgba(255,255,255,0.96);
-      border-radius:14px;
-      box-shadow:0 8px 20px rgba(0,0,0,0.2);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      width:340px;
-      max-width:calc(100% - 24px);
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-    }
+.panel{
+  position:absolute; left:12px; top:12px; z-index:30;
+  background:rgba(255,255,255,0.95);
+  padding:12px; border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.2);
+  font-family:system-ui,Arial;
+  width:320px;
+}
 
-    .panel-header{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 12px;
-      border-bottom:1px solid #e6e6e6;
-      flex:0 0 auto;
-    }
+.row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
 
-    .panel-title{
-      font-weight:1000;
-      font-size:16px;
-      line-height:1;
-    }
+button{
+  border:0; border-radius:10px; padding:8px 10px;
+  font-weight:900; cursor:pointer;
+}
 
-    .panel-toggle{
-      border:0;
-      border-radius:10px;
-      padding:8px 10px;
-      cursor:pointer;
-      font-weight:900;
-      background:#111;
-      color:#fff;
-    }
+.btn-dark{ background:#111; color:#fff }
+.btn-light{ background:#eee; color:#111 }
 
-    .panel-body{
-      padding:12px;
-      overflow-y:auto;
-      -webkit-overflow-scrolling:touch;
-      flex:1 1 auto;
-      max-height:none;
-    }
-
-    .panel.collapsed .panel-body{
-      display:none;
-    }
-
-    @media (max-width: 600px){
-      .panel{
-        left:10px;
-        right:10px;
-        top:auto;
-        bottom:96px;
-        width:auto;
-        max-height:66vh;
-        border-radius:16px;
-      }
-
-      .panel.collapsed{
-        max-height:52px;
-      }
-    }
-
-    .row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
-
-    button{
-      border:0;
-      border-radius:10px;
-      padding:8px 10px;
-      font-weight:900;
-      cursor:pointer;
-    }
-
-    .btn-dark{ background:#111; color:#fff }
-    .btn-light{ background:#eee; color:#111 }
-    .btn-orange{ background:#ff8a00; color:#fff }
-
-    .small{ font-size:12px; margin-top:8px; color:#333 }
-    .section-title{ font-size:12px; font-weight:900; margin-top:10px; }
-    input[type="range"]{ width:100% }
-
-    .msg{
-      position:absolute;
-      left:12px;
-      right:12px;
-      bottom:12px;
-      z-index:10;
-      pointer-events:none;
-      text-align:center;
-      background:rgba(0,0,0,0.22);
-      color:rgba(255,255,255,0.92);
-      padding:10px 12px;
-      border-radius:14px;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      font-size:13px;
-      line-height:1.3;
-      letter-spacing:0.2px;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      text-shadow:0 1px 2px rgba(0,0,0,0.35);
-      user-select:none;
-    }
-
-    .history-card{
-      border:1px solid rgba(0,0,0,0.08);
-      border-radius:12px;
-      padding:10px;
-      margin-top:8px;
-      background:#fff;
-    }
-
-    .history-title{
-      font-weight:900;
-      font-size:13px;
-    }
-
-    .history-meta{
-      font-size:12px;
-      color:#444;
-      margin-top:4px;
-      line-height:1.35;
-    }
-  </style>
+.msg{
+  position:absolute;
+  left:12px;
+  right:12px;
+  bottom:12px;
+  z-index:5;
+  background:rgba(0,0,0,0.8);
+  color:#fff;
+  padding:10px;
+  border-radius:12px;
+  text-align:center;
+}
+</style>
 </head>
+
 <body>
 
 <div id="map"></div>
 
-<div class="panel collapsed" id="panel">
-  <div class="panel-header">
-    <button class="panel-toggle" id="panelToggle" aria-label="Apri/chiudi menu">☰</button>
-    <div class="panel-title">🏔️ Sauze 3D</div>
+<div class="panel">
+  <div style="font-weight:1000;">🏔️ Sauze 3D</div>
+
+  <div class="row">
+    <button class="btn-dark" id="btnBack2D">↩︎ Torna 2D</button>
   </div>
 
-  <div class="panel-body">
-    <div class="row">
-      <button class="btn-dark" id="btnBack2D">↩︎ Torna 2D</button>
-    </div>
-
-    <div class="row">
-      <button class="btn-light" id="btnMap">🗺️ Mappa</button>
-      <button class="btn-dark" id="btnSat">🛰️ Satellite</button>
-      <button class="btn-light" id="btnLabels">🔤 Labels: OFF</button>
-    </div>
-
-    <div class="row">
-      <button class="btn-dark" id="btnRifugi">🍽 Rifugi: ON</button>
-      <button class="btn-dark" id="btnImpianti">🚡 Impianti: ON</button>
-    </div>
-
-    <div class="section-title">🎬 Tracking giornata</div>
-    <div class="row">
-      <button class="btn-orange" id="trackStart">⏺ START</button>
-      <button class="btn-light" id="trackStop">⏹ STOP</button>
-      <button class="btn-dark" id="trackReplayLatest">▶︎ Ultima</button>
-    </div>
-    <div class="small" id="trackInfo">Tracking fermo</div>
-
-    <div class="section-title">🗂️ Storico registrazioni</div>
-    <div id="trackHistory" class="small">Nessuna registrazione salvata.</div>
-
-    <div class="section-title">Esagerazione rilievo</div>
-    <input id="ex" type="range" min="50" max="300" value="140">
-
-    <div class="small">2 dita: inclina/ruota • Pinch: zoom</div>
+  <div class="row">
+    <button class="btn-light" id="btnMap">🗺️ Mappa</button>
+    <button class="btn-dark" id="btnSat">🛰️ Satellite</button>
   </div>
 </div>
 
-<div class="msg" id="msg">Tutti i diritti sono riservati a Mattia R.</div>
+<div class="msg">Tutti i diritti sono riservati a Mattia R.</div>
 
 <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
-<script src="./tracking-shared.js"></script>
+
 <script>
 const MAPTILER_KEY = "ORUgXv14fwE911CA6MdX";
 
-const msg = document.getElementById("msg");
-const setMsg = () => {};
-
-const CENTER = [6.86, 45.03];
-
-function runNameFromProps(p){
-  return p?.name || p?.["piste:name"] || p?.ref ||
-         p?.["piste:ref"] || p?.["piste:ref:name"] || "Pista";
-}
-function runDifficultyFromProps(p){
-  return p?.["piste:difficulty"] || p?.difficulty || "";
-}
-function runColorFromDifficulty(diffRaw){
-  const d = String(diffRaw || "").toLowerCase();
-  if (["easy","novice","beginner","blue"].includes(d)) return "#1f77b4";
-  if (["intermediate","medium","red"].includes(d)) return "#d62728";
-  if (["advanced","expert","difficult","black"].includes(d)) return "#000000";
-  return "#7aa6d8";
-}
-
-const popup = new maplibregl.Popup({
-  closeButton: true,
-  closeOnClick: true,
-  maxWidth: "280px"
-});
-
-const style = {
-  version: 8,
-  sources: {
-    carto: {
-      type: "raster",
-      tiles: ["https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"],
-      tileSize: 256
-    },
-    sat: {
-      type: "raster",
-      tiles: [`https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`],
-      tileSize: 256
-    },
-    labels: {
-      type: "raster",
-      tiles: [`https://api.maptiler.com/tiles/hybrid/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`],
-      tileSize: 256
-    },
-    terrainSource: {
-      type: "raster-dem",
-      tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
-      tileSize: 256,
-      encoding: "terrarium",
-      maxzoom: 14
-    }
-  },
-  layers: [
-    { id:"base", type:"raster", source:"carto", layout:{ visibility:"visible" }},
-    { id:"satellite", type:"raster", source:"sat", layout:{ visibility:"none" }},
-    { id:"labels", type:"raster", source:"labels", layout:{ visibility:"none" }}
-  ]
-};
-
 const map = new maplibregl.Map({
   container:"map",
-  style,
-  center:CENTER,
-  zoom:12.2,
-  pitch:65,
-  bearing:-20,
-  antialias:true
+  style:{
+    version:8,
+    sources:{
+      carto:{
+        type:"raster",
+        tiles:["https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"],
+        tileSize:256
+      },
+      sat:{
+        type:"raster",
+        tiles:[`https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`],
+        tileSize:256
+      }
+    },
+    layers:[
+      {id:"base", type:"raster", source:"carto"},
+      {id:"satellite", type:"raster", source:"sat", layout:{visibility:"none"}}
+    ]
+  },
+  center:[6.86,45.03],
+  zoom:12,
+  pitch:60,
+  bearing:-20
 });
 
-map.addControl(new maplibregl.NavigationControl({ visualizePitch:true }), "top-right");
-
-function googleMapsPlaceUrl(name, lat, lng) {
-  const q = encodeURIComponent(`${name}, ${lat},${lng}`);
-  return `https://www.google.com/maps/search/?api=1&query=${q}`;
-}
-function googleMapsDirectionsUrl(lat, lng) {
-  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-}
-
-function addIconFromCanvas(name, drawFn, size=64, pixelRatio=2) {
-  if (map.hasImage(name)) return;
-
-  const c = document.createElement("canvas");
-  c.width = size;
-  c.height = size;
-  const ctx = c.getContext("2d");
-  drawFn(ctx, size);
-
-  const img = ctx.getImageData(0, 0, size, size);
-  const data = new Uint8Array(img.data.buffer);
-  map.addImage(name, { width: size, height: size, data }, { pixelRatio });
-}
-
-function addAllIcons() {
-  addIconFromCanvas("icon-ristoro", (ctx, s) => {
-    ctx.beginPath();
-    ctx.arc(s/2, s/2, s*0.34, 0, Math.PI*2);
-    ctx.fillStyle = "#ffcc00";
-    ctx.fill();
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "#111";
-    ctx.stroke();
-
-    ctx.strokeStyle = "#111";
-    ctx.lineWidth = 4;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    const x = s*0.34, y1 = s*0.28, y2 = s*0.56;
-
-    ctx.beginPath();
-    ctx.moveTo(x, y1); ctx.lineTo(x, y2);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(x - s*0.06, y1); ctx.lineTo(x - s*0.06, y1 + s*0.16);
-    ctx.moveTo(x,           y1); ctx.lineTo(x,           y1 + s*0.16);
-    ctx.moveTo(x + s*0.06, y1); ctx.lineTo(x + s*0.06, y1 + s*0.16);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(x - s*0.06, y1 + s*0.16);
-    ctx.lineTo(x + s*0.06, y1 + s*0.16);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(x, y2); ctx.lineTo(x, s*0.74);
-    ctx.stroke();
-
-    const kx = s*0.62;
-    ctx.beginPath();
-    ctx.moveTo(kx, y1);
-    ctx.quadraticCurveTo(kx + s*0.08, y1 + s*0.10, kx, y1 + s*0.26);
-    ctx.lineTo(kx, s*0.74);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(kx, y1);
-    ctx.lineTo(kx + s*0.09, y1 + s*0.09);
-    ctx.stroke();
-  });
-
-  addIconFromCanvas("icon-impianto", (ctx, s) => {
-    ctx.beginPath();
-    ctx.arc(s/2, s/2, s*0.34, 0, Math.PI*2);
-    ctx.fillStyle = "#7dd3fc";
-    ctx.fill();
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "#111";
-    ctx.stroke();
-
-    ctx.strokeStyle = "#111";
-    ctx.lineWidth = 4;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    ctx.beginPath();
-    ctx.moveTo(s*0.26, s*0.34);
-    ctx.lineTo(s*0.74, s*0.34);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(s*0.50, s*0.34);
-    ctx.lineTo(s*0.50, s*0.49);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(s*0.40, s*0.49);
-    ctx.lineTo(s*0.60, s*0.49);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(s*0.40, s*0.52);
-    ctx.lineTo(s*0.40, s*0.68);
-    ctx.moveTo(s*0.60, s*0.52);
-    ctx.lineTo(s*0.60, s*0.68);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(s*0.36, s*0.68);
-    ctx.lineTo(s*0.64, s*0.68);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(s*0.40, s*0.60);
-    ctx.lineTo(s*0.60, s*0.60);
-    ctx.stroke();
-  });
-}
-
-function setLayerVisible(id, visible) {
-  if (!map.getLayer(id)) return;
-  map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
-}
+map.addControl(new maplibregl.NavigationControl(), "top-right");
 
 map.on("load", () => {
-  try {
-    map.setTerrain({ source:"terrainSource", exaggeration:1.4 });
 
-    const ex = document.getElementById("ex");
-    ex.addEventListener("input", () => {
-      map.setTerrain({ source: "terrainSource", exaggeration: parseInt(ex.value)/100 });
-    });
+  // PISTE
+  map.addSource("runs",{type:"geojson",data:"./sauze_doulx.geojson"});
 
-    map.addSource("runs", { type:"geojson", data:"./sauze_doulx.geojson" });
+  map.addLayer({
+    id:"runs",
+    type:"line",
+    source:"runs",
+    paint:{
+      "line-color":"red",
+      "line-width":4
+    }
+  });
 
-    map.addLayer({
-      id:"runs-outline",
-      type:"line",
-      source:"runs",
-      filter:["==",["get","piste:type"],"downhill"],
-      paint:{
-        "line-color":"#ffffff",
-        "line-width":["interpolate",["linear"],["zoom"],10,3.5,12,5.5,14,7.5,16,10],
-        "line-opacity":0.55
-      }
-    });
+  // RIFUGI
+  map.addSource("rifugi",{type:"geojson",data:"./data/rifugi.geojson"});
 
-    map.addLayer({
-      id:"runs-colored",
-      type:"line",
-      source:"runs",
-      filter:["==",["get","piste:type"],"downhill"],
-      paint:{
-        "line-color":[
-          "case",
-          ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["easy","novice","beginner","blue"]]],"#1f77b4",
-          ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["intermediate","medium","red"]]],"#d62728",
-          ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["advanced","expert","difficult","black"]]],"#000000",
-          "#7aa6d8"
-        ],
-        "line-width":["interpolate",["linear"],["zoom"],10,2.5,12,4,14,6,16,8],
-        "line-opacity":0.95
-      }
-    });
+  map.addLayer({
+    id:"rifugi",
+    type:"circle",
+    source:"rifugi",
+    paint:{
+      "circle-radius":6,
+      "circle-color":"yellow"
+    }
+  });
 
-    map.addLayer({
-      id:"runs-selected",
-      type:"line",
-      source:"runs",
-      filter:["==",["id"],"__none__"],
-      paint:{
-        "line-color":"#ffff00",
-        "line-width":["interpolate",["linear"],["zoom"],10,5,12,7,14,9,16,12]
-      }
-    });
+  // IMPIANTI
+  map.addSource("impianti",{type:"geojson",data:"./data/impianti.geojson"});
 
-    map.on("click", "runs-colored", (e) => {
-      const f = e.features && e.features[0];
-      if (!f) return;
-      const p = f.properties || {};
+  map.addLayer({
+    id:"impianti",
+    type:"circle",
+    source:"impianti",
+    paint:{
+      "circle-radius":6,
+      "circle-color":"blue"
+    }
+  });
 
-      const name = runNameFromProps(p);
-      const diff = runDifficultyFromProps(p);
-      const color = runColorFromDifficulty(diff);
-
-      if (f.id !== undefined && f.id !== null) {
-        map.setFilter("runs-selected", ["==", ["id"], f.id]);
-      } else {
-        map.setFilter("runs-selected", ["==", ["id"], "__none__"]);
-      }
-
-      popup
-        .setLngLat(e.lngLat)
-        .setHTML(`
-          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
-            <div style="font-weight:900">${name}</div>
-            <div style="margin-top:4px">
-              Difficoltà:
-              <span style="color:${color};font-weight:800">${diff || "N/D"}</span>
-            </div>
-          </div>
-        `)
-        .addTo(map);
-    });
-
-    map.on("mouseenter", "runs-colored", () => { map.getCanvas().style.cursor = "pointer"; });
-    map.on("mouseleave", "runs-colored", () => { map.getCanvas().style.cursor = ""; });
-
-    addAllIcons();
-
-    map.addSource("rifugi", { type:"geojson", data:"./data/rifugi.geojson" });
-
-    map.addLayer({
-      id:"rifugi-layer",
-      type:"symbol",
-      source:"rifugi",
-      filter:["==",["geometry-type"],"Point"],
-      layout:{
-        "icon-image":"icon-ristoro",
-        "icon-size":0.6,
-        "icon-allow-overlap":true,
-        "visibility":"visible"
-      }
-    });
-
-    map.addLayer({
-      id:"rifugi-label",
-      type:"symbol",
-      source:"rifugi",
-      filter:["==",["geometry-type"],"Point"],
-      layout:{
-        "text-field":["get","name"],
-        "text-size":13,
-        "text-offset":[0,1.35],
-        "text-anchor":"top",
-        "text-allow-overlap":true,
-        "visibility":"visible"
-      },
-      paint:{ "text-halo-color":"#fff", "text-halo-width":2 }
-    });
-
-    map.addSource("impianti", { type:"geojson", data:"./data/impianti.geojson" });
-
-    map.addLayer({
-      id:"impianti-layer",
-      type:"symbol",
-      source:"impianti",
-      filter:["==",["geometry-type"],"Point"],
-      layout:{
-        "icon-image":"icon-impianto",
-        "icon-size":0.6,
-        "icon-allow-overlap":true,
-        "visibility":"visible"
-      }
-    });
-
-    map.addLayer({
-      id:"impianti-label",
-      type:"symbol",
-      source:"impianti",
-      filter:["==",["geometry-type"],"Point"],
-      layout:{
-        "text-field":["coalesce",["get","name"],["get","ref"],"Impianto"],
-        "text-size":13,
-        "text-offset":[0,1.35],
-        "text-anchor":"top",
-        "text-allow-overlap":true,
-        "visibility":"visible"
-      },
-      paint:{ "text-halo-color":"#fff", "text-halo-width":2 }
-    });
-
-    map.moveLayer("rifugi-layer"); map.moveLayer("rifugi-label");
-    map.moveLayer("impianti-layer"); map.moveLayer("impianti-label");
-
-    const btnMap=document.getElementById("btnMap");
-    const btnSat=document.getElementById("btnSat");
-    const btnLabels=document.getElementById("btnLabels");
-    const btnRifugi=document.getElementById("btnRifugi");
-    const btnImpianti=document.getElementById("btnImpianti");
-
-    let labelsOn=false;
-    let rifugiOn=true;
-    let impiantiOn=true;
-
-    btnMap.onclick=()=>{
-      map.setLayoutProperty("base","visibility","visible");
-      map.setLayoutProperty("satellite","visibility","none");
-      map.setLayoutProperty("labels","visibility","none");
-      labelsOn=false;
-      btnLabels.textContent="🔤 Labels: OFF";
-    };
-
-    btnSat.onclick=()=>{
-      map.setLayoutProperty("base","visibility","none");
-      map.setLayoutProperty("satellite","visibility","visible");
-      map.setLayoutProperty("labels","visibility",labelsOn?"visible":"none");
-    };
-
-    btnLabels.onclick=()=>{
-      labelsOn=!labelsOn;
-      map.setLayoutProperty("labels","visibility",labelsOn?"visible":"none");
-      btnLabels.textContent="🔤 Labels: "+(labelsOn?"ON":"OFF");
-    };
-
-    btnRifugi.onclick=()=>{
-      rifugiOn=!rifugiOn;
-      setLayerVisible("rifugi-layer", rifugiOn);
-      setLayerVisible("rifugi-label", rifugiOn);
-      btnRifugi.textContent="🍽 Rifugi: "+(rifugiOn?"ON":"OFF");
-    };
-
-    btnImpianti.onclick=()=>{
-      impiantiOn=!impiantiOn;
-      setLayerVisible("impianti-layer", impiantiOn);
-      setLayerVisible("impianti-label", impiantiOn);
-      btnImpianti.textContent="🚡 Impianti: "+(impiantiOn?"ON":"OFF");
-    };
-
-    SkiSmartTracking.initMapLibre(map);
-
-  } catch(e){
-    console.error(e);
-  }
 });
 
-const panel = document.getElementById("panel");
-const panelToggle = document.getElementById("panelToggle");
+// BOTTONI
+document.getElementById("btnMap").onclick = () => {
+  map.setLayoutProperty("base","visibility","visible");
+  map.setLayoutProperty("satellite","visibility","none");
+};
 
-if (!window.matchMedia("(max-width: 600px)").matches) {
-  panel.classList.remove("collapsed");
-}
+document.getElementById("btnSat").onclick = () => {
+  map.setLayoutProperty("base","visibility","none");
+  map.setLayoutProperty("satellite","visibility","visible");
+};
 
-panelToggle.addEventListener("click", () => {
-  panel.classList.toggle("collapsed");
-});
-
-map.getCanvasContainer().addEventListener("pointerdown", () => {
-  if (window.matchMedia("(max-width: 600px)").matches) {
-    panel.classList.add("collapsed");
-  }
-  document.getElementById("btnBack2D").addEventListener("click", () => {
-    window.location.href = "./";
-
+// FIX TORNA 2D
+document.getElementById("btnBack2D").addEventListener("click", () => {
+  window.location.href = "./";
 });
 </script>
 
