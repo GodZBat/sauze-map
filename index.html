@@ -702,9 +702,10 @@ document.getElementById("importSpots").onclick = () => {
 renderSpots();
 
 /* =========================
-   TRACKING MIGLIORATO + STORICO + VELOCITÀ
+   TRACKING MIGLIORATO + STORICO + VELOCITÀ + RECUPERO SESSIONE
    ========================= */
-const STORAGE_TRACK_SESSIONS = "ski_track_sessions_v3";
+const STORAGE_TRACK_SESSIONS = "ski_track_sessions_v4";
+const STORAGE_TRACK_ACTIVE = "ski_track_active_session_v1";
 
 let trackingWatchId = null;
 let trackingActiveSession = null;
@@ -718,6 +719,19 @@ function loadTrackSessions(){
 
 function saveTrackSessions(sessions){
   localStorage.setItem(STORAGE_TRACK_SESSIONS, JSON.stringify(sessions));
+}
+
+function loadActiveTrackSession(){
+  const raw = localStorage.getItem(STORAGE_TRACK_ACTIVE);
+  return raw ? JSON.parse(raw) : null;
+}
+
+function saveActiveTrackSession(session){
+  if(session){
+    localStorage.setItem(STORAGE_TRACK_ACTIVE, JSON.stringify(session));
+  } else {
+    localStorage.removeItem(STORAGE_TRACK_ACTIVE);
+  }
 }
 
 function metersBetween(a,b){
@@ -756,7 +770,7 @@ function formatDateTime(iso){
 }
 
 function formatSpeed(kmh){
-  return `${kmh.toFixed(1)} km/h`;
+  return `${(kmh || 0).toFixed(1)} km/h`;
 }
 
 function makeSessionId(){
@@ -821,7 +835,10 @@ function updateTrackButtons(){
 }
 
 function redrawLiveTrack(){
-  if(trackingLivePolyline) map.removeLayer(trackingLivePolyline);
+  if(trackingLivePolyline) {
+    map.removeLayer(trackingLivePolyline);
+    trackingLivePolyline = null;
+  }
 
   if(!trackingActiveSession || trackingActiveSession.points.length < 2) return;
 
@@ -858,6 +875,13 @@ function renderTrackHistory(){
   `).join("");
 }
 
+function persistActiveSession(){
+  if(trackingActiveSession){
+    summarizeSession(trackingActiveSession);
+    saveActiveTrackSession(trackingActiveSession);
+  }
+}
+
 function startTrackingSession(){
   if(!navigator.geolocation){
     alert("Geolocalizzazione non supportata.");
@@ -884,11 +908,14 @@ function startTrackingSession(){
     maxSpeedKmh: 0
   };
 
+  persistActiveSession();
   redrawLiveTrack();
   updateTrackInfo();
   updateTrackButtons();
 
   trackingWatchId = navigator.geolocation.watchPosition((pos) => {
+    if(!trackingActiveSession) return;
+
     const rawSpeed = pos.coords.speed;
     const speedKmh = (typeof rawSpeed === "number" && isFinite(rawSpeed) && rawSpeed >= 0)
       ? rawSpeed * 3.6
@@ -911,6 +938,7 @@ function startTrackingSession(){
 
     trackingActiveSession.points.push(pt);
     summarizeSession(trackingActiveSession);
+    persistActiveSession();
     redrawLiveTrack();
     updateTrackInfo();
 
@@ -924,6 +952,10 @@ function startTrackingSession(){
 }
 
 function stopTrackingSession(){
+  if(trackingWatchId === null && !trackingActiveSession){
+    return;
+  }
+
   if(trackingWatchId !== null){
     navigator.geolocation.clearWatch(trackingWatchId);
     trackingWatchId = null;
@@ -937,6 +969,7 @@ function stopTrackingSession(){
     sessions.push(trackingActiveSession);
     saveTrackSessions(sessions);
 
+    saveActiveTrackSession(null);
     trackingActiveSession = null;
   }
 
@@ -953,8 +986,10 @@ function viewTrackSession(id){
     return;
   }
 
-  if(trackingHistoryPolyline) map.removeLayer(trackingHistoryPolyline);
-  if(trackingLivePolyline) map.removeLayer(trackingLivePolyline);
+  if(trackingHistoryPolyline) {
+    map.removeLayer(trackingHistoryPolyline);
+    trackingHistoryPolyline = null;
+  }
 
   trackingHistoryPolyline = L.polyline(
     session.points.map(p => [p.lat, p.lng]),
@@ -990,6 +1025,74 @@ function deleteTrackSession(id){
   }
 }
 
+function restoreActiveTrackingSession(){
+  const saved = loadActiveTrackSession();
+  if(!saved) return;
+
+  trackingActiveSession = saved;
+  summarizeSession(trackingActiveSession);
+  redrawLiveTrack();
+  updateTrackInfo();
+
+  const riprendi = confirm("È stata trovata una registrazione non chiusa. Vuoi riprendere il tracking?");
+  if(riprendi){
+    startWatchForRestoredSession();
+  } else {
+    stopTrackingSession();
+  }
+}
+
+function startWatchForRestoredSession(){
+  if(!navigator.geolocation){
+    alert("Geolocalizzazione non supportata.");
+    return;
+  }
+  if(trackingWatchId !== null){
+    return;
+  }
+
+  updateTrackButtons();
+
+  trackingWatchId = navigator.geolocation.watchPosition((pos) => {
+    if(!trackingActiveSession) return;
+
+    const rawSpeed = pos.coords.speed;
+    const speedKmh = (typeof rawSpeed === "number" && isFinite(rawSpeed) && rawSpeed >= 0)
+      ? rawSpeed * 3.6
+      : null;
+
+    const pt = {
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      accuracy: pos.coords.accuracy,
+      speed: rawSpeed,
+      speedKmh: speedKmh,
+      timestamp: new Date(pos.timestamp).toISOString()
+    };
+
+    const last = trackingActiveSession.points[trackingActiveSession.points.length - 1];
+    if(last){
+      const d = metersBetween(last, pt);
+      if(d < 6) return;
+    }
+
+    trackingActiveSession.points.push(pt);
+    summarizeSession(trackingActiveSession);
+    persistActiveSession();
+    redrawLiveTrack();
+    updateTrackInfo();
+
+  }, (err) => {
+    alert("Errore GPS: " + err.message);
+  }, {
+    enableHighAccuracy:true,
+    maximumAge:1000,
+    timeout:8000
+  });
+
+  updateTrackButtons();
+}
+
 document.getElementById("trackStart").onclick = startTrackingSession;
 document.getElementById("trackStop").onclick = stopTrackingSession;
 document.getElementById("trackReplayLatest").onclick = replayLatestTrack;
@@ -1007,9 +1110,14 @@ document.addEventListener("click", (ev) => {
   }
 });
 
+window.addEventListener("beforeunload", () => {
+  persistActiveSession();
+});
+
 updateTrackButtons();
 updateTrackInfo();
 renderTrackHistory();
+restoreActiveTrackingSession();
 
 /* =========================
    PANEL TOGGLE
