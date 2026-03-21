@@ -16,8 +16,93 @@
 
 <style>
 html, body { height:100%; margin:0; }
+body{
+  overflow:hidden;
+  background:#000;
+  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
 #map { height:100%; }
 
+/* =========================
+   SPLASH SCREEN
+   ========================= */
+.splash-screen{
+  position:fixed;
+  inset:0;
+  z-index:7000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,0.08), rgba(0,0,0,0) 35%),
+    linear-gradient(180deg, #07111f 0%, #0b1220 55%, #05080f 100%);
+  opacity:1;
+  visibility:visible;
+  transition:
+    opacity .65s ease,
+    visibility .65s ease,
+    transform .65s ease;
+}
+
+.splash-screen.hidden{
+  opacity:0;
+  visibility:hidden;
+  transform:scale(1.02);
+  pointer-events:none;
+}
+
+.splash-inner{
+  text-align:center;
+  color:#fff;
+  transform:translateY(0);
+  animation:splashFloat 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes splashFloat{
+  from{ transform:translateY(-4px); }
+  to{ transform:translateY(6px); }
+}
+
+.splash-logo-wrap{
+  width:126px;
+  height:126px;
+  margin:0 auto 18px;
+  border-radius:28px;
+  background:rgba(255,255,255,0.12);
+  border:1px solid rgba(255,255,255,0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 18px 40px rgba(0,0,0,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.splash-logo-img{
+  width:78px;
+  height:78px;
+  object-fit:contain;
+  display:block;
+  filter:drop-shadow(0 4px 10px rgba(0,0,0,0.22));
+}
+
+.splash-title{
+  font-size:34px;
+  font-weight:1000;
+  letter-spacing:0.4px;
+}
+
+.splash-subtitle{
+  margin-top:8px;
+  font-size:14px;
+  color:rgba(255,255,255,0.84);
+}
+
+/* =========================
+   WELCOME SCREEN
+   ========================= */
 .welcome-screen{
   position:fixed;
   inset:0;
@@ -27,8 +112,20 @@ html, body { height:100%; margin:0; }
   display:flex;
   align-items:center;
   justify-content:center;
+  opacity:1;
+  visibility:visible;
+  transition:
+    opacity .55s ease,
+    visibility .55s ease,
+    transform .55s ease;
 }
-.welcome-screen.hidden{ display:none; }
+
+.welcome-screen.hidden{
+  opacity:0;
+  visibility:hidden;
+  transform:scale(1.015);
+  pointer-events:none;
+}
 
 .welcome-video{
   position:absolute;
@@ -36,12 +133,20 @@ html, body { height:100%; margin:0; }
   width:100%;
   height:100%;
   object-fit:cover;
+  transform:scale(1.02);
+  transition:transform 1.4s ease;
 }
+
+.welcome-screen:not(.hidden) .welcome-video{
+  transform:scale(1);
+}
+
 .welcome-overlay{
   position:absolute;
   inset:0;
   background:linear-gradient(to bottom, rgba(0,0,0,0.28), rgba(0,0,0,0.56));
 }
+
 .welcome-card{
   position:relative;
   z-index:2;
@@ -54,8 +159,18 @@ html, body { height:100%; margin:0; }
   padding:22px 18px;
   box-shadow:0 16px 40px rgba(0,0,0,0.24);
   color:#fff;
-  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  transform:translateY(18px);
+  opacity:0;
+  animation:welcomeCardIn .7s ease .15s forwards;
 }
+
+@keyframes welcomeCardIn{
+  to{
+    transform:translateY(0);
+    opacity:1;
+  }
+}
+
 .welcome-badge{
   display:inline-block;
   padding:6px 10px;
@@ -94,6 +209,15 @@ html, body { height:100%; margin:0; }
   padding:11px 12px;
   font-size:14px;
   outline:none;
+  transition:
+    border-color .2s ease,
+    background .2s ease,
+    transform .2s ease;
+}
+.welcome-input:focus,
+.welcome-select:focus{
+  border-color:rgba(255,255,255,0.45);
+  background:rgba(255,255,255,0.18);
 }
 .welcome-input::placeholder{ color:rgba(255,255,255,0.7); }
 .welcome-select option{ color:#111; }
@@ -110,8 +234,22 @@ html, body { height:100%; margin:0; }
   font-weight:900;
   cursor:pointer;
   font-size:14px;
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    opacity .18s ease,
+    background .18s ease;
 }
-.welcome-btn-primary{ background:#fff; color:#111; }
+.welcome-btn:hover{
+  transform:translateY(-1px);
+}
+.welcome-btn:active{
+  transform:translateY(0);
+}
+.welcome-btn-primary{
+  background:#fff;
+  color:#111;
+}
 .welcome-btn-secondary{
   background:rgba(255,255,255,0.16);
   color:#fff;
@@ -130,6 +268,9 @@ html, body { height:100%; margin:0; }
   color:#fff;
 }
 
+/* =========================
+   APP PANEL
+   ========================= */
 .panel{
   position:absolute;
   top:12px;
@@ -147,7 +288,15 @@ html, body { height:100%; margin:0; }
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   box-shadow:0 16px 42px rgba(0,0,0,0.18);
-  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  transform:translateY(0);
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    opacity .25s ease;
+}
+
+.panel:hover{
+  box-shadow:0 18px 48px rgba(0,0,0,0.20);
 }
 
 .panel-header{
@@ -180,7 +329,9 @@ html, body { height:100%; margin:0; }
   font-weight:900;
   background:#111827;
   color:#fff;
+  transition:transform .18s ease, opacity .18s ease;
 }
+.panel-toggle:hover{ transform:translateY(-1px); }
 
 .panel-body{
   padding:12px;
@@ -222,7 +373,14 @@ button{
   cursor:pointer;
   font-weight:900;
   font-size:13px;
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    opacity .18s ease,
+    background .18s ease;
 }
+button:hover{ transform:translateY(-1px); }
+button:active{ transform:translateY(0); }
 
 .btn-dark{ background:#111827; color:#fff; }
 .btn-blue{ background:#2563eb; color:#fff; }
@@ -237,6 +395,10 @@ button{
   border:1px solid rgba(0,0,0,0.05);
   overflow:hidden;
   box-shadow:0 6px 18px rgba(0,0,0,0.05);
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+.menu-card:hover{
+  box-shadow:0 10px 22px rgba(0,0,0,0.07);
 }
 
 .menu-card summary{
@@ -284,6 +446,11 @@ button{
   border:1px solid rgba(0,0,0,0.05);
   border-radius:14px;
   padding:10px;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.stat-card:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 18px rgba(0,0,0,0.06);
 }
 .stat-card.wide{ grid-column:1 / -1; }
 .stat-label{
@@ -333,6 +500,12 @@ input[type="text"]{
   font-weight:700;
   box-sizing:border-box;
   background:rgba(255,255,255,0.92);
+  transition:border-color .18s ease, box-shadow .18s ease;
+}
+input[type="text"]:focus{
+  border-color:#94a3b8;
+  box-shadow:0 0 0 3px rgba(37,99,235,0.08);
+  outline:none;
 }
 input[type="range"]{ width:100%; }
 
@@ -355,7 +528,6 @@ input[type="range"]{ width:100%; }
   line-height:1.4;
 }
 
-/* Leaflet popups più moderni */
 .leaflet-popup-content-wrapper{
   border-radius:16px;
   box-shadow:0 12px 28px rgba(0,0,0,0.18);
@@ -373,6 +545,16 @@ input[type="range"]{ width:100%; }
 </head>
 <body>
 
+<div class="splash-screen" id="splashScreen">
+  <div class="splash-inner">
+    <div class="splash-logo-wrap">
+      <img src="./logo.png" alt="SkiSmart Logo" class="splash-logo-img">
+    </div>
+    <div class="splash-title">SkiSmart</div>
+    <div class="splash-subtitle">Smart skiing experience</div>
+  </div>
+</div>
+
 <div class="welcome-screen" id="welcomeScreen">
   <video class="welcome-video" autoplay muted loop playsinline>
     <source src="./intro.mp4" type="video/mp4">
@@ -380,11 +562,11 @@ input[type="range"]{ width:100%; }
   <div class="welcome-overlay"></div>
 
   <div class="welcome-card">
-    <div class="welcome-badge">Designed and Programmed by Mattia Ruvo</div>
-    <div class="welcome-title">Benvenuto su SkiSmart</div>
+    <div class="welcome-badge">Benvenuto su SkiSmart</div>
+    <div class="welcome-title">La tua mappa sci smart</div>
     <div class="welcome-subtitle">
       Traccia le tue discese, esplora il comprensorio in 2D e 3D
-      e scopri le tue statistiche.
+      e salva le tue statistiche.
     </div>
 
     <div class="welcome-user" id="welcomeSavedUser"></div>
@@ -399,8 +581,8 @@ input[type="range"]{ width:100%; }
       <select class="welcome-select" id="resortSelect">
         <option value="sauze">Sauze d'Oulx</option>
         <option value="sestriere" disabled>Sestriere (prossimamente)</option>
-        <option value="Cervinia" disabled>Cervinia (prossimamente)</option>
-        <option value="Val Gardena Dolomites" disabled>Val Gardena Dolomites (prossimamente)</option>
+        <option value="cesana" disabled>Cesana (prossimamente)</option>
+        <option value="claviere" disabled>Claviere (prossimamente)</option>
       </select>
     </div>
 
@@ -410,7 +592,7 @@ input[type="range"]{ width:100%; }
     </div>
 
     <div class="welcome-foot">
-      L’account per ora è locale al dispositivo. In seguito potremo aggiungere login reale e online mode.
+      L’account per ora è locale al dispositivo. In seguito potremo aggiungere login reale e sincronizzazione.
     </div>
   </div>
 </div>
@@ -481,7 +663,7 @@ input[type="range"]{ width:100%; }
           <button class="btn-light" id="searchBtn">Cerca</button>
           <button class="btn-light" id="clearSearchBtn">Reset</button>
         </div>
-        <div class="small" id="searchHint">Puoi cercare per nome o ref.</div>
+        <div class="small" id="searchHint">Puoi cercare per nome o ref. In modalità focus le altre piste spariscono.</div>
 
         <div class="small" style="margin-top:12px; font-weight:900;">🎿 Filtro piste</div>
         <div class="row" style="margin-top:6px;">
@@ -587,6 +769,7 @@ input[type="range"]{ width:100%; }
 const ACCOUNT_STORAGE_KEY = "skismart_local_account_v1";
 const SELECTED_RESORT_KEY = "skismart_selected_resort_v1";
 
+const splashScreen = document.getElementById("splashScreen");
 const welcomeScreen = document.getElementById("welcomeScreen");
 const accountNameInput = document.getElementById("accountName");
 const resortSelect = document.getElementById("resortSelect");
@@ -640,6 +823,7 @@ function enterAppAsUser(isGuest = false) {
 
   updateWelcomeUser();
   welcomeScreen.classList.add("hidden");
+  document.body.style.overflow = "";
 }
 
 updateWelcomeUser();
@@ -647,6 +831,12 @@ resortSelect.value = loadSelectedResort();
 
 enterAppBtn.addEventListener("click", () => enterAppAsUser(false));
 guestBtn.addEventListener("click", () => enterAppAsUser(true));
+
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    splashScreen.classList.add("hidden");
+  }, 1700);
+});
 
 const map = L.map("map", {
   zoomControl: true,
