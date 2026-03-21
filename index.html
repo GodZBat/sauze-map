@@ -179,14 +179,12 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
 
     <hr/>
 
-    <div class="section-title">❄️ Neve al suolo (fonte ufficiale)</div>
+    <div class="section-title">❄️ Neve al suolo</div>
     <div class="row">
-      <button class="btn-blue" id="snowOpenArpa">Apri fonte ARPA</button>
+      <button class="btn-blue" id="snowRefresh">↻ Aggiorna</button>
     </div>
-    <div class="pill" id="snowDepth">Stazione di riferimento: Lago Pilone – Sauze d’Oulx</div>
-    <div class="small" id="snowMeta">
-  Fonte: ARPA Piemonte. Dato nivometrico validato giornalmente. Il dato orario in tempo reale non validato ha accuratezza di circa 3 cm.
-    </div>
+    <div class="pill" id="snowDepth">Neve al suolo: —</div>
+    <div class="small" id="snowMeta">Fonte: Open-Meteo (snow_depth). Ultimo update: —</div>
 
     <hr/>
 
@@ -527,15 +525,62 @@ document.getElementById("locateBtn").onclick = () => {
 };
 
 /* =========================
-   SNOW DEPTH - FONTE UFFICIALE ARPA PIEMONTE
+   SNOW DEPTH
    ========================= */
-const snowOpenArpaBtn = document.getElementById("snowOpenArpa");
+const snowDepthEl = document.getElementById("snowDepth");
+const snowMetaEl  = document.getElementById("snowMeta");
+const snowRefreshBtn = document.getElementById("snowRefresh");
 
-const ARPA_SNOW_URL = "https://webgis.arpa.piemonte.it/webmeteo/meteo.php?CODTOT=001259900";
+const SNOW_LAT = 45.03;
+const SNOW_LON = 6.86;
 
-snowOpenArpaBtn.onclick = () => {
-  window.open(ARPA_SNOW_URL, "_blank", "noopener,noreferrer");
-};
+function nearestTimeIndex(times){
+  const now = Date.now();
+  let bestI = 0;
+  let bestD = Infinity;
+  for(let i=0;i<times.length;i++){
+    const t = new Date(times[i]).getTime();
+    const d = Math.abs(t - now);
+    if(d < bestD){ bestD = d; bestI = i; }
+  }
+  return bestI;
+}
+
+async function refreshSnow(){
+  try{
+    snowDepthEl.textContent = "Neve al suolo: caricamento…";
+    const url =
+      `https://api.open-meteo.com/v1/forecast` +
+      `?latitude=${SNOW_LAT}&longitude=${SNOW_LON}` +
+      `&hourly=snow_depth` +
+      `&timezone=Europe%2FRome`;
+
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("Open-Meteo non raggiungibile");
+    const data = await res.json();
+
+    const times = data?.hourly?.time || [];
+    const depths = data?.hourly?.snow_depth || [];
+
+    if(!times.length || !depths.length) throw new Error("Dati neve non disponibili");
+
+    const i = nearestTimeIndex(times);
+    const meters = Number(depths[i]);
+    const cm = Math.max(0, Math.round(meters * 100));
+
+    const when = new Date(times[i]).toLocaleString("it-IT");
+    snowDepthEl.textContent = `Neve al suolo: ${cm} cm`;
+    snowMetaEl.textContent = `Fonte: Open-Meteo (snow_depth). Ora: ${when}`;
+  }catch(e){
+    console.error(e);
+    snowDepthEl.textContent = "Neve al suolo: —";
+    snowMetaEl.textContent = "Errore nel recupero dati neve (riprovare).";
+  }
+}
+
+snowRefreshBtn.onclick = refreshSnow;
+refreshSnow();
+setInterval(refreshSnow, 30 * 60 * 1000);
 
 /* =========================
    SPOTS
@@ -657,9 +702,9 @@ document.getElementById("importSpots").onclick = () => {
 renderSpots();
 
 /* =========================
-   TRACKING MIGLIORATO + STORICO
+   TRACKING MIGLIORATO + STORICO + VELOCITÀ
    ========================= */
-const STORAGE_TRACK_SESSIONS = "ski_track_sessions_v2";
+const STORAGE_TRACK_SESSIONS = "ski_track_sessions_v3";
 
 let trackingWatchId = null;
 let trackingActiveSession = null;
@@ -710,6 +755,10 @@ function formatDateTime(iso){
   });
 }
 
+function formatSpeed(kmh){
+  return `${kmh.toFixed(1)} km/h`;
+}
+
 function makeSessionId(){
   if (crypto?.randomUUID) return crypto.randomUUID();
   return "trk_" + Date.now() + "_" + Math.random().toString(16).slice(2);
@@ -718,16 +767,27 @@ function makeSessionId(){
 function summarizeSession(session){
   const points = session.points || [];
   let distanceM = 0;
+  let maxSpeedKmh = 0;
 
   for(let i=1; i<points.length; i++){
     distanceM += metersBetween(points[i-1], points[i]);
   }
 
+  for(const p of points){
+    if(typeof p.speedKmh === "number" && isFinite(p.speedKmh)){
+      if(p.speedKmh > maxSpeedKmh) maxSpeedKmh = p.speedKmh;
+    }
+  }
+
   const endIso = session.endedAt || new Date().toISOString();
   const durationSec = Math.max(0, Math.round((new Date(endIso) - new Date(session.startedAt)) / 1000));
+  const avgSpeedKmh = durationSec > 0 ? (distanceM / durationSec) * 3.6 : 0;
 
   session.distanceM = distanceM;
   session.durationSec = durationSec;
+  session.maxSpeedKmh = maxSpeedKmh;
+  session.avgSpeedKmh = avgSpeedKmh;
+
   return session;
 }
 
@@ -743,7 +803,9 @@ function updateTrackInfo(){
   el.textContent =
     `Tracking attivo • ${trackingActiveSession.points.length} punti • ` +
     `${formatDistance(trackingActiveSession.distanceM || 0)} • ` +
-    `${formatDuration(trackingActiveSession.durationSec || 0)}`;
+    `${formatDuration(trackingActiveSession.durationSec || 0)} • ` +
+    `Media ${formatSpeed(trackingActiveSession.avgSpeedKmh || 0)} • ` +
+    `Max ${formatSpeed(trackingActiveSession.maxSpeedKmh || 0)}`;
 }
 
 function updateTrackButtons(){
@@ -784,6 +846,8 @@ function renderTrackHistory(){
       <div class="history-meta">
         Durata: ${formatDuration(s.durationSec || 0)}<br>
         Distanza: ${formatDistance(s.distanceM || 0)}<br>
+        Velocità media: ${formatSpeed(s.avgSpeedKmh || 0)}<br>
+        Velocità massima: ${formatSpeed(s.maxSpeedKmh || 0)}<br>
         Punti: ${(s.points || []).length}
       </div>
       <div class="row" style="margin-top:8px;">
@@ -815,7 +879,9 @@ function startTrackingSession(){
     endedAt: null,
     points: [],
     distanceM: 0,
-    durationSec: 0
+    durationSec: 0,
+    avgSpeedKmh: 0,
+    maxSpeedKmh: 0
   };
 
   redrawLiveTrack();
@@ -823,11 +889,17 @@ function startTrackingSession(){
   updateTrackButtons();
 
   trackingWatchId = navigator.geolocation.watchPosition((pos) => {
+    const rawSpeed = pos.coords.speed;
+    const speedKmh = (typeof rawSpeed === "number" && isFinite(rawSpeed) && rawSpeed >= 0)
+      ? rawSpeed * 3.6
+      : null;
+
     const pt = {
       lat: pos.coords.latitude,
       lng: pos.coords.longitude,
       accuracy: pos.coords.accuracy,
-      speed: pos.coords.speed,
+      speed: rawSpeed,
+      speedKmh: speedKmh,
       timestamp: new Date(pos.timestamp).toISOString()
     };
 
