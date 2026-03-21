@@ -150,6 +150,32 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
   margin-top:4px;
   line-height:1.35;
 }
+
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:8px;
+}
+
+.stat-card{
+  background:#fff;
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius:12px;
+  padding:10px;
+}
+
+.stat-label{
+  font-size:11px;
+  color:#555;
+  font-weight:800;
+}
+
+.stat-value{
+  font-size:16px;
+  font-weight:1000;
+  margin-top:4px;
+}
 </style>
 </head>
 <body>
@@ -167,6 +193,32 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
     <div class="row">
       <button class="btn-dark" onclick="location.href='./3d.html'">🏔️ Vista 3D</button>
     </div>
+
+    <div class="section-title">📊 Dashboard</div>
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <div class="stat-label">Sessioni</div>
+        <div class="stat-value" id="dashSessions">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Distanza totale</div>
+        <div class="stat-value" id="dashDistance">0 m</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tempo totale</div>
+        <div class="stat-value" id="dashTime">0s</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Velocità media</div>
+        <div class="stat-value" id="dashAvgSpeed">0.0 km/h</div>
+      </div>
+      <div class="stat-card" style="grid-column:1 / -1;">
+        <div class="stat-label">Velocità massima</div>
+        <div class="stat-value" id="dashMaxSpeed">0.0 km/h</div>
+      </div>
+    </div>
+
+    <hr/>
 
     <div class="section-title">🔎 Cerca pista (Focus)</div>
     <input id="searchInput" type="text" placeholder="Es: Clotes, Sportinia, 29..." />
@@ -214,6 +266,7 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
       <button class="btn-orange" id="trackStart">⏺ START</button>
       <button class="btn-light" id="trackStop">⏹ STOP</button>
       <button class="btn-dark" id="trackReplayLatest">▶︎ Ultima</button>
+      <button class="btn-light" id="btnHeatmap">🔥 Heatmap: ON</button>
     </div>
     <div class="small" id="trackInfo">Tracking fermo</div>
 
@@ -244,9 +297,6 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
 <script src="./tracking-shared.js"></script>
 
 <script>
-/* =========================
-   MAP BASE + ESRI SAT + HILLSHADE + LABELS
-   ========================= */
 const map = L.map("map");
 
 const osm = L.tileLayer(
@@ -306,9 +356,6 @@ hillOpacity.addEventListener("input", () => {
   hillshade.setOpacity(Number(hillOpacity.value)/100);
 });
 
-/* =========================
-   RUNS/LIFTS STYLING
-   ========================= */
 function pisteColor(diff){
   if(!diff) return "#7aa6d8";
   diff = String(diff).toLowerCase();
@@ -326,9 +373,6 @@ function classify(diff){
   return "unknown";
 }
 
-/* =========================
-   GEOJSON LAYERS
-   ========================= */
 let runsLayer = L.geoJSON(null);
 let liftsLayer = L.geoJSON(null);
 const spotLayer = L.layerGroup().addTo(map);
@@ -452,9 +496,6 @@ fetch("./sauze_doulx.geojson")
   .then(data => { cachedData = data; rebuild(false); })
   .catch(err => { alert("Errore GeoJSON: " + err.message); console.error(err); });
 
-/* =========================
-   FILTER + TOGGLES
-   ========================= */
 function setFilter(f){
   currentFilter = f;
   const label = f==="all" ? "tutte" : (f==="blue" ? "blu" : (f==="red" ? "rosse" : "nere"));
@@ -471,9 +512,6 @@ document.getElementById("toggleRuns").onchange  = (e)=> e.target.checked ? runsL
 document.getElementById("toggleLifts").onchange = (e)=> e.target.checked ? liftsLayer.addTo(map) : map.removeLayer(liftsLayer);
 document.getElementById("toggleSpots").onchange = (e)=> e.target.checked ? spotLayer.addTo(map) : map.removeLayer(spotLayer);
 
-/* =========================
-   SEARCH + FOCUS
-   ========================= */
 function findRun(query){
   query = String(query||"").trim().toLowerCase();
   if(!query) return null;
@@ -506,9 +544,6 @@ document.getElementById("clearSearchBtn").onclick = () => {
   exitFocus();
 };
 
-/* =========================
-   GEOLOCATION
-   ========================= */
 let userMarker = null;
 document.getElementById("locateBtn").onclick = () => {
   if(!navigator.geolocation){
@@ -525,9 +560,6 @@ document.getElementById("locateBtn").onclick = () => {
   }, (err) => alert("Errore geolocalizzazione: " + err.message), { enableHighAccuracy:true, timeout:8000 });
 };
 
-/* =========================
-   SNOW DEPTH
-   ========================= */
 const snowDepthEl = document.getElementById("snowDepth");
 const snowMetaEl  = document.getElementById("snowMeta");
 const snowRefreshBtn = document.getElementById("snowRefresh");
@@ -583,9 +615,6 @@ snowRefreshBtn.onclick = refreshSnow;
 refreshSnow();
 setInterval(refreshSnow, 30 * 60 * 1000);
 
-/* =========================
-   SPOTS
-   ========================= */
 const STORAGE_SPOTS = "ski_spots_v5";
 let mode = null;
 
@@ -702,14 +731,8 @@ document.getElementById("importSpots").onclick = () => {
 
 renderSpots();
 
-/* =========================
-   TRACKING SHARED
-   ========================= */
 SkiSmartTracking.initLeaflet(map);
 
-/* =========================
-   PANEL TOGGLE
-   ========================= */
 const panel = document.getElementById("panel");
 const panelToggle = document.getElementById("panelToggle");
 
