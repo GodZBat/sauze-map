@@ -15,13 +15,14 @@
       position:absolute;
       top:12px;
       left:12px;
-      z-index:20;
+      bottom:88px;
+      z-index:30;
       background:rgba(255,255,255,0.96);
       border-radius:14px;
       box-shadow:0 8px 20px rgba(0,0,0,0.2);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
       width:340px;
-      max-height: calc(100% - 24px);
+      max-width:calc(100% - 24px);
       overflow:hidden;
       display:flex;
       flex-direction:column;
@@ -69,9 +70,9 @@
         left:10px;
         right:10px;
         top:auto;
-        bottom:calc(10px + env(safe-area-inset-bottom));
+        bottom:96px;
         width:auto;
-        max-height:70vh;
+        max-height:66vh;
         border-radius:16px;
       }
       .panel.collapsed{
@@ -94,12 +95,25 @@
     input[type="range"]{ width:100% }
 
     .msg{
-      position:absolute; left:12px; right:12px; bottom:12px; z-index:20;
-      background:rgba(0,0,0,0.78); color:#fff;
-      padding:10px 12px; border-radius:14px;
+      position:absolute;
+      left:12px;
+      right:12px;
+      bottom:12px;
+      z-index:10;
+      pointer-events:none;
+      text-align:center;
+      background:rgba(0,0,0,0.22);
+      color:rgba(255,255,255,0.92);
+      padding:10px 12px;
+      border-radius:14px;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      font-size:13px; line-height:1.3;
-      white-space:pre-wrap;
+      font-size:13px;
+      line-height:1.3;
+      letter-spacing:0.2px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      text-shadow:0 1px 2px rgba(0,0,0,0.35);
+      user-select:none;
     }
 
     .history-card{
@@ -135,7 +149,7 @@
 
   <div class="panel-body">
     <div class="row">
-      <button class="btn-dark" onclick="location.href='./index.html'">↩︎ Torna 2D</button>
+      <button class="btn-dark" id="btnBack2D" type="button">↩︎ Torna 2D</button>
     </div>
 
     <div class="row">
@@ -167,7 +181,7 @@
   </div>
 </div>
 
-<div class="msg" id="msg">Avvio…</div>
+<div class="msg" id="msg">Tutti i diritti sono riservati a Mattia R.</div>
 
 <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
 <script src="./tracking-shared.js"></script>
@@ -175,7 +189,7 @@
 const MAPTILER_KEY = "ORUgXv14fwE911CA6MdX";
 
 const msg = document.getElementById("msg");
-const setMsg = (t) => msg.textContent = t;
+const setMsg = () => {};
 
 const CENTER = [6.86, 45.03];
 
