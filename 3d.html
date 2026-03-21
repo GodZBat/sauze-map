@@ -149,7 +149,7 @@
 
   <div class="panel-body">
     <div class="row">
-      <button class="btn-dark" onclick="location.href='./'">↩︎ Torna 2D</button>
+      <button class="btn-dark" id="btnBack2D" type="button">↩︎ Torna 2D</button>
     </div>
 
     <div class="row">
@@ -604,14 +604,12 @@ map.on("load", () => {
       map.setLayoutProperty("labels","visibility","none");
       labelsOn=false;
       btnLabels.textContent="🔤 Labels: OFF";
-      setMsg("✅ Modalità: Mappa");
     };
 
     btnSat.onclick=()=>{
       map.setLayoutProperty("base","visibility","none");
       map.setLayoutProperty("satellite","visibility","visible");
       map.setLayoutProperty("labels","visibility",labelsOn?"visible":"none");
-      setMsg("✅ Modalità: Satellite");
     };
 
     btnLabels.onclick=()=>{
@@ -634,18 +632,13 @@ map.on("load", () => {
       btnImpianti.textContent="🚡 Impianti: "+(impiantiOn?"ON":"OFF");
     };
 
-    // Tracking condiviso 3D
     SkiSmartTracking.initMapLibre(map);
-
-    setMsg("✅ 3D pronto. Piste + Rifugi + Impianti + Tracking");
 
   } catch(e){
     console.error(e);
-    setMsg("⚠️ Errore:\n" + (e?.message || e));
   }
 });
 
-// panel toggle
 const panel = document.getElementById("panel");
 const panelToggle = document.getElementById("panelToggle");
 
@@ -655,6 +648,10 @@ if (!window.matchMedia("(max-width: 600px)").matches) {
 
 panelToggle.addEventListener("click", () => {
   panel.classList.toggle("collapsed");
+});
+
+document.getElementById("btnBack2D").addEventListener("click", () => {
+  window.location.href = "https://godzbat.github.io/sauze-map/";
 });
 
 map.getCanvasContainer().addEventListener("pointerdown", () => {
