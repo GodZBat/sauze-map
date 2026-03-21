@@ -15,13 +15,14 @@
       position:absolute;
       top:12px;
       left:12px;
-      z-index:20;
+      bottom:88px;
+      z-index:30;
       background:rgba(255,255,255,0.96);
       border-radius:14px;
       box-shadow:0 8px 20px rgba(0,0,0,0.2);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
       width:340px;
-      max-height: calc(100% - 24px);
+      max-width:calc(100% - 24px);
       overflow:hidden;
       display:flex;
       flex-direction:column;
@@ -55,7 +56,7 @@
     .panel-body{
       padding:12px;
       overflow-y:auto;
-      -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling:touch;
       flex:1 1 auto;
       max-height:none;
     }
@@ -69,11 +70,12 @@
         left:10px;
         right:10px;
         top:auto;
-        bottom:calc(10px + env(safe-area-inset-bottom));
+        bottom:96px;
         width:auto;
-        max-height:70vh;
+        max-height:66vh;
         border-radius:16px;
       }
+
       .panel.collapsed{
         max-height:52px;
       }
@@ -82,24 +84,41 @@
     .row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
 
     button{
-      border:0; border-radius:10px; padding:8px 10px;
-      font-weight:900; cursor:pointer;
+      border:0;
+      border-radius:10px;
+      padding:8px 10px;
+      font-weight:900;
+      cursor:pointer;
     }
 
     .btn-dark{ background:#111; color:#fff }
     .btn-light{ background:#eee; color:#111 }
     .btn-orange{ background:#ff8a00; color:#fff }
+
     .small{ font-size:12px; margin-top:8px; color:#333 }
     .section-title{ font-size:12px; font-weight:900; margin-top:10px; }
     input[type="range"]{ width:100% }
 
     .msg{
-      position:absolute; left:12px; right:12px; bottom:12px; z-index:20;
-      background:rgba(0,0,0,0.78); color:#fff;
-      padding:10px 12px; border-radius:14px;
+      position:absolute;
+      left:12px;
+      right:12px;
+      bottom:12px;
+      z-index:10;
+      pointer-events:none;
+      text-align:center;
+      background:rgba(0,0,0,0.22);
+      color:rgba(255,255,255,0.92);
+      padding:10px 12px;
+      border-radius:14px;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      font-size:13px; line-height:1.3;
-      white-space:pre-wrap;
+      font-size:13px;
+      line-height:1.3;
+      letter-spacing:0.2px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      text-shadow:0 1px 2px rgba(0,0,0,0.35);
+      user-select:none;
     }
 
     .history-card{
@@ -167,7 +186,7 @@
   </div>
 </div>
 
-<div class="msg" id="msg">Avvio…</div>
+<div class="msg" id="msg">Tutti i diritti sono riservati a Mattia R.</div>
 
 <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
 <script src="./tracking-shared.js"></script>
@@ -175,7 +194,7 @@
 const MAPTILER_KEY = "ORUgXv14fwE911CA6MdX";
 
 const msg = document.getElementById("msg");
-const setMsg = (t) => msg.textContent = t;
+const setMsg = () => {};
 
 const CENTER = [6.86, 45.03];
 
@@ -520,60 +539,6 @@ map.on("load", () => {
     map.moveLayer("rifugi-layer"); map.moveLayer("rifugi-label");
     map.moveLayer("impianti-layer"); map.moveLayer("impianti-label");
 
-    map.on("mouseenter","rifugi-layer",()=>map.getCanvas().style.cursor="pointer");
-    map.on("mouseleave","rifugi-layer",()=>map.getCanvas().style.cursor="");
-    map.on("click","rifugi-layer",(e)=>{
-      const f=e.features&&e.features[0]; if(!f) return;
-      const name=f.properties?.name||"Rifugio";
-      const [lng,lat]=f.geometry.coordinates;
-      const googleUrl=googleMapsPlaceUrl(name,lat,lng);
-      const navUrl=googleMapsDirectionsUrl(lat,lng);
-      new maplibregl.Popup()
-        .setLngLat(e.lngLat)
-        .setHTML(`
-          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
-            <div style="font-weight:900;font-size:14px;margin-bottom:8px;">🍽️ ${name}</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
-                 style="display:inline-block;padding:8px 10px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font-weight:900;">
-                Apri su Google
-              </a>
-              <a href="${navUrl}" target="_blank" rel="noopener noreferrer"
-                 style="display:inline-block;padding:8px 10px;border-radius:10px;background:#eee;color:#111;text-decoration:none;font-weight:900;">
-                Naviga
-              </a>
-            </div>
-          </div>
-        `).addTo(map);
-    });
-
-    map.on("mouseenter","impianti-layer",()=>map.getCanvas().style.cursor="pointer");
-    map.on("mouseleave","impianti-layer",()=>map.getCanvas().style.cursor="");
-    map.on("click","impianti-layer",(e)=>{
-      const f=e.features&&e.features[0]; if(!f) return;
-      const name=f.properties?.name||f.properties?.ref||"Impianto";
-      const [lng,lat]=f.geometry.coordinates;
-      const googleUrl=googleMapsPlaceUrl(name,lat,lng);
-      const navUrl=googleMapsDirectionsUrl(lat,lng);
-      new maplibregl.Popup()
-        .setLngLat(e.lngLat)
-        .setHTML(`
-          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
-            <div style="font-weight:900;font-size:14px;margin-bottom:8px;">🚡 ${name}</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
-                 style="display:inline-block;padding:8px 10px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font-weight:900;">
-                Apri su Google
-              </a>
-              <a href="${navUrl}" target="_blank" rel="noopener noreferrer"
-                 style="display:inline-block;padding:8px 10px;border-radius:10px;background:#eee;color:#111;text-decoration:none;font-weight:900;">
-                Naviga
-              </a>
-            </div>
-          </div>
-        `).addTo(map);
-    });
-
     const btnMap=document.getElementById("btnMap");
     const btnSat=document.getElementById("btnSat");
     const btnLabels=document.getElementById("btnLabels");
@@ -590,14 +555,12 @@ map.on("load", () => {
       map.setLayoutProperty("labels","visibility","none");
       labelsOn=false;
       btnLabels.textContent="🔤 Labels: OFF";
-      setMsg("✅ Modalità: Mappa");
     };
 
     btnSat.onclick=()=>{
       map.setLayoutProperty("base","visibility","none");
       map.setLayoutProperty("satellite","visibility","visible");
       map.setLayoutProperty("labels","visibility",labelsOn?"visible":"none");
-      setMsg("✅ Modalità: Satellite");
     };
 
     btnLabels.onclick=()=>{
@@ -620,18 +583,13 @@ map.on("load", () => {
       btnImpianti.textContent="🚡 Impianti: "+(impiantiOn?"ON":"OFF");
     };
 
-    // Tracking condiviso 3D
     SkiSmartTracking.initMapLibre(map);
-
-    setMsg("✅ 3D pronto. Piste + Rifugi + Impianti + Tracking");
 
   } catch(e){
     console.error(e);
-    setMsg("⚠️ Errore:\n" + (e?.message || e));
   }
 });
 
-// panel toggle
 const panel = document.getElementById("panel");
 const panelToggle = document.getElementById("panelToggle");
 
