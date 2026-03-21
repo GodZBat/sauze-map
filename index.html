@@ -179,12 +179,14 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
 
     <hr/>
 
-    <div class="section-title">❄️ Neve al suolo</div>
+    <div class="section-title">❄️ Neve al suolo (fonte ufficiale)</div>
     <div class="row">
-      <button class="btn-blue" id="snowRefresh">↻ Aggiorna</button>
+      <button class="btn-blue" id="snowOpenArpa">Apri fonte ARPA</button>
     </div>
-    <div class="pill" id="snowDepth">Neve al suolo: —</div>
-    <div class="small" id="snowMeta">Fonte: Open-Meteo (snow_depth). Ultimo update: —</div>
+    <div class="pill" id="snowDepth">Stazione di riferimento: Lago Pilone – Sauze d’Oulx</div>
+    <div class="small" id="snowMeta">
+  Fonte: ARPA Piemonte. Dato nivometrico validato giornalmente. Il dato orario in tempo reale non validato ha accuratezza di circa 3 cm.
+    </div>
 
     <hr/>
 
@@ -525,62 +527,15 @@ document.getElementById("locateBtn").onclick = () => {
 };
 
 /* =========================
-   SNOW DEPTH
+   SNOW DEPTH - FONTE UFFICIALE ARPA PIEMONTE
    ========================= */
-const snowDepthEl = document.getElementById("snowDepth");
-const snowMetaEl  = document.getElementById("snowMeta");
-const snowRefreshBtn = document.getElementById("snowRefresh");
+const snowOpenArpaBtn = document.getElementById("snowOpenArpa");
 
-const SNOW_LAT = 45.03;
-const SNOW_LON = 6.86;
+const ARPA_SNOW_URL = "https://webgis.arpa.piemonte.it/webmeteo/meteo.php?CODTOT=001259900";
 
-function nearestTimeIndex(times){
-  const now = Date.now();
-  let bestI = 0;
-  let bestD = Infinity;
-  for(let i=0;i<times.length;i++){
-    const t = new Date(times[i]).getTime();
-    const d = Math.abs(t - now);
-    if(d < bestD){ bestD = d; bestI = i; }
-  }
-  return bestI;
-}
-
-async function refreshSnow(){
-  try{
-    snowDepthEl.textContent = "Neve al suolo: caricamento…";
-    const url =
-      `https://api.open-meteo.com/v1/forecast` +
-      `?latitude=${SNOW_LAT}&longitude=${SNOW_LON}` +
-      `&hourly=snow_depth` +
-      `&timezone=Europe%2FRome`;
-
-    const res = await fetch(url);
-    if(!res.ok) throw new Error("Open-Meteo non raggiungibile");
-    const data = await res.json();
-
-    const times = data?.hourly?.time || [];
-    const depths = data?.hourly?.snow_depth || [];
-
-    if(!times.length || !depths.length) throw new Error("Dati neve non disponibili");
-
-    const i = nearestTimeIndex(times);
-    const meters = Number(depths[i]);
-    const cm = Math.max(0, Math.round(meters * 100));
-
-    const when = new Date(times[i]).toLocaleString("it-IT");
-    snowDepthEl.textContent = `Neve al suolo: ${cm} cm`;
-    snowMetaEl.textContent = `Fonte: Open-Meteo (snow_depth). Ora: ${when}`;
-  }catch(e){
-    console.error(e);
-    snowDepthEl.textContent = "Neve al suolo: —";
-    snowMetaEl.textContent = "Errore nel recupero dati neve (riprovare).";
-  }
-}
-
-snowRefreshBtn.onclick = refreshSnow;
-refreshSnow();
-setInterval(refreshSnow, 30 * 60 * 1000);
+snowOpenArpaBtn.onclick = () => {
+  window.open(ARPA_SNOW_URL, "_blank", "noopener,noreferrer");
+};
 
 /* =========================
    SPOTS
