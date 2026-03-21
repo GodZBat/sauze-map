@@ -18,9 +18,6 @@
 html, body { height:100%; margin:0; }
 #map { height:100%; }
 
-/* =========================
-   WELCOME SCREEN
-   ========================= */
 .welcome-screen{
   position:fixed;
   inset:0;
@@ -133,9 +130,6 @@ html, body { height:100%; margin:0; }
   color:#fff;
 }
 
-/* =========================
-   APP PANEL
-   ========================= */
 .panel{
   position:absolute;
   top:12px;
@@ -231,10 +225,10 @@ button{
 }
 
 .btn-dark{ background:#111827; color:#fff; }
-.btn-blue{ background:#2b7cff; color:#fff; }
+.btn-blue{ background:#2563eb; color:#fff; }
 .btn-light{ background:#eef1f5; color:#111; }
-.btn-green{ background:#1f9d55; color:#fff; }
-.btn-orange{ background:#ff8a00; color:#fff; }
+.btn-green{ background:#16a34a; color:#fff; }
+.btn-orange{ background:#f97316; color:#fff; }
 
 .menu-card{
   margin:10px 0 0;
@@ -360,6 +354,21 @@ input[type="range"]{ width:100%; }
   margin-top:4px;
   line-height:1.4;
 }
+
+/* Leaflet popups più moderni */
+.leaflet-popup-content-wrapper{
+  border-radius:16px;
+  box-shadow:0 12px 28px rgba(0,0,0,0.18);
+}
+.leaflet-popup-content{
+  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  font-size:13px;
+  line-height:1.4;
+  margin:12px 14px;
+}
+.leaflet-popup-tip{
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
 </style>
 </head>
 <body>
@@ -371,11 +380,11 @@ input[type="range"]{ width:100%; }
   <div class="welcome-overlay"></div>
 
   <div class="welcome-card">
-    <div class="welcome-badge">Developped by Mattia Ruvo</div>
-    <div class="welcome-title">Benvenuto su SkiSmart</div>
+    <div class="welcome-badge">Benvenuto su SkiSmart</div>
+    <div class="welcome-title">La tua mappa sci smart</div>
     <div class="welcome-subtitle">
       Traccia le tue discese, esplora il comprensorio in 2D e 3D
-      e scopri le tue statistiche.
+      e salva le tue statistiche.
     </div>
 
     <div class="welcome-user" id="welcomeSavedUser"></div>
@@ -390,8 +399,8 @@ input[type="range"]{ width:100%; }
       <select class="welcome-select" id="resortSelect">
         <option value="sauze">Sauze d'Oulx</option>
         <option value="sestriere" disabled>Sestriere (prossimamente)</option>
-        <option value="Val Gardena Dolomites" disabled>Val Gardena Dolomites (prossimamente)</option>
-        <option value="Cervinia" disabled>Cervinia (prossimamente)</option>
+        <option value="cesana" disabled>Cesana (prossimamente)</option>
+        <option value="claviere" disabled>Claviere (prossimamente)</option>
       </select>
     </div>
 
@@ -401,7 +410,7 @@ input[type="range"]{ width:100%; }
     </div>
 
     <div class="welcome-foot">
-      L’account per ora è locale al dispositivo. In seguito potremo aggiungere login reale e online mode.
+      L’account per ora è locale al dispositivo. In seguito potremo aggiungere login reale e sincronizzazione.
     </div>
   </div>
 </div>
@@ -639,7 +648,10 @@ resortSelect.value = loadSelectedResort();
 enterAppBtn.addEventListener("click", () => enterAppAsUser(false));
 guestBtn.addEventListener("click", () => enterAppAsUser(true));
 
-const map = L.map("map");
+const map = L.map("map", {
+  zoomControl: true,
+  preferCanvas: true
+});
 
 const osm = L.tileLayer(
   "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -653,12 +665,12 @@ const esriSat = L.tileLayer(
 
 const hillshade = L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
-  { maxZoom:19, opacity: 0.35, attribution:"Hillshade © Esri" }
+  { maxZoom:19, opacity: 0.24, attribution:"Hillshade © Esri" }
 );
 
 const esriLabels = L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-  { maxZoom: 19, opacity: 1.0, zIndex: 650, attribution:"Labels © Esri" }
+  { maxZoom: 19, opacity: 0.95, zIndex: 650, attribution:"Labels © Esri" }
 );
 
 osm.addTo(map);
@@ -699,12 +711,12 @@ hillOpacity.addEventListener("input", () => {
 });
 
 function pisteColor(diff){
-  if(!diff) return "#7aa6d8";
+  if(!diff) return "#60a5fa";
   diff = String(diff).toLowerCase();
-  if(diff.includes("easy")||diff.includes("novice")||diff.includes("beginner")||diff.includes("blue")) return "#1f77b4";
-  if(diff.includes("intermediate")||diff.includes("medium")||diff.includes("red")) return "#d62728";
-  if(diff.includes("advanced")||diff.includes("expert")||diff.includes("difficult")||diff.includes("black")) return "#000";
-  return "#7aa6d8";
+  if(diff.includes("easy")||diff.includes("novice")||diff.includes("beginner")||diff.includes("blue")) return "#3b82f6";
+  if(diff.includes("intermediate")||diff.includes("medium")||diff.includes("red")) return "#ef4444";
+  if(diff.includes("advanced")||diff.includes("expert")||diff.includes("difficult")||diff.includes("black")) return "#1f2937";
+  return "#60a5fa";
 }
 function classify(diff){
   if(!diff) return "unknown";
@@ -713,6 +725,41 @@ function classify(diff){
   if(diff.includes("intermediate")||diff.includes("medium")||diff.includes("red")) return "red";
   if(diff.includes("advanced")||diff.includes("expert")||diff.includes("difficult")||diff.includes("black")) return "black";
   return "unknown";
+}
+
+const userIcon = L.divIcon({
+  className: "",
+  html: `
+    <div style="
+      width:18px;height:18px;border-radius:50%;
+      background:#2563eb;
+      border:3px solid rgba(255,255,255,0.95);
+      box-shadow:0 0 0 6px rgba(37,99,235,0.16), 0 6px 18px rgba(0,0,0,0.18);
+    "></div>
+  `,
+  iconSize: [18,18],
+  iconAnchor: [9,9]
+});
+
+function makeSpotIcon(type){
+  const bg = type === "jump" ? "#7c3aed" : "#0ea5a4";
+  const emoji = type === "jump" ? "🛫" : "❄️";
+  return L.divIcon({
+    className: "",
+    html: `
+      <div style="
+        width:32px;height:32px;border-radius:50%;
+        background:${bg};
+        border:2px solid rgba(255,255,255,0.95);
+        display:flex;align-items:center;justify-content:center;
+        font-size:15px;
+        box-shadow:0 8px 18px rgba(0,0,0,0.18);
+      ">${emoji}</div>
+    `,
+    iconSize:[32,32],
+    iconAnchor:[16,16],
+    popupAnchor:[0,-12]
+  });
 }
 
 let runsLayer = L.geoJSON(null);
@@ -729,17 +776,39 @@ function resetHighlight(){
   if(!lastHighlighted) return;
   const l = lastHighlighted;
   if(l.__isLift){
-    l.setStyle({color:"#777", weight:3, dashArray:"6 6", opacity:0.85});
+    l.setStyle({
+      color:"#64748b",
+      weight:2.4,
+      dashArray:"8 7",
+      opacity:0.82
+    });
   } else {
     const diff = l.feature?.properties?.["piste:difficulty"];
-    l.setStyle({color:pisteColor(diff), weight:5, opacity:0.95});
+    l.setStyle({
+      color:pisteColor(diff),
+      weight:4.2,
+      opacity:0.86
+    });
   }
   lastHighlighted = null;
 }
 
 function highlight(layer, isLift){
   resetHighlight();
-  layer.setStyle({weight:8, opacity:1.0});
+  if(isLift){
+    layer.setStyle({
+      color:"#0f172a",
+      weight:4.2,
+      dashArray:"10 6",
+      opacity:0.95
+    });
+  } else {
+    layer.setStyle({
+      color:"#ffffff",
+      weight:7,
+      opacity:1
+    });
+  }
   layer.__isLift = isLift;
   lastHighlighted = layer;
 }
@@ -750,14 +819,20 @@ function enterFocus(runLayer){
 
   runsLayer.eachLayer(l => {
     if(l === runLayer) return;
-    l.setStyle({ opacity: 0.03, weight: 2 });
+    l.setStyle({ opacity: 0.08, weight: 2.2 });
   });
 
   if (focusLayer) map.removeLayer(focusLayer);
 
   const diff = runLayer.feature?.properties?.["piste:difficulty"];
   focusLayer = L.geoJSON(runLayer.feature, {
-    style: { color: pisteColor(diff), weight: 10, opacity: 1.0 }
+    style: {
+      color: pisteColor(diff),
+      weight: 7,
+      opacity: 0.98,
+      lineCap: "round",
+      lineJoin: "round"
+    }
   }).addTo(map);
 
   try { focusLayer.bringToFront(); } catch(e) {}
@@ -773,8 +848,33 @@ function exitFocus(){
 
   runsLayer.eachLayer(l => {
     const diff = l.feature?.properties?.["piste:difficulty"];
-    l.setStyle({ color: pisteColor(diff), weight: 5, opacity: 0.95 });
+    l.setStyle({
+      color: pisteColor(diff),
+      weight: 4.2,
+      opacity: 0.86
+    });
   });
+}
+
+function runPopupHtml(name, diff){
+  return `
+    <div>
+      <div style="font-weight:1000; font-size:14px; color:#111827;">🎿 ${name}</div>
+      <div style="margin-top:4px; color:#475467;">
+        Difficoltà:
+        <span style="font-weight:900;">${diff || "N/D"}</span>
+      </div>
+    </div>
+  `;
+}
+
+function liftPopupHtml(name){
+  return `
+    <div>
+      <div style="font-weight:1000; font-size:14px; color:#111827;">🚡 ${name}</div>
+      <div style="margin-top:4px; color:#475467;">Impianto del comprensorio</div>
+    </div>
+  `;
 }
 
 function rebuild(keepView=false){
@@ -795,13 +895,19 @@ function rebuild(keepView=false){
     },
     style: (f) => {
       const p = f.properties || {};
-      return {color: pisteColor(p["piste:difficulty"]), weight:5, opacity:0.95};
+      return {
+        color: pisteColor(p["piste:difficulty"]),
+        weight: 4.2,
+        opacity: 0.86,
+        lineCap: "round",
+        lineJoin: "round"
+      };
     },
     onEachFeature: (f, l) => {
       const p = f.properties || {};
       const name = p.name || p.ref || "Pista";
-      const diff = p["piste:difficulty"] ? ` (${p["piste:difficulty"]})` : "";
-      l.bindPopup(`🎿 <b>${name}</b>${diff}`);
+      const diff = p["piste:difficulty"] || "";
+      l.bindPopup(runPopupHtml(name, diff));
       l.on("click", () => highlight(l, false));
       l.__searchName = String(p.name || "").toLowerCase();
       l.__searchRef  = String(p.ref || "").toLowerCase();
@@ -810,11 +916,18 @@ function rebuild(keepView=false){
 
   liftsLayer = L.geoJSON(cachedData, {
     filter: (f) => !!(f.properties || {}).aerialway,
-    style: () => ({color:"#777", weight:3, dashArray:"6 6", opacity:0.85}),
+    style: () => ({
+      color:"#64748b",
+      weight:2.4,
+      dashArray:"8 7",
+      opacity:0.82,
+      lineCap:"round",
+      lineJoin:"round"
+    }),
     onEachFeature: (f, l) => {
       const p = f.properties || {};
       const name = p.name || p.ref || "Impianto";
-      l.bindPopup(`🚡 <b>${name}</b>`);
+      l.bindPopup(liftPopupHtml(name));
       l.on("click", () => highlight(l, true));
       l.__isLift = true;
     }
@@ -895,8 +1008,9 @@ document.getElementById("locateBtn").onclick = () => {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
     if(userMarker) map.removeLayer(userMarker);
-    userMarker = L.circleMarker([lat, lng], { radius:8, weight:3, fillOpacity:0.7 }).addTo(map)
-      .bindPopup("📍 Sei qui").openPopup();
+    userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map)
+      .bindPopup(`<div style="font-weight:900;color:#111827;">📍 Sei qui</div>`)
+      .openPopup();
     map.setView([lat, lng], 15);
   }, (err) => alert("Errore geolocalizzazione: " + err.message), { enableHighAccuracy:true, timeout:8000 });
 };
@@ -978,13 +1092,16 @@ function renderSpots(){
   const spots = loadSpots();
 
   for(const s of spots){
-    const m = L.marker([s.lat, s.lng]).addTo(spotLayer);
+    const m = L.marker([s.lat, s.lng], { icon: makeSpotIcon(s.type) }).addTo(spotLayer);
     const title = s.title || (s.type==="jump" ? "Salto" : "Powder");
-    const notes = s.notes ? `<br>${s.notes}` : "";
+    const notes = s.notes ? `<div style="margin-top:4px;color:#475467;">${s.notes}</div>` : "";
     m.bindPopup(`
-      ${iconFor(s.type)} <b>${title}</b>${notes}
-      <hr style="border:none;border-top:1px solid #e6e6e6;margin:8px 0;">
-      <button class="btn-light delete-spot" data-spot-id="${s.id}">🗑 Elimina questo spot</button>
+      <div>
+        <div style="font-weight:1000;font-size:14px;color:#111827;">${iconFor(s.type)} ${title}</div>
+        ${notes}
+        <hr style="border:none;border-top:1px solid #e6e6e6;margin:8px 0;">
+        <button class="btn-light delete-spot" data-spot-id="${s.id}">🗑 Elimina questo spot</button>
+      </div>
     `);
   }
 }
