@@ -309,8 +309,8 @@
           <button class="btn-light" id="btnLabels">🔤 Labels: OFF</button>
         </div>
         <div class="small" style="margin-top:12px; font-weight:900;">Esagerazione rilievo</div>
-        <input id="ex" type="range" min="50" max="300" value="140">
-        <div class="small">2 dita: inclina/ruota • Pinch: zoom</div>
+        <input id="ex" type="range" min="80" max="180" value="135">
+        <div class="small">Zoom limitato per mantenere la scena stabile e fluida.</div>
       </div>
     </details>
 
@@ -381,10 +381,10 @@ function runDifficultyFromProps(p){
 }
 function runColorFromDifficulty(diffRaw){
   const d = String(diffRaw || "").toLowerCase();
-  if (["easy","novice","beginner","blue"].includes(d)) return "#1f77b4";
-  if (["intermediate","medium","red"].includes(d)) return "#d62728";
-  if (["advanced","expert","difficult","black"].includes(d)) return "#000000";
-  return "#7aa6d8";
+  if (["easy","novice","beginner","blue"].includes(d)) return "#3b82f6";
+  if (["intermediate","medium","red"].includes(d)) return "#ef4444";
+  if (["advanced","expert","difficult","black"].includes(d)) return "#1f2937";
+  return "#60a5fa";
 }
 
 const popup = new maplibregl.Popup({
@@ -430,9 +430,12 @@ const map = new maplibregl.Map({
   container:"map",
   style,
   center:CENTER,
-  zoom:12.2,
-  pitch:65,
-  bearing:-20,
+  zoom:12.15,
+  minZoom:10,
+  maxZoom:17,
+  pitch:58,
+  maxPitch:70,
+  bearing:-18,
   antialias:true
 });
 
@@ -462,97 +465,95 @@ function addIconFromCanvas(name, drawFn, size=64, pixelRatio=2) {
 
 function addAllIcons() {
   addIconFromCanvas("icon-ristoro", (ctx, s) => {
+    ctx.clearRect(0, 0, s, s);
+
     ctx.beginPath();
-    ctx.arc(s/2, s/2, s*0.34, 0, Math.PI*2);
-    ctx.fillStyle = "#ffcc00";
+    ctx.arc(s/2, s/2, s*0.30, 0, Math.PI*2);
+    ctx.fillStyle = "#f59e0b";
     ctx.fill();
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "#111";
+
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(255,255,255,0.95)";
     ctx.stroke();
 
-    ctx.strokeStyle = "#111";
-    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 3.2;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
-    const x = s*0.34, y1 = s*0.28, y2 = s*0.56;
+    const fx = s*0.39;
+    const fy1 = s*0.30;
+    const fy2 = s*0.57;
 
     ctx.beginPath();
-    ctx.moveTo(x, y1); ctx.lineTo(x, y2);
+    ctx.moveTo(fx, fy1);
+    ctx.lineTo(fx, fy2);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(x - s*0.06, y1); ctx.lineTo(x - s*0.06, y1 + s*0.16);
-    ctx.moveTo(x, y1); ctx.lineTo(x, y1 + s*0.16);
-    ctx.moveTo(x + s*0.06, y1); ctx.lineTo(x + s*0.06, y1 + s*0.16);
+    ctx.moveTo(fx - s*0.045, fy1);
+    ctx.lineTo(fx - s*0.045, fy1 + s*0.11);
+    ctx.moveTo(fx, fy1);
+    ctx.lineTo(fx, fy1 + s*0.11);
+    ctx.moveTo(fx + s*0.045, fy1);
+    ctx.lineTo(fx + s*0.045, fy1 + s*0.11);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(x - s*0.06, y1 + s*0.16);
-    ctx.lineTo(x + s*0.06, y1 + s*0.16);
+    ctx.moveTo(fx, fy2);
+    ctx.lineTo(fx, s*0.68);
     ctx.stroke();
 
+    const kx = s*0.58;
     ctx.beginPath();
-    ctx.moveTo(x, y2); ctx.lineTo(x, s*0.74);
-    ctx.stroke();
-
-    const kx = s*0.62;
-    ctx.beginPath();
-    ctx.moveTo(kx, y1);
-    ctx.quadraticCurveTo(kx + s*0.08, y1 + s*0.10, kx, y1 + s*0.26);
-    ctx.lineTo(kx, s*0.74);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(kx, y1);
-    ctx.lineTo(kx + s*0.09, y1 + s*0.09);
+    ctx.moveTo(kx, fy1);
+    ctx.quadraticCurveTo(kx + s*0.06, fy1 + s*0.08, kx, fy1 + s*0.22);
+    ctx.lineTo(kx, s*0.68);
     ctx.stroke();
   });
 
   addIconFromCanvas("icon-impianto", (ctx, s) => {
+    ctx.clearRect(0, 0, s, s);
+
     ctx.beginPath();
-    ctx.arc(s/2, s/2, s*0.34, 0, Math.PI*2);
-    ctx.fillStyle = "#7dd3fc";
+    ctx.arc(s/2, s/2, s*0.30, 0, Math.PI*2);
+    ctx.fillStyle = "#2563eb";
     ctx.fill();
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "#111";
+
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(255,255,255,0.95)";
     ctx.stroke();
 
-    ctx.strokeStyle = "#111";
-    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 3.2;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
 
     ctx.beginPath();
-    ctx.moveTo(s*0.26, s*0.34);
-    ctx.lineTo(s*0.74, s*0.34);
+    ctx.moveTo(s*0.32, s*0.34);
+    ctx.lineTo(s*0.68, s*0.34);
     ctx.stroke();
 
     ctx.beginPath();
     ctx.moveTo(s*0.50, s*0.34);
-    ctx.lineTo(s*0.50, s*0.49);
+    ctx.lineTo(s*0.50, s*0.47);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(s*0.40, s*0.49);
-    ctx.lineTo(s*0.60, s*0.49);
+    ctx.moveTo(s*0.41, s*0.48);
+    ctx.lineTo(s*0.59, s*0.48);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(s*0.40, s*0.52);
-    ctx.lineTo(s*0.40, s*0.68);
-    ctx.moveTo(s*0.60, s*0.52);
-    ctx.lineTo(s*0.60, s*0.68);
+    ctx.moveTo(s*0.42, s*0.51);
+    ctx.lineTo(s*0.42, s*0.61);
+    ctx.moveTo(s*0.58, s*0.51);
+    ctx.lineTo(s*0.58, s*0.61);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(s*0.36, s*0.68);
-    ctx.lineTo(s*0.64, s*0.68);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(s*0.40, s*0.60);
-    ctx.lineTo(s*0.60, s*0.60);
+    ctx.moveTo(s*0.39, s*0.61);
+    ctx.lineTo(s*0.61, s*0.61);
     ctx.stroke();
   });
 }
@@ -564,11 +565,12 @@ function setLayerVisible(id, visible) {
 
 map.on("load", () => {
   try {
-    map.setTerrain({ source:"terrainSource", exaggeration:1.4 });
+    map.setTerrain({ source:"terrainSource", exaggeration:1.35 });
 
     const ex = document.getElementById("ex");
     ex.addEventListener("input", () => {
-      map.setTerrain({ source: "terrainSource", exaggeration: parseInt(ex.value)/100 });
+      const value = Math.max(0.8, Math.min(1.8, parseInt(ex.value, 10) / 100));
+      map.setTerrain({ source:"terrainSource", exaggeration:value });
     });
 
     map.addSource("runs", { type:"geojson", data:"./sauze_doulx.geojson" });
@@ -580,8 +582,8 @@ map.on("load", () => {
       filter:["==",["get","piste:type"],"downhill"],
       paint:{
         "line-color":"#ffffff",
-        "line-width":["interpolate",["linear"],["zoom"],10,3.5,12,5.5,14,7.5,16,10],
-        "line-opacity":0.55
+        "line-width":["interpolate",["linear"],["zoom"],10,2,12,3,14,4.2,16,5.8],
+        "line-opacity":0.20
       }
     });
 
@@ -593,13 +595,13 @@ map.on("load", () => {
       paint:{
         "line-color":[
           "case",
-          ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["easy","novice","beginner","blue"]]],"#1f77b4",
-          ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["intermediate","medium","red"]]],"#d62728",
-          ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["advanced","expert","difficult","black"]]],"#000000",
-          "#7aa6d8"
+          ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["easy","novice","beginner","blue"]]],"#3b82f6",
+          ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["intermediate","medium","red"]]],"#ef4444",
+          ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["advanced","expert","difficult","black"]]],"#1f2937",
+          "#60a5fa"
         ],
-        "line-width":["interpolate",["linear"],["zoom"],10,2.5,12,4,14,6,16,8],
-        "line-opacity":0.95
+        "line-width":["interpolate",["linear"],["zoom"],10,1.7,12,2.6,14,3.8,16,5.1],
+        "line-opacity":0.84
       }
     });
 
@@ -609,8 +611,9 @@ map.on("load", () => {
       source:"runs",
       filter:["==",["id"],"__none__"],
       paint:{
-        "line-color":"#ffff00",
-        "line-width":["interpolate",["linear"],["zoom"],10,5,12,7,14,9,16,12]
+        "line-color":"#ffffff",
+        "line-width":["interpolate",["linear"],["zoom"],10,3.8,12,5,14,6.8,16,8.5],
+        "line-opacity":0.96
       }
     });
 
@@ -656,7 +659,7 @@ map.on("load", () => {
       filter:["==",["geometry-type"],"Point"],
       layout:{
         "icon-image":"icon-ristoro",
-        "icon-size":0.6,
+        "icon-size":["interpolate",["linear"],["zoom"],10,0.44,13,0.54,16,0.62],
         "icon-allow-overlap":true,
         "visibility":"visible"
       }
@@ -666,16 +669,21 @@ map.on("load", () => {
       id:"rifugi-label",
       type:"symbol",
       source:"rifugi",
+      minzoom:13.5,
       filter:["==",["geometry-type"],"Point"],
       layout:{
         "text-field":["get","name"],
-        "text-size":13,
-        "text-offset":[0,1.35],
+        "text-size":["interpolate",["linear"],["zoom"],13.5,11,16,13],
+        "text-offset":[0,1.15],
         "text-anchor":"top",
-        "text-allow-overlap":true,
+        "text-allow-overlap":false,
         "visibility":"visible"
       },
-      paint:{ "text-halo-color":"#fff", "text-halo-width":2 }
+      paint:{
+        "text-color":"#111827",
+        "text-halo-color":"rgba(255,255,255,0.95)",
+        "text-halo-width":1.6
+      }
     });
 
     map.addSource("impianti", { type:"geojson", data:"./data/impianti.geojson" });
@@ -686,7 +694,7 @@ map.on("load", () => {
       filter:["==",["geometry-type"],"Point"],
       layout:{
         "icon-image":"icon-impianto",
-        "icon-size":0.6,
+        "icon-size":["interpolate",["linear"],["zoom"],10,0.44,13,0.54,16,0.62],
         "icon-allow-overlap":true,
         "visibility":"visible"
       }
@@ -696,20 +704,27 @@ map.on("load", () => {
       id:"impianti-label",
       type:"symbol",
       source:"impianti",
+      minzoom:13.5,
       filter:["==",["geometry-type"],"Point"],
       layout:{
         "text-field":["coalesce",["get","name"],["get","ref"],"Impianto"],
-        "text-size":13,
-        "text-offset":[0,1.35],
+        "text-size":["interpolate",["linear"],["zoom"],13.5,11,16,13],
+        "text-offset":[0,1.15],
         "text-anchor":"top",
-        "text-allow-overlap":true,
+        "text-allow-overlap":false,
         "visibility":"visible"
       },
-      paint:{ "text-halo-color":"#fff", "text-halo-width":2 }
+      paint:{
+        "text-color":"#111827",
+        "text-halo-color":"rgba(255,255,255,0.95)",
+        "text-halo-width":1.6
+      }
     });
 
-    map.moveLayer("rifugi-layer"); map.moveLayer("rifugi-label");
-    map.moveLayer("impianti-layer"); map.moveLayer("impianti-label");
+    map.moveLayer("rifugi-layer");
+    map.moveLayer("rifugi-label");
+    map.moveLayer("impianti-layer");
+    map.moveLayer("impianti-label");
 
     map.on("mouseenter","rifugi-layer",()=>map.getCanvas().style.cursor="pointer");
     map.on("mouseleave","rifugi-layer",()=>map.getCanvas().style.cursor="");
