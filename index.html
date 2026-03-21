@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Sauze Freestyle Map</title>
+<title>SkiSmart</title>
 
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="icon" type="image/png" href="./icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Sauze Freestyle Map">
+<meta name="apple-mobile-web-app-title" content="SkiSmart">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -18,6 +18,157 @@
 html, body { height:100%; margin:0; }
 #map { height:100%; }
 
+/* =========================
+   WELCOME SCREEN
+   ========================= */
+.welcome-screen{
+  position:fixed;
+  inset:0;
+  z-index:5000;
+  overflow:hidden;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.welcome-screen.hidden{
+  display:none;
+}
+
+.welcome-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.welcome-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.35),
+    rgba(0,0,0,0.55)
+  );
+}
+
+.welcome-card{
+  position:relative;
+  z-index:2;
+  width:min(420px, calc(100% - 32px));
+  background:rgba(255,255,255,0.12);
+  border:1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius:22px;
+  padding:22px 18px;
+  box-shadow:0 16px 40px rgba(0,0,0,0.25);
+  color:#fff;
+  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
+
+.welcome-badge{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.16);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:0.2px;
+}
+
+.welcome-title{
+  margin-top:14px;
+  font-size:32px;
+  font-weight:1000;
+  line-height:1;
+}
+
+.welcome-subtitle{
+  margin-top:10px;
+  font-size:14px;
+  line-height:1.45;
+  color:rgba(255,255,255,0.92);
+}
+
+.welcome-section{
+  margin-top:16px;
+}
+
+.welcome-label{
+  font-size:12px;
+  font-weight:900;
+  margin-bottom:6px;
+  color:rgba(255,255,255,0.94);
+}
+
+.welcome-input,
+.welcome-select{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid rgba(255,255,255,0.22);
+  background:rgba(255,255,255,0.14);
+  color:#fff;
+  border-radius:12px;
+  padding:11px 12px;
+  font-size:14px;
+  outline:none;
+}
+
+.welcome-input::placeholder{
+  color:rgba(255,255,255,0.7);
+}
+
+.welcome-select option{
+  color:#111;
+}
+
+.welcome-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
+.welcome-btn{
+  border:0;
+  border-radius:12px;
+  padding:11px 14px;
+  font-weight:900;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.welcome-btn-primary{
+  background:#fff;
+  color:#111;
+}
+
+.welcome-btn-secondary{
+  background:rgba(255,255,255,0.16);
+  color:#fff;
+  border:1px solid rgba(255,255,255,0.18);
+}
+
+.welcome-foot{
+  margin-top:12px;
+  font-size:12px;
+  color:rgba(255,255,255,0.84);
+  line-height:1.4;
+}
+
+.welcome-user{
+  margin-top:10px;
+  font-size:13px;
+  font-weight:800;
+  color:#fff;
+}
+
+/* =========================
+   APP PANEL
+   ========================= */
 .panel{
   position:absolute;
   top:12px;
@@ -180,6 +331,53 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
 </head>
 <body>
 
+<!-- =========================
+     WELCOME SCREEN
+     ========================= -->
+<div class="welcome-screen" id="welcomeScreen">
+  <video class="welcome-video" autoplay muted loop playsinline>
+    <source src="./intro.mp4" type="video/mp4">
+  </video>
+  <div class="welcome-overlay"></div>
+
+  <div class="welcome-card">
+    <div class="welcome-badge">Benvenuto su SkiSmart</div>
+
+    <div class="welcome-title">La tua mappa sci smart</div>
+    <div class="welcome-subtitle">
+      Traccia le tue discese, esplora il comprensorio in 2D e 3D
+      e salva le tue statistiche.
+    </div>
+
+    <div class="welcome-user" id="welcomeSavedUser"></div>
+
+    <div class="welcome-section">
+      <div class="welcome-label">Crea account</div>
+      <input class="welcome-input" id="accountName" type="text" placeholder="Inserisci il tuo nome">
+    </div>
+
+    <div class="welcome-section">
+      <div class="welcome-label">Comprensorio</div>
+      <select class="welcome-select" id="resortSelect">
+        <option value="sauze">Sauze d'Oulx</option>
+        <option value="sestriere" disabled>Sestriere (prossimamente)</option>
+        <option value="cesana" disabled>Cesana (prossimamente)</option>
+        <option value="claviere" disabled>Claviere (prossimamente)</option>
+      </select>
+    </div>
+
+    <div class="welcome-row">
+      <button class="welcome-btn welcome-btn-primary" id="enterAppBtn">Entra</button>
+      <button class="welcome-btn welcome-btn-secondary" id="guestBtn">Entra come ospite</button>
+    </div>
+
+    <div class="welcome-foot">
+      Per ora l’account è salvato sul dispositivo. In futuro possiamo aggiungere login reale,
+      profilo personale e sincronizzazione tra dispositivi.
+    </div>
+  </div>
+</div>
+
 <div id="map"></div>
 
 <div class="panel collapsed" id="panel">
@@ -297,6 +495,77 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
 <script src="./tracking-shared.js"></script>
 
 <script>
+/* =========================
+   WELCOME / ACCOUNT
+   ========================= */
+const ACCOUNT_STORAGE_KEY = "skismart_local_account_v1";
+const SELECTED_RESORT_KEY = "skismart_selected_resort_v1";
+
+const welcomeScreen = document.getElementById("welcomeScreen");
+const accountNameInput = document.getElementById("accountName");
+const resortSelect = document.getElementById("resortSelect");
+const enterAppBtn = document.getElementById("enterAppBtn");
+const guestBtn = document.getElementById("guestBtn");
+const welcomeSavedUser = document.getElementById("welcomeSavedUser");
+
+function loadAccount() {
+  try {
+    return JSON.parse(localStorage.getItem(ACCOUNT_STORAGE_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
+
+function saveAccount(account) {
+  localStorage.setItem(ACCOUNT_STORAGE_KEY, JSON.stringify(account));
+}
+
+function loadSelectedResort() {
+  return localStorage.getItem(SELECTED_RESORT_KEY) || "sauze";
+}
+
+function saveSelectedResort(value) {
+  localStorage.setItem(SELECTED_RESORT_KEY, value);
+}
+
+function updateWelcomeUser() {
+  const acc = loadAccount();
+  if (acc && acc.name) {
+    welcomeSavedUser.textContent = `Bentornato, ${acc.name}`;
+    accountNameInput.value = acc.name;
+  } else {
+    welcomeSavedUser.textContent = "";
+  }
+}
+
+function enterAppAsUser(isGuest = false) {
+  const resort = resortSelect.value || "sauze";
+  saveSelectedResort(resort);
+
+  if (!isGuest) {
+    const name = (accountNameInput.value || "").trim();
+    if (!name) {
+      alert("Inserisci il tuo nome oppure entra come ospite.");
+      return;
+    }
+    saveAccount({
+      name,
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  welcomeScreen.classList.add("hidden");
+}
+
+updateWelcomeUser();
+resortSelect.value = loadSelectedResort();
+
+enterAppBtn.addEventListener("click", () => enterAppAsUser(false));
+guestBtn.addEventListener("click", () => enterAppAsUser(true));
+
+/* =========================
+   MAP BASE + ESRI SAT + HILLSHADE + LABELS
+   ========================= */
 const map = L.map("map");
 
 const osm = L.tileLayer(
