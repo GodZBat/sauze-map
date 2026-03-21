@@ -31,10 +31,7 @@ html, body { height:100%; margin:0; }
   align-items:center;
   justify-content:center;
 }
-
-.welcome-screen.hidden{
-  display:none;
-}
+.welcome-screen.hidden{ display:none; }
 
 .welcome-video{
   position:absolute;
@@ -43,32 +40,25 @@ html, body { height:100%; margin:0; }
   height:100%;
   object-fit:cover;
 }
-
 .welcome-overlay{
   position:absolute;
   inset:0;
-  background:linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.35),
-    rgba(0,0,0,0.55)
-  );
+  background:linear-gradient(to bottom, rgba(0,0,0,0.28), rgba(0,0,0,0.56));
 }
-
 .welcome-card{
   position:relative;
   z-index:2;
-  width:min(420px, calc(100% - 32px));
+  width:min(430px, calc(100% - 28px));
   background:rgba(255,255,255,0.12);
   border:1px solid rgba(255,255,255,0.18);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-radius:22px;
+  border-radius:24px;
   padding:22px 18px;
-  box-shadow:0 16px 40px rgba(0,0,0,0.25);
+  box-shadow:0 16px 40px rgba(0,0,0,0.24);
   color:#fff;
   font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
 }
-
 .welcome-badge{
   display:inline-block;
   padding:6px 10px;
@@ -76,34 +66,26 @@ html, body { height:100%; margin:0; }
   background:rgba(255,255,255,0.16);
   font-size:12px;
   font-weight:900;
-  letter-spacing:0.2px;
 }
-
 .welcome-title{
   margin-top:14px;
   font-size:32px;
   font-weight:1000;
   line-height:1;
 }
-
 .welcome-subtitle{
   margin-top:10px;
   font-size:14px;
   line-height:1.45;
   color:rgba(255,255,255,0.92);
 }
-
-.welcome-section{
-  margin-top:16px;
-}
-
+.welcome-section{ margin-top:16px; }
 .welcome-label{
   font-size:12px;
   font-weight:900;
   margin-bottom:6px;
   color:rgba(255,255,255,0.94);
 }
-
 .welcome-input,
 .welcome-select{
   width:100%;
@@ -116,22 +98,14 @@ html, body { height:100%; margin:0; }
   font-size:14px;
   outline:none;
 }
-
-.welcome-input::placeholder{
-  color:rgba(255,255,255,0.7);
-}
-
-.welcome-select option{
-  color:#111;
-}
-
+.welcome-input::placeholder{ color:rgba(255,255,255,0.7); }
+.welcome-select option{ color:#111; }
 .welcome-row{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
   margin-top:14px;
 }
-
 .welcome-btn{
   border:0;
   border-radius:12px;
@@ -140,25 +114,18 @@ html, body { height:100%; margin:0; }
   cursor:pointer;
   font-size:14px;
 }
-
-.welcome-btn-primary{
-  background:#fff;
-  color:#111;
-}
-
+.welcome-btn-primary{ background:#fff; color:#111; }
 .welcome-btn-secondary{
   background:rgba(255,255,255,0.16);
   color:#fff;
   border:1px solid rgba(255,255,255,0.18);
 }
-
 .welcome-foot{
   margin-top:12px;
   font-size:12px;
   color:rgba(255,255,255,0.84);
   line-height:1.4;
 }
-
 .welcome-user{
   margin-top:10px;
   font-size:13px;
@@ -174,48 +141,58 @@ html, body { height:100%; margin:0; }
   top:12px;
   left:12px;
   z-index:1000;
-  background:rgba(255,255,255,0.96);
-  border-radius:14px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.2);
-  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  width:320px;
-  max-height: calc(100% - 24px);
+  width:360px;
+  max-width:calc(100% - 24px);
+  max-height:calc(100% - 24px);
   overflow:hidden;
   display:flex;
   flex-direction:column;
+  border-radius:22px;
+  background:rgba(255,255,255,0.76);
+  border:1px solid rgba(255,255,255,0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:0 16px 42px rgba(0,0,0,0.18);
+  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
 }
 
 .panel-header{
   display:flex;
   align-items:center;
   gap:10px;
-  padding:10px 12px;
-  border-bottom:1px solid #e6e6e6;
-  flex: 0 0 auto;
+  padding:12px;
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  flex:0 0 auto;
 }
-
+.panel-title-wrap{ flex:1; min-width:0; }
 .panel-title{
   font-weight:1000;
   font-size:16px;
-  line-height:1;
+  line-height:1.1;
 }
-
+.panel-subtitle{
+  margin-top:4px;
+  font-size:12px;
+  color:#5d6470;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 .panel-toggle{
   border:0;
-  border-radius:10px;
-  padding:8px 10px;
+  border-radius:12px;
+  padding:9px 11px;
   cursor:pointer;
   font-weight:900;
-  background:#111;
+  background:#111827;
   color:#fff;
 }
 
 .panel-body{
   padding:12px;
   overflow-y:auto;
-  -webkit-overflow-scrolling: touch;
-  flex: 1 1 auto;
-  max-height: none;
+  -webkit-overflow-scrolling:touch;
+  flex:1 1 auto;
 }
 
 .panel.collapsed .panel-body{
@@ -224,116 +201,169 @@ html, body { height:100%; margin:0; }
 
 @media (max-width: 600px){
   .panel{
-    left: 10px;
-    right: 10px;
-    top: auto;
-    bottom: calc(10px + env(safe-area-inset-bottom));
-    width: auto;
-    max-height: 70vh;
-    border-radius:16px;
+    left:10px;
+    right:10px;
+    top:auto;
+    bottom:calc(10px + env(safe-area-inset-bottom));
+    width:auto;
+    max-height:76vh;
+    border-radius:20px;
   }
   .panel.collapsed{
-    max-height: 52px;
+    max-height:62px;
   }
+}
+
+.quick-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:10px;
 }
 
 button{
   border:0;
-  border-radius:10px;
-  padding:8px 10px;
-  margin:4px 0;
-  cursor:pointer;
-  font-weight:800;
-}
-
-.btn-dark{ background:#111; color:#fff; }
-.btn-blue{ background:#2b7cff; color:#fff; }
-.btn-light{ background:#eee; }
-.btn-green{ background:#1f9d55; color:#fff; }
-.btn-orange{ background:#ff8a00; color:#fff; }
-
-.section-title{
-  font-size:12px;
-  font-weight:900;
-  margin-top:10px;
-}
-
-.small{ font-size:12px; color:#222; }
-.row{ display:flex; gap:6px; flex-wrap:wrap; }
-
-input[type="text"]{
-  width:100%;
-  padding:8px 10px;
-  border-radius:10px;
-  border:1px solid #ddd;
-  font-weight:700;
-  box-sizing:border-box;
-}
-input[type="range"]{ width:100%; }
-hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
-
-.pill{
-  display:inline-block;
-  padding:4px 8px;
-  border-radius:999px;
-  background:#f2f2f2;
-  font-size:12px;
-  font-weight:800;
-  margin-top:6px;
-}
-
-.history-card{
-  border:1px solid rgba(0,0,0,0.08);
   border-radius:12px;
-  padding:10px;
-  margin-top:8px;
-  background:#fff;
-}
-
-.history-title{
+  padding:10px 12px;
+  cursor:pointer;
   font-weight:900;
   font-size:13px;
 }
 
-.history-meta{
-  font-size:12px;
-  color:#444;
+.btn-dark{ background:#111827; color:#fff; }
+.btn-blue{ background:#2b7cff; color:#fff; }
+.btn-light{ background:#eef1f5; color:#111; }
+.btn-green{ background:#1f9d55; color:#fff; }
+.btn-orange{ background:#ff8a00; color:#fff; }
+
+.menu-card{
+  margin:10px 0 0;
+  border-radius:18px;
+  background:rgba(255,255,255,0.7);
+  border:1px solid rgba(0,0,0,0.05);
+  overflow:hidden;
+  box-shadow:0 6px 18px rgba(0,0,0,0.05);
+}
+
+.menu-card summary{
+  list-style:none;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:14px 14px 12px;
+}
+.menu-card summary::-webkit-details-marker{ display:none; }
+
+.menu-card-title{
+  font-size:13px;
+  font-weight:1000;
+  color:#121826;
+}
+.menu-card-sub{
   margin-top:4px;
+  font-size:12px;
+  color:#667085;
   line-height:1.35;
+}
+.menu-card-chevron{
+  font-size:16px;
+  color:#667085;
+  transition:transform .2s ease;
+}
+.menu-card[open] .menu-card-chevron{
+  transform:rotate(180deg);
+}
+
+.menu-card-body{
+  padding:0 14px 14px;
 }
 
 .dashboard-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:8px;
+}
+.stat-card{
+  background:rgba(255,255,255,0.9);
+  border:1px solid rgba(0,0,0,0.05);
+  border-radius:14px;
+  padding:10px;
+}
+.stat-card.wide{ grid-column:1 / -1; }
+.stat-label{
+  font-size:11px;
+  color:#667085;
+  font-weight:900;
+}
+.stat-value{
+  margin-top:4px;
+  font-size:16px;
+  font-weight:1000;
+  color:#111827;
+}
+
+.row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.row > *{
+  flex:1 1 auto;
+}
+
+.small{
+  font-size:12px;
+  color:#475467;
+  line-height:1.4;
   margin-top:8px;
 }
 
-.stat-card{
-  background:#fff;
-  border:1px solid rgba(0,0,0,0.08);
+.pill{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#f2f4f7;
+  font-size:12px;
+  font-weight:900;
+  color:#111827;
+  margin-top:6px;
+}
+
+input[type="text"]{
+  width:100%;
+  padding:10px 12px;
   border-radius:12px;
+  border:1px solid rgba(0,0,0,0.08);
+  font-weight:700;
+  box-sizing:border-box;
+  background:rgba(255,255,255,0.92);
+}
+input[type="range"]{ width:100%; }
+
+.history-card{
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius:14px;
   padding:10px;
+  margin-top:8px;
+  background:#fff;
 }
-
-.stat-label{
-  font-size:11px;
-  color:#555;
-  font-weight:800;
-}
-
-.stat-value{
-  font-size:16px;
+.history-title{
   font-weight:1000;
+  font-size:13px;
+  color:#111827;
+}
+.history-meta{
+  font-size:12px;
+  color:#475467;
   margin-top:4px;
+  line-height:1.4;
 }
 </style>
 </head>
 <body>
 
-<!-- =========================
-     WELCOME SCREEN
-     ========================= -->
 <div class="welcome-screen" id="welcomeScreen">
   <video class="welcome-video" autoplay muted loop playsinline>
     <source src="./intro.mp4" type="video/mp4">
@@ -341,8 +371,7 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
   <div class="welcome-overlay"></div>
 
   <div class="welcome-card">
-    <div class="welcome-badge">Designed and Programmed by Mattia Ruvo</div>
-
+    <div class="welcome-badge">Developped by Mattia Ruvo</div>
     <div class="welcome-title">Benvenuto su SkiSmart</div>
     <div class="welcome-subtitle">
       Traccia le tue discese, esplora il comprensorio in 2D e 3D
@@ -361,7 +390,7 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
       <select class="welcome-select" id="resortSelect">
         <option value="sauze">Sauze d'Oulx</option>
         <option value="sestriere" disabled>Sestriere (prossimamente)</option>
-        <option value="Val Gardena" disabled>Val Gardena (prossimamente)</option>
+        <option value="Val Gardena Dolomites" disabled>Val Gardena Dolomites (prossimamente)</option>
         <option value="Cervinia" disabled>Cervinia (prossimamente)</option>
       </select>
     </div>
@@ -372,8 +401,7 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
     </div>
 
     <div class="welcome-foot">
-      Per ora l’account è salvato sul dispositivo. In futuro aggiungeremo un login reale,
-      profilo personale e Online mode
+      L’account per ora è locale al dispositivo. In seguito potremo aggiungere login reale e online mode.
     </div>
   </div>
 </div>
@@ -383,110 +411,162 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
 <div class="panel collapsed" id="panel">
   <div class="panel-header">
     <button class="panel-toggle" id="panelToggle" aria-label="Apri/chiudi menu">☰</button>
-    <div class="panel-title">⛷️ Sauze Freestyle Map</div>
+    <div class="panel-title-wrap">
+      <div class="panel-title">⛷️ SkiSmart · Sauze</div>
+      <div class="panel-subtitle" id="panelUserLabel">Esplora il comprensorio e registra le tue discese</div>
+    </div>
   </div>
 
-  <div class="panel-body" id="panelBody">
+  <div class="panel-body">
 
-    <div class="row">
+    <div class="quick-row">
       <button class="btn-dark" onclick="location.href='./3d.html'">🏔️ Vista 3D</button>
+      <button class="btn-light" id="locateBtn">📍 Dove sono</button>
     </div>
 
-    <div class="section-title">📊 Dashboard</div>
-    <div class="dashboard-grid">
-      <div class="stat-card">
-        <div class="stat-label">Sessioni</div>
-        <div class="stat-value" id="dashSessions">0</div>
+    <details class="menu-card" open>
+      <summary>
+        <div>
+          <div class="menu-card-title">📊 Dashboard</div>
+          <div class="menu-card-sub">Le tue statistiche complessive</div>
+        </div>
+        <div class="menu-card-chevron">⌄</div>
+      </summary>
+      <div class="menu-card-body">
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <div class="stat-label">Sessioni</div>
+            <div class="stat-value" id="dashSessions">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Distanza totale</div>
+            <div class="stat-value" id="dashDistance">0 m</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Tempo totale</div>
+            <div class="stat-value" id="dashTime">0s</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Velocità media</div>
+            <div class="stat-value" id="dashAvgSpeed">0.0 km/h</div>
+          </div>
+          <div class="stat-card wide">
+            <div class="stat-label">Velocità massima</div>
+            <div class="stat-value" id="dashMaxSpeed">0.0 km/h</div>
+          </div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Distanza totale</div>
-        <div class="stat-value" id="dashDistance">0 m</div>
+    </details>
+
+    <details class="menu-card" open>
+      <summary>
+        <div>
+          <div class="menu-card-title">🧭 Esplora</div>
+          <div class="menu-card-sub">Cerca piste, filtra e cambia visuale</div>
+        </div>
+        <div class="menu-card-chevron">⌄</div>
+      </summary>
+      <div class="menu-card-body">
+        <input id="searchInput" type="text" placeholder="Es: Clotes, Sportinia, 29..." />
+        <div class="row" style="margin-top:8px;">
+          <button class="btn-light" id="searchBtn">Cerca</button>
+          <button class="btn-light" id="clearSearchBtn">Reset</button>
+        </div>
+        <div class="small" id="searchHint">Puoi cercare per nome o ref. In modalità focus le altre piste spariscono.</div>
+
+        <div class="small" style="margin-top:12px; font-weight:900;">🎿 Filtro piste</div>
+        <div class="row" style="margin-top:6px;">
+          <button class="btn-light" id="fAll">Tutte</button>
+          <button class="btn-light" id="fBlue">Blu</button>
+          <button class="btn-light" id="fRed">Rosse</button>
+          <button class="btn-light" id="fBlack">Nere</button>
+        </div>
+        <div class="small" id="filterHint">Filtro: tutte</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Tempo totale</div>
-        <div class="stat-value" id="dashTime">0s</div>
+    </details>
+
+    <details class="menu-card">
+      <summary>
+        <div>
+          <div class="menu-card-title">❄️ Neve e rilievo</div>
+          <div class="menu-card-sub">Neve al suolo e ombreggiatura della montagna</div>
+        </div>
+        <div class="menu-card-chevron">⌄</div>
+      </summary>
+      <div class="menu-card-body">
+        <div class="row">
+          <button class="btn-blue" id="snowRefresh">↻ Aggiorna neve</button>
+        </div>
+        <div class="pill" id="snowDepth">Neve al suolo: —</div>
+        <div class="small" id="snowMeta">Fonte: Open-Meteo (snow_depth). Ultimo update: —</div>
+
+        <div class="small" style="margin-top:12px; font-weight:900;">🏔 Ombreggiatura rilievo</div>
+        <label class="small"><input type="checkbox" id="toggleHillshade" checked> Attiva hillshade</label>
+        <div class="small">Intensità</div>
+        <input id="hillshadeOpacity" type="range" min="0" max="100" value="35"/>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Velocità media</div>
-        <div class="stat-value" id="dashAvgSpeed">0.0 km/h</div>
+    </details>
+
+    <details class="menu-card">
+      <summary>
+        <div>
+          <div class="menu-card-title">🛫 Spot freestyle</div>
+          <div class="menu-card-sub">Salti, powder, export e import</div>
+        </div>
+        <div class="menu-card-chevron">⌄</div>
+      </summary>
+      <div class="menu-card-body">
+        <div class="row">
+          <button class="btn-dark" id="modeJump">🛫 Salto</button>
+          <button class="btn-blue" id="modePowder">❄️ Powder</button>
+          <button class="btn-light" id="clearSpots">🧹 Reset</button>
+        </div>
+        <div class="row" style="margin-top:6px;">
+          <button class="btn-light" id="exportSpots">📤 Export</button>
+          <button class="btn-light" id="importSpots">📥 Import</button>
+        </div>
+        <div class="small">Tocca la mappa per aggiungere spot. Apri un marker per eliminarlo singolarmente.</div>
       </div>
-      <div class="stat-card" style="grid-column:1 / -1;">
-        <div class="stat-label">Velocità massima</div>
-        <div class="stat-value" id="dashMaxSpeed">0.0 km/h</div>
+    </details>
+
+    <details class="menu-card" open>
+      <summary>
+        <div>
+          <div class="menu-card-title">🎬 Tracking</div>
+          <div class="menu-card-sub">Registra, rivedi e attiva la heatmap</div>
+        </div>
+        <div class="menu-card-chevron">⌄</div>
+      </summary>
+      <div class="menu-card-body">
+        <div class="row">
+          <button class="btn-orange" id="trackStart">⏺ START</button>
+          <button class="btn-light" id="trackStop">⏹ STOP</button>
+          <button class="btn-dark" id="trackReplayLatest">▶︎ Ultima</button>
+          <button class="btn-light" id="btnHeatmap">🔥 Heatmap: ON</button>
+        </div>
+        <div class="small" id="trackInfo">Tracking fermo</div>
+
+        <div class="small" style="margin-top:12px; font-weight:900;">🗂 Storico registrazioni</div>
+        <div id="trackHistory" class="small">Nessuna registrazione salvata.</div>
       </div>
-    </div>
+    </details>
 
-    <hr/>
+    <details class="menu-card">
+      <summary>
+        <div>
+          <div class="menu-card-title">🗺 Layer mappa</div>
+          <div class="menu-card-sub">Mostra o nascondi elementi della mappa</div>
+        </div>
+        <div class="menu-card-chevron">⌄</div>
+      </summary>
+      <div class="menu-card-body">
+        <label class="small"><input type="checkbox" id="toggleRuns" checked> Piste</label><br>
+        <label class="small"><input type="checkbox" id="toggleLifts" checked> Impianti</label><br>
+        <label class="small"><input type="checkbox" id="toggleSpots" checked> Spot</label><br>
+        <label class="small"><input type="checkbox" id="toggleLabels" checked> Nomi (Satellite)</label>
+      </div>
+    </details>
 
-    <div class="section-title">🔎 Cerca pista (Focus)</div>
-    <input id="searchInput" type="text" placeholder="Es: Clotes, Sportinia, 29..." />
-    <div class="row">
-      <button class="btn-light" id="searchBtn">Cerca</button>
-      <button class="btn-light" id="clearSearchBtn">Reset</button>
-      <button class="btn-green" id="locateBtn">📍 Dove sono</button>
-    </div>
-    <div class="small" id="searchHint">Puoi cercare per nome o ref. In “focus” le altre piste spariscono.</div>
-
-    <hr/>
-
-    <div class="section-title">❄️ Neve al suolo</div>
-    <div class="row">
-      <button class="btn-blue" id="snowRefresh">↻ Aggiorna</button>
-    </div>
-    <div class="pill" id="snowDepth">Neve al suolo: —</div>
-    <div class="small" id="snowMeta">Fonte: Open-Meteo (snow_depth). Ultimo update: —</div>
-
-    <hr/>
-
-    <div class="section-title">🛰️ 3D (Hillshade)</div>
-    <label class="small"><input type="checkbox" id="toggleHillshade" checked> Ombreggiatura rilievo</label>
-    <div class="small">Intensità</div>
-    <input id="hillshadeOpacity" type="range" min="0" max="100" value="35"/>
-
-    <hr/>
-
-    <div class="section-title">🛫❄️ Spot</div>
-    <div class="row">
-      <button class="btn-dark" id="modeJump">🛫 Salto</button>
-      <button class="btn-blue" id="modePowder">❄️ Powder</button>
-      <button class="btn-light" id="clearSpots">🧹 Reset</button>
-    </div>
-    <div class="row">
-      <button class="btn-light" id="exportSpots">📤 Export</button>
-      <button class="btn-light" id="importSpots">📥 Import</button>
-    </div>
-    <div class="small">Tocca la mappa per aggiungere spot. Apri un marker per eliminarlo singolarmente.</div>
-
-    <hr/>
-
-    <div class="section-title">🎬 Tracking giornata</div>
-    <div class="row">
-      <button class="btn-orange" id="trackStart">⏺ START</button>
-      <button class="btn-light" id="trackStop">⏹ STOP</button>
-      <button class="btn-dark" id="trackReplayLatest">▶︎ Ultima</button>
-      <button class="btn-light" id="btnHeatmap">🔥 Heatmap: ON</button>
-    </div>
-    <div class="small" id="trackInfo">Tracking fermo</div>
-
-    <div class="section-title">🗂️ Storico registrazioni</div>
-    <div id="trackHistory" class="small">Nessuna registrazione salvata.</div>
-
-    <hr/>
-
-    <div class="section-title">🗺️ Layer</div>
-    <label class="small"><input type="checkbox" id="toggleRuns" checked> Piste</label><br>
-    <label class="small"><input type="checkbox" id="toggleLifts" checked> Impianti</label><br>
-    <label class="small"><input type="checkbox" id="toggleSpots" checked> Spot</label><br>
-    <label class="small"><input type="checkbox" id="toggleLabels" checked> Nomi (Satellite)</label>
-
-    <div class="section-title">🎿 Filtro</div>
-    <div class="row">
-      <button class="btn-light" id="fAll">Tutte</button>
-      <button class="btn-light" id="fBlue">Blu</button>
-      <button class="btn-light" id="fRed">Rosse</button>
-      <button class="btn-light" id="fBlack">Nere</button>
-    </div>
-    <div class="small" id="filterHint">Filtro: tutte</div>
   </div>
 </div>
 
@@ -495,9 +575,6 @@ hr{ border:none; border-top:1px solid #e6e6e6; margin:10px 0; }
 <script src="./tracking-shared.js"></script>
 
 <script>
-/* =========================
-   WELCOME / ACCOUNT
-   ========================= */
 const ACCOUNT_STORAGE_KEY = "skismart_local_account_v1";
 const SELECTED_RESORT_KEY = "skismart_selected_resort_v1";
 
@@ -507,6 +584,7 @@ const resortSelect = document.getElementById("resortSelect");
 const enterAppBtn = document.getElementById("enterAppBtn");
 const guestBtn = document.getElementById("guestBtn");
 const welcomeSavedUser = document.getElementById("welcomeSavedUser");
+const panelUserLabel = document.getElementById("panelUserLabel");
 
 function loadAccount() {
   try {
@@ -515,29 +593,26 @@ function loadAccount() {
     return null;
   }
 }
-
 function saveAccount(account) {
   localStorage.setItem(ACCOUNT_STORAGE_KEY, JSON.stringify(account));
 }
-
 function loadSelectedResort() {
   return localStorage.getItem(SELECTED_RESORT_KEY) || "sauze";
 }
-
 function saveSelectedResort(value) {
   localStorage.setItem(SELECTED_RESORT_KEY, value);
 }
-
 function updateWelcomeUser() {
   const acc = loadAccount();
   if (acc && acc.name) {
     welcomeSavedUser.textContent = `Bentornato, ${acc.name}`;
     accountNameInput.value = acc.name;
+    panelUserLabel.textContent = `Ciao ${acc.name}, esplora il comprensorio e registra le tue discese`;
   } else {
     welcomeSavedUser.textContent = "";
+    panelUserLabel.textContent = "Esplora il comprensorio e registra le tue discese";
   }
 }
-
 function enterAppAsUser(isGuest = false) {
   const resort = resortSelect.value || "sauze";
   saveSelectedResort(resort);
@@ -554,6 +629,7 @@ function enterAppAsUser(isGuest = false) {
     });
   }
 
+  updateWelcomeUser();
   welcomeScreen.classList.add("hidden");
 }
 
@@ -563,9 +639,6 @@ resortSelect.value = loadSelectedResort();
 enterAppBtn.addEventListener("click", () => enterAppAsUser(false));
 guestBtn.addEventListener("click", () => enterAppAsUser(true));
 
-/* =========================
-   MAP BASE + ESRI SAT + HILLSHADE + LABELS
-   ========================= */
 const map = L.map("map");
 
 const osm = L.tileLayer(
@@ -649,7 +722,6 @@ const spotLayer = L.layerGroup().addTo(map);
 let cachedData = null;
 let currentFilter = "all";
 let lastHighlighted = null;
-
 let focusLayer = null;
 let isFocus = false;
 
@@ -808,7 +880,7 @@ document.getElementById("searchBtn").onclick = () => {
 
 document.getElementById("clearSearchBtn").onclick = () => {
   document.getElementById("searchInput").value = "";
-  document.getElementById("searchHint").textContent = "Puoi cercare per nome o ref. In “focus” le altre piste spariscono.";
+  document.getElementById("searchHint").textContent = "Puoi cercare per nome o ref. In modalità focus le altre piste spariscono.";
   resetHighlight();
   exitFocus();
 };
