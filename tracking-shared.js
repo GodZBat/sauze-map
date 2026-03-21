@@ -1,5 +1,5 @@
 (function () {
-  const STORAGE_SESSIONS = "skismart_tracking_sessions_v5";
+  const STORAGE_SESSIONS = "skismart_tracking_sessions_v6";
   const STORAGE_ACTIVE = "skismart_tracking_active_v2";
 
   let mapMode = null; // "leaflet" | "maplibre"
@@ -10,8 +10,10 @@
 
   let leafletLiveLine = null;
   let leafletHistoryLine = null;
+  let leafletHeatmapLayers = [];
 
   let uiBound = false;
+  let heatmapVisible = true;
 
   function loadJSON(key, fallback) {
     try {
@@ -39,11 +41,8 @@
   }
 
   function saveActive(session) {
-    if (session) {
-      saveJSON(STORAGE_ACTIVE, session);
-    } else {
-      localStorage.removeItem(STORAGE_ACTIVE);
-    }
+    if (session) saveJSON(STORAGE_ACTIVE, session);
+    else localStorage.removeItem(STORAGE_ACTIVE);
   }
 
   function haversine(a, b) {
@@ -114,14 +113,9 @@
       : null;
 
     let chosen;
-
-    if (gpsSpeed !== null && curr.accuracy <= 15) {
-      chosen = gpsSpeed * 0.7 + calcSpeed * 0.3;
-    } else if (gpsSpeed !== null && curr.accuracy <= 25) {
-      chosen = gpsSpeed;
-    } else {
-      chosen = calcSpeed;
-    }
+    if (gpsSpeed !== null && curr.accuracy <= 15) chosen = gpsSpeed * 0.7 + calcSpeed * 0.3;
+    else if (gpsSpeed !== null && curr.accuracy <= 25) chosen = gpsSpeed;
+    else chosen = calcSpeed;
 
     return clamp(chosen, 0, 130);
   }
@@ -156,6 +150,45 @@
     return session;
   }
 
+  function buildGlobalStats() {
+    const sessions = loadSessions();
+    let totalDistanceM = 0;
+    let totalDurationSec = 0;
+    let maxSpeedKmh = 0;
+
+    for (const s of sessions) {
+      totalDistanceM += Number(s.distanceM || 0);
+      totalDurationSec += Number(s.durationSec || 0);
+      maxSpeedKmh = Math.max(maxSpeedKmh, Number(s.maxSpeedKmh || 0));
+    }
+
+    const avgSpeedKmh = totalDurationSec > 0 ? (totalDistanceM / totalDurationSec) * 3.6 : 0;
+
+    return {
+      sessionsCount: sessions.length,
+      totalDistanceM,
+      totalDurationSec,
+      avgSpeedKmh,
+      maxSpeedKmh
+    };
+  }
+
+  function updateDashboard() {
+    const stats = buildGlobalStats();
+
+    const countEl = document.getElementById("dashSessions");
+    const distEl = document.getElementById("dashDistance");
+    const timeEl = document.getElementById("dashTime");
+    const avgEl = document.getElementById("dashAvgSpeed");
+    const maxEl = document.getElementById("dashMaxSpeed");
+
+    if (countEl) countEl.textContent = String(stats.sessionsCount);
+    if (distEl) distEl.textContent = formatDistance(stats.totalDistanceM);
+    if (timeEl) timeEl.textContent = formatDuration(stats.totalDurationSec);
+    if (avgEl) avgEl.textContent = formatSpeed(stats.avgSpeedKmh);
+    if (maxEl) maxEl.textContent = formatSpeed(stats.maxSpeedKmh);
+  }
+
   function persistActive() {
     if (!activeSession) return;
     summarizeSession(activeSession);
@@ -183,15 +216,18 @@
     }
   }
 
+  function clearLeafletHeatmap() {
+    for (const l of leafletHeatmapLayers) {
+      try { mapInstance.removeLayer(l); } catch (_) {}
+    }
+    leafletHeatmapLayers = [];
+  }
+
   function ensureMapLibreTrackingSources() {
     if (!mapInstance.getSource("track-live-source")) {
       mapInstance.addSource("track-live-source", {
         type: "geojson",
-        data: {
-          type: "Feature",
-          geometry: { type: "LineString", coordinates: [] },
-          properties: {}
-        }
+        data: { type: "Feature", geometry: { type: "LineString", coordinates: [] }, properties: {} }
       });
     }
 
@@ -211,11 +247,7 @@
     if (!mapInstance.getSource("track-history-source")) {
       mapInstance.addSource("track-history-source", {
         type: "geojson",
-        data: {
-          type: "Feature",
-          geometry: { type: "LineString", coordinates: [] },
-          properties: {}
-        }
+        data: { type: "Feature", geometry: { type: "LineString", coordinates: [] }, properties: {} }
       });
     }
 
@@ -228,6 +260,39 @@
           "line-color": "#ff006e",
           "line-width": 5,
           "line-opacity": 0.95
+        }
+      });
+    }
+
+    if (!mapInstance.getSource("heatmap-source")) {
+      mapInstance.addSource("heatmap-source", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] }
+      });
+    }
+
+    if (!mapInstance.getLayer("heatmap-layer-soft")) {
+      mapInstance.addLayer({
+        id: "heatmap-layer-soft",
+        type: "line",
+        source: "heatmap-source",
+        paint: {
+          "line-color": "#ff6b6b",
+          "line-width": 10,
+          "line-opacity": 0.10
+        }
+      });
+    }
+
+    if (!mapInstance.getLayer("heatmap-layer-main")) {
+      mapInstance.addLayer({
+        id: "heatmap-layer-main",
+        type: "line",
+        source: "heatmap-source",
+        paint: {
+          "line-color": "#ff006e",
+          "line-width": 4,
+          "line-opacity": 0.22
         }
       });
     }
@@ -320,6 +385,67 @@
     }
   }
 
+  function renderHeatmap() {
+    const sessions = loadSessions().filter(s => (s.points || []).length >= 2);
+
+    if (mapMode === "leaflet") {
+      clearLeafletHeatmap();
+      if (!heatmapVisible) return;
+
+      for (const s of sessions) {
+        const coords = s.points.map(p => [p.lat, p.lng]);
+
+        const soft = L.polyline(coords, {
+          color: "#ff6b6b",
+          weight: 10,
+          opacity: 0.08
+        }).addTo(mapInstance);
+
+        const main = L.polyline(coords, {
+          color: "#ff006e",
+          weight: 4,
+          opacity: 0.18
+        }).addTo(mapInstance);
+
+        leafletHeatmapLayers.push(soft, main);
+      }
+
+      return;
+    }
+
+    if (mapMode === "maplibre") {
+      const src = mapInstance.getSource("heatmap-source");
+      if (!src) return;
+
+      const features = heatmapVisible
+        ? sessions.map(s => ({
+            type: "Feature",
+            geometry: { type: "LineString", coordinates: coordsOfSession(s) },
+            properties: {}
+          }))
+        : [];
+
+      src.setData({
+        type: "FeatureCollection",
+        features
+      });
+
+      const vis = heatmapVisible ? "visible" : "none";
+      if (mapInstance.getLayer("heatmap-layer-soft")) {
+        mapInstance.setLayoutProperty("heatmap-layer-soft", "visibility", vis);
+      }
+      if (mapInstance.getLayer("heatmap-layer-main")) {
+        mapInstance.setLayoutProperty("heatmap-layer-main", "visibility", vis);
+      }
+    }
+  }
+
+  function updateHeatmapButton() {
+    const btn = document.getElementById("btnHeatmap");
+    if (!btn) return;
+    btn.textContent = `🔥 Heatmap: ${heatmapVisible ? "ON" : "OFF"}`;
+  }
+
   function updateTrackInfo() {
     const el = document.getElementById("trackInfo");
     if (!el) return;
@@ -330,7 +456,6 @@
     }
 
     summarizeSession(activeSession);
-
     el.textContent =
       `Tracking attivo • ${activeSession.points.length} punti • ` +
       `${formatDistance(activeSession.distanceM || 0)} • ` +
@@ -492,6 +617,8 @@
     updateButtons();
     updateTrackInfo();
     renderHistory();
+    renderHeatmap();
+    updateDashboard();
   }
 
   function replayLatest() {
@@ -519,6 +646,8 @@
     const sessions = loadSessions().filter(s => s.id !== id);
     saveSessions(sessions);
     renderHistory();
+    renderHeatmap();
+    updateDashboard();
 
     if (mapMode === "leaflet" && leafletHistoryLine) {
       mapInstance.removeLayer(leafletHistoryLine);
@@ -529,6 +658,12 @@
     }
   }
 
+  function toggleHeatmap() {
+    heatmapVisible = !heatmapVisible;
+    updateHeatmapButton();
+    renderHeatmap();
+  }
+
   function bindUI() {
     if (uiBound) return;
     uiBound = true;
@@ -536,10 +671,12 @@
     const btnStart = document.getElementById("trackStart");
     const btnStop = document.getElementById("trackStop");
     const btnReplayLatest = document.getElementById("trackReplayLatest");
+    const btnHeatmap = document.getElementById("btnHeatmap");
 
     if (btnStart) btnStart.addEventListener("click", start);
     if (btnStop) btnStop.addEventListener("click", stop);
     if (btnReplayLatest) btnReplayLatest.addEventListener("click", replayLatest);
+    if (btnHeatmap) btnHeatmap.addEventListener("click", toggleHeatmap);
 
     document.addEventListener("click", (ev) => {
       const viewBtn = ev.target.closest(".track-view");
@@ -565,6 +702,9 @@
       updateButtons();
       updateTrackInfo();
       renderHistory();
+      renderHeatmap();
+      updateDashboard();
+      updateHeatmapButton();
       return;
     }
 
@@ -573,9 +713,11 @@
     redrawLiveTrack();
     updateTrackInfo();
     renderHistory();
+    renderHeatmap();
+    updateDashboard();
     updateButtons();
+    updateHeatmapButton();
 
-    // ripresa automatica senza prompt
     startWatch();
   }
 
@@ -587,6 +729,9 @@
     updateButtons();
     updateTrackInfo();
     renderHistory();
+    renderHeatmap();
+    updateDashboard();
+    updateHeatmapButton();
     restoreAndResumeAutomatically();
   }
 
@@ -600,6 +745,9 @@
     updateButtons();
     updateTrackInfo();
     renderHistory();
+    renderHeatmap();
+    updateDashboard();
+    updateHeatmapButton();
     restoreAndResumeAutomatically();
   }
 
@@ -611,6 +759,7 @@
     replayLatest,
     viewSession,
     deleteSession,
-    renderHistory
+    renderHistory,
+    updateDashboard
   };
 })();
