@@ -23,9 +23,7 @@ body{
 }
 #map { height:100%; }
 
-/* =========================
-   SPLASH SCREEN
-   ========================= */
+/* SPLASH */
 .splash-screen{
   position:fixed;
   inset:0;
@@ -34,19 +32,14 @@ body{
   background:#000;
   opacity:1;
   visibility:visible;
-  transition:
-    opacity .7s ease,
-    visibility .7s ease,
-    transform .7s ease;
+  transition:opacity .7s ease, visibility .7s ease, transform .7s ease;
 }
-
 .splash-screen.hidden{
   opacity:0;
   visibility:hidden;
   transform:scale(1.02);
   pointer-events:none;
 }
-
 .splash-fullscreen-img{
   position:absolute;
   inset:0;
@@ -57,18 +50,15 @@ body{
   transform:scale(1.03);
   animation:splashZoom 1.7s ease forwards;
 }
-
 @keyframes splashZoom{
   from{ transform:scale(1.08); }
   to{ transform:scale(1.00); }
 }
-
 .splash-overlay{
   position:absolute;
   inset:0;
   background:linear-gradient(to bottom, rgba(0,0,0,0.16), rgba(0,0,0,0.42));
 }
-
 .splash-brand{
   position:absolute;
   left:50%;
@@ -79,14 +69,12 @@ body{
   color:#fff;
   padding:0 20px;
 }
-
 .splash-brand-title{
   font-size:34px;
   font-weight:1000;
   letter-spacing:0.4px;
   text-shadow:0 4px 18px rgba(0,0,0,0.35);
 }
-
 .splash-brand-subtitle{
   margin-top:8px;
   font-size:14px;
@@ -94,9 +82,7 @@ body{
   text-shadow:0 2px 10px rgba(0,0,0,0.28);
 }
 
-/* =========================
-   WELCOME SCREEN
-   ========================= */
+/* WELCOME */
 .welcome-screen{
   position:fixed;
   inset:0;
@@ -108,19 +94,14 @@ body{
   justify-content:center;
   opacity:1;
   visibility:visible;
-  transition:
-    opacity .55s ease,
-    visibility .55s ease,
-    transform .55s ease;
+  transition:opacity .55s ease, visibility .55s ease, transform .55s ease;
 }
-
 .welcome-screen.hidden{
   opacity:0;
   visibility:hidden;
   transform:scale(1.015);
   pointer-events:none;
 }
-
 .welcome-video{
   position:absolute;
   inset:0;
@@ -130,17 +111,14 @@ body{
   transform:scale(1.02);
   transition:transform 1.4s ease;
 }
-
 .welcome-screen:not(.hidden) .welcome-video{
   transform:scale(1);
 }
-
 .welcome-overlay{
   position:absolute;
   inset:0;
   background:linear-gradient(to bottom, rgba(0,0,0,0.28), rgba(0,0,0,0.56));
 }
-
 .welcome-card{
   position:relative;
   z-index:2;
@@ -157,14 +135,12 @@ body{
   opacity:0;
   animation:welcomeCardIn .7s ease .15s forwards;
 }
-
 @keyframes welcomeCardIn{
   to{
     transform:translateY(0);
     opacity:1;
   }
 }
-
 .welcome-badge{
   display:inline-block;
   padding:6px 10px;
@@ -203,10 +179,7 @@ body{
   padding:11px 12px;
   font-size:14px;
   outline:none;
-  transition:
-    border-color .2s ease,
-    background .2s ease,
-    transform .2s ease;
+  transition:border-color .2s ease, background .2s ease, transform .2s ease;
 }
 .welcome-input:focus,
 .welcome-select:focus{
@@ -228,11 +201,7 @@ body{
   font-weight:900;
   cursor:pointer;
   font-size:14px;
-  transition:
-    transform .18s ease,
-    box-shadow .18s ease,
-    opacity .18s ease,
-    background .18s ease;
+  transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease, background .18s ease;
 }
 .welcome-btn:hover{ transform:translateY(-1px); }
 .welcome-btn:active{ transform:translateY(0); }
@@ -258,9 +227,7 @@ body{
   color:#fff;
 }
 
-/* =========================
-   APP PANEL
-   ========================= */
+/* PANEL */
 .panel{
   position:absolute;
   top:12px;
@@ -279,16 +246,9 @@ body{
   -webkit-backdrop-filter: blur(14px);
   box-shadow:0 16px 42px rgba(0,0,0,0.18);
   transform:translateY(0);
-  transition:
-    transform .25s ease,
-    box-shadow .25s ease,
-    opacity .25s ease;
+  transition:transform .25s ease, box-shadow .25s ease, opacity .25s ease;
 }
-
-.panel:hover{
-  box-shadow:0 18px 48px rgba(0,0,0,0.20);
-}
-
+.panel:hover{ box-shadow:0 18px 48px rgba(0,0,0,0.20); }
 .panel-header{
   display:flex;
   align-items:center;
@@ -322,18 +282,15 @@ body{
   transition:transform .18s ease, opacity .18s ease;
 }
 .panel-toggle:hover{ transform:translateY(-1px); }
-
 .panel-body{
   padding:12px;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
   flex:1 1 auto;
 }
-
 .panel.collapsed .panel-body{
   display:none;
 }
-
 @media (max-width: 600px){
   .panel{
     left:10px;
@@ -348,14 +305,12 @@ body{
     max-height:62px;
   }
 }
-
 .quick-row{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:8px;
   margin-bottom:10px;
 }
-
 button{
   border:0;
   border-radius:12px;
@@ -363,15 +318,10 @@ button{
   cursor:pointer;
   font-weight:900;
   font-size:13px;
-  transition:
-    transform .18s ease,
-    box-shadow .18s ease,
-    opacity .18s ease,
-    background .18s ease;
+  transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease, background .18s ease;
 }
 button:hover{ transform:translateY(-1px); }
 button:active{ transform:translateY(0); }
-
 .btn-dark{ background:#111827; color:#fff; }
 .btn-blue{ background:#2563eb; color:#fff; }
 .btn-light{ background:#eef1f5; color:#111; }
@@ -387,10 +337,7 @@ button:active{ transform:translateY(0); }
   box-shadow:0 6px 18px rgba(0,0,0,0.05);
   transition:transform .2s ease, box-shadow .2s ease;
 }
-.menu-card:hover{
-  box-shadow:0 10px 22px rgba(0,0,0,0.07);
-}
-
+.menu-card:hover{ box-shadow:0 10px 22px rgba(0,0,0,0.07); }
 .menu-card summary{
   list-style:none;
   cursor:pointer;
@@ -401,7 +348,6 @@ button:active{ transform:translateY(0); }
   padding:14px 14px 12px;
 }
 .menu-card summary::-webkit-details-marker{ display:none; }
-
 .menu-card-title{
   font-size:13px;
   font-weight:1000;
@@ -421,11 +367,9 @@ button:active{ transform:translateY(0); }
 .menu-card[open] .menu-card-chevron{
   transform:rotate(180deg);
 }
-
 .menu-card-body{
   padding:0 14px 14px;
 }
-
 .dashboard-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -454,7 +398,6 @@ button:active{ transform:translateY(0); }
   font-weight:1000;
   color:#111827;
 }
-
 .row{
   display:flex;
   gap:8px;
@@ -463,14 +406,12 @@ button:active{ transform:translateY(0); }
 .row > *{
   flex:1 1 auto;
 }
-
 .small{
   font-size:12px;
   color:#475467;
   line-height:1.4;
   margin-top:8px;
 }
-
 .pill{
   display:inline-block;
   padding:6px 10px;
@@ -481,7 +422,6 @@ button:active{ transform:translateY(0); }
   color:#111827;
   margin-top:6px;
 }
-
 input[type="text"]{
   width:100%;
   padding:10px 12px;
@@ -498,7 +438,6 @@ input[type="text"]:focus{
   outline:none;
 }
 input[type="range"]{ width:100%; }
-
 .history-card{
   border:1px solid rgba(0,0,0,0.08);
   border-radius:14px;
@@ -538,7 +477,6 @@ input[type="range"]{ width:100%; }
 <div class="splash-screen" id="splashScreen">
   <img src="./splash.jpg" alt="SkiSmart Splash" class="splash-fullscreen-img">
   <div class="splash-overlay"></div>
-
   <div class="splash-brand">
     <div class="splash-brand-title">SkiSmart</div>
     <div class="splash-brand-subtitle">Smart skiing experience</div>
@@ -552,11 +490,11 @@ input[type="range"]{ width:100%; }
   <div class="welcome-overlay"></div>
 
   <div class="welcome-card">
-    <div class="welcome-badge">Designed and Programmed by Mattia R.</div>
-    <div class="welcome-title">Benvenuto su SkiSmart!</div>
+    <div class="welcome-badge">Benvenuto su SkiSmart</div>
+    <div class="welcome-title">La tua mappa sci smart</div>
     <div class="welcome-subtitle">
       Traccia le tue discese, esplora il comprensorio in 2D e 3D
-      e scopri le tue statistiche.
+      e salva le tue statistiche.
     </div>
 
     <div class="welcome-user" id="welcomeSavedUser"></div>
@@ -571,8 +509,8 @@ input[type="range"]{ width:100%; }
       <select class="welcome-select" id="resortSelect">
         <option value="sauze">Sauze d'Oulx</option>
         <option value="sestriere" disabled>Sestriere (prossimamente)</option>
-        <option value="Val Gardena Dolomites" disabled>Val Gardena Dolomites (prossimamente)</option>
-        <option value="Cervinia" disabled>Cervinia (prossimamente)</option>
+        <option value="cesana" disabled>Cesana (prossimamente)</option>
+        <option value="claviere" disabled>Claviere (prossimamente)</option>
       </select>
     </div>
 
@@ -582,7 +520,7 @@ input[type="range"]{ width:100%; }
     </div>
 
     <div class="welcome-foot">
-      online mode and more is coming soon, get ready! 
+      L’account per ora è locale al dispositivo. In seguito potremo aggiungere login reale e sincronizzazione.
     </div>
   </div>
 </div>
@@ -615,26 +553,11 @@ input[type="range"]{ width:100%; }
       </summary>
       <div class="menu-card-body">
         <div class="dashboard-grid">
-          <div class="stat-card">
-            <div class="stat-label">Sessioni</div>
-            <div class="stat-value" id="dashSessions">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Distanza totale</div>
-            <div class="stat-value" id="dashDistance">0 m</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Tempo totale</div>
-            <div class="stat-value" id="dashTime">0s</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Velocità media</div>
-            <div class="stat-value" id="dashAvgSpeed">0.0 km/h</div>
-          </div>
-          <div class="stat-card wide">
-            <div class="stat-label">Velocità massima</div>
-            <div class="stat-value" id="dashMaxSpeed">0.0 km/h</div>
-          </div>
+          <div class="stat-card"><div class="stat-label">Sessioni</div><div class="stat-value" id="dashSessions">0</div></div>
+          <div class="stat-card"><div class="stat-label">Distanza totale</div><div class="stat-value" id="dashDistance">0 m</div></div>
+          <div class="stat-card"><div class="stat-label">Tempo totale</div><div class="stat-value" id="dashTime">0s</div></div>
+          <div class="stat-card"><div class="stat-label">Velocità media</div><div class="stat-value" id="dashAvgSpeed">0.0 km/h</div></div>
+          <div class="stat-card wide"><div class="stat-label">Velocità massima</div><div class="stat-value" id="dashMaxSpeed">0.0 km/h</div></div>
         </div>
       </div>
     </details>
@@ -726,7 +649,6 @@ input[type="range"]{ width:100%; }
           <button class="btn-light" id="btnHeatmap">🔥 Heatmap: ON</button>
         </div>
         <div class="small" id="trackInfo">Tracking fermo</div>
-
         <div class="small" style="margin-top:12px; font-weight:900;">🗂 Storico registrazioni</div>
         <div id="trackHistory" class="small">Nessuna registrazione salvata.</div>
       </div>
@@ -769,11 +691,8 @@ const welcomeSavedUser = document.getElementById("welcomeSavedUser");
 const panelUserLabel = document.getElementById("panelUserLabel");
 
 function loadAccount() {
-  try {
-    return JSON.parse(localStorage.getItem(ACCOUNT_STORAGE_KEY) || "null");
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(localStorage.getItem(ACCOUNT_STORAGE_KEY) || "null"); }
+  catch { return null; }
 }
 function saveAccount(account) {
   localStorage.setItem(ACCOUNT_STORAGE_KEY, JSON.stringify(account));
@@ -805,10 +724,7 @@ function enterAppAsUser(isGuest = false) {
       alert("Inserisci il tuo nome oppure entra come ospite.");
       return;
     }
-    saveAccount({
-      name,
-      createdAt: new Date().toISOString()
-    });
+    saveAccount({ name, createdAt: new Date().toISOString() });
   }
 
   updateWelcomeUser();
@@ -823,9 +739,7 @@ enterAppBtn.addEventListener("click", () => enterAppAsUser(false));
 guestBtn.addEventListener("click", () => enterAppAsUser(true));
 
 window.addEventListener("load", () => {
-  setTimeout(() => {
-    splashScreen.classList.add("hidden");
-  }, 1700);
+  setTimeout(() => splashScreen.classList.add("hidden"), 1700);
 });
 
 const map = L.map("map", {
@@ -874,7 +788,6 @@ map.on("baselayerchange", (e) => {
   if (e.name === "🛰 Satellite ESRI") setLabelsActive(true);
   else setLabelsActive(false);
 });
-
 document.getElementById("toggleLabels").addEventListener("change", () => {
   const isSat = map.hasLayer(esriSat);
   setLabelsActive(isSat);
@@ -893,10 +806,18 @@ hillOpacity.addEventListener("input", () => {
 function pisteColor(diff){
   if(!diff) return "#60a5fa";
   diff = String(diff).toLowerCase();
-  if(diff.includes("easy")||diff.includes("novice")||diff.includes("beginner")||diff.includes("blue")) return "#3b82f6";
-  if(diff.includes("intermediate")||diff.includes("medium")||diff.includes("red")) return "#ef4444";
+  if(diff.includes("easy")||diff.includes("novice")||diff.includes("beginner")||diff.includes("blue")) return "#2f6fca";
+  if(diff.includes("intermediate")||diff.includes("medium")||diff.includes("red")) return "#d84c4c";
   if(diff.includes("advanced")||diff.includes("expert")||diff.includes("difficult")||diff.includes("black")) return "#1f2937";
   return "#60a5fa";
+}
+function pisteShadowColor(diff){
+  if(!diff) return "rgba(116,151,190,0.30)";
+  diff = String(diff).toLowerCase();
+  if(diff.includes("easy")||diff.includes("novice")||diff.includes("beginner")||diff.includes("blue")) return "rgba(93,137,191,0.32)";
+  if(diff.includes("intermediate")||diff.includes("medium")||diff.includes("red")) return "rgba(183,130,130,0.28)";
+  if(diff.includes("advanced")||diff.includes("expert")||diff.includes("difficult")||diff.includes("black")) return "rgba(115,129,145,0.28)";
+  return "rgba(116,151,190,0.30)";
 }
 function classify(diff){
   if(!diff) return "unknown";
@@ -942,6 +863,7 @@ function makeSpotIcon(type){
   });
 }
 
+let runsShadowLayer = L.geoJSON(null);
 let runsLayer = L.geoJSON(null);
 let liftsLayer = L.geoJSON(null);
 const spotLayer = L.layerGroup().addTo(map);
@@ -958,16 +880,16 @@ function resetHighlight(){
   if(l.__isLift){
     l.setStyle({
       color:"#64748b",
-      weight:2.4,
+      weight:2.2,
       dashArray:"8 7",
-      opacity:0.82
+      opacity:0.78
     });
   } else {
     const diff = l.feature?.properties?.["piste:difficulty"];
     l.setStyle({
       color:pisteColor(diff),
-      weight:4.2,
-      opacity:0.86
+      weight:3.3,
+      opacity:0.96
     });
   }
   lastHighlighted = null;
@@ -978,14 +900,14 @@ function highlight(layer, isLift){
   if(isLift){
     layer.setStyle({
       color:"#0f172a",
-      weight:4.2,
+      weight:4.1,
       dashArray:"10 6",
       opacity:0.95
     });
   } else {
     layer.setStyle({
       color:"#ffffff",
-      weight:7,
+      weight:5.8,
       opacity:1
     });
   }
@@ -997,9 +919,13 @@ function enterFocus(runLayer){
   if(!runLayer) return;
   isFocus = true;
 
+  runsShadowLayer.eachLayer(l => {
+    l.setStyle({ opacity:0.06, weight:6 });
+  });
+
   runsLayer.eachLayer(l => {
     if(l === runLayer) return;
-    l.setStyle({ opacity: 0.08, weight: 2.2 });
+    l.setStyle({ opacity:0.10, weight:2.4 });
   });
 
   if (focusLayer) map.removeLayer(focusLayer);
@@ -1008,8 +934,8 @@ function enterFocus(runLayer){
   focusLayer = L.geoJSON(runLayer.feature, {
     style: {
       color: pisteColor(diff),
-      weight: 7,
-      opacity: 0.98,
+      weight: 6.2,
+      opacity: 0.99,
       lineCap: "round",
       lineJoin: "round"
     }
@@ -1026,12 +952,21 @@ function exitFocus(){
     focusLayer = null;
   }
 
+  runsShadowLayer.eachLayer(l => {
+    const diff = l.feature?.properties?.["piste:difficulty"];
+    l.setStyle({
+      color:pisteShadowColor(diff),
+      weight:8.5,
+      opacity:0.95
+    });
+  });
+
   runsLayer.eachLayer(l => {
     const diff = l.feature?.properties?.["piste:difficulty"];
     l.setStyle({
       color: pisteColor(diff),
-      weight: 4.2,
-      opacity: 0.86
+      weight: 3.3,
+      opacity: 0.96
     });
   });
 }
@@ -1047,7 +982,6 @@ function runPopupHtml(name, diff){
     </div>
   `;
 }
-
 function liftPopupHtml(name){
   return `
     <div>
@@ -1057,40 +991,58 @@ function liftPopupHtml(name){
   `;
 }
 
+function runFilterFeature(f){
+  const p = f.properties || {};
+  if(!p["piste:type"]) return false;
+  if(p.aerialway) return false;
+  if(currentFilter === "all") return true;
+  return classify(p["piste:difficulty"]) === currentFilter;
+}
+
 function rebuild(keepView=false){
   if(!cachedData) return;
 
   if (isFocus) exitFocus();
 
-  map.removeLayer(runsLayer);
-  map.removeLayer(liftsLayer);
+  [runsShadowLayer, runsLayer, liftsLayer].forEach(layer => {
+    if(layer && map.hasLayer(layer)) map.removeLayer(layer);
+  });
+
+  runsShadowLayer = L.geoJSON(cachedData, {
+    filter: runFilterFeature,
+    style: (f) => {
+      const p = f.properties || {};
+      return {
+        color: pisteShadowColor(p["piste:difficulty"]),
+        weight: 8.5,
+        opacity: 0.95,
+        lineCap: "round",
+        lineJoin: "round"
+      };
+    },
+    interactive: false
+  });
 
   runsLayer = L.geoJSON(cachedData, {
-    filter: (f) => {
-      const p = f.properties || {};
-      if(!p["piste:type"]) return false;
-      if(p.aerialway) return false;
-      if(currentFilter === "all") return true;
-      return classify(p["piste:difficulty"]) === currentFilter;
-    },
+    filter: runFilterFeature,
     style: (f) => {
       const p = f.properties || {};
       return {
         color: pisteColor(p["piste:difficulty"]),
-        weight: 4.2,
-        opacity: 0.86,
+        weight: 3.3,
+        opacity: 0.96,
         lineCap: "round",
         lineJoin: "round"
       };
     },
     onEachFeature: (f, l) => {
       const p = f.properties || {};
-      const name = p.name || p.ref || "Pista";
+      const name = p.name || p.ref || p["piste:name"] || p["piste:ref"] || "Pista";
       const diff = p["piste:difficulty"] || "";
       l.bindPopup(runPopupHtml(name, diff));
       l.on("click", () => highlight(l, false));
-      l.__searchName = String(p.name || "").toLowerCase();
-      l.__searchRef  = String(p.ref || "").toLowerCase();
+      l.__searchName = String(p.name || p["piste:name"] || "").toLowerCase();
+      l.__searchRef  = String(p.ref || p["piste:ref"] || "").toLowerCase();
     }
   });
 
@@ -1098,9 +1050,9 @@ function rebuild(keepView=false){
     filter: (f) => !!(f.properties || {}).aerialway,
     style: () => ({
       color:"#64748b",
-      weight:2.4,
+      weight:2.2,
       dashArray:"8 7",
-      opacity:0.82,
+      opacity:0.78,
       lineCap:"round",
       lineJoin:"round"
     }),
@@ -1113,12 +1065,18 @@ function rebuild(keepView=false){
     }
   });
 
-  if(document.getElementById("toggleRuns").checked) runsLayer.addTo(map);
+  if(document.getElementById("toggleRuns").checked){
+    runsShadowLayer.addTo(map);
+    runsLayer.addTo(map);
+  }
   if(document.getElementById("toggleLifts").checked) liftsLayer.addTo(map);
 
   if(!keepView){
     const group = L.featureGroup([]);
-    if(document.getElementById("toggleRuns").checked) group.addLayer(runsLayer);
+    if(document.getElementById("toggleRuns").checked){
+      group.addLayer(runsShadowLayer);
+      group.addLayer(runsLayer);
+    }
     if(document.getElementById("toggleLifts").checked) group.addLayer(liftsLayer);
     const b = group.getBounds();
     if(b.isValid()) map.fitBounds(b.pad(0.10));
@@ -1142,7 +1100,15 @@ document.getElementById("fBlue").onclick  = () => setFilter("blue");
 document.getElementById("fRed").onclick   = () => setFilter("red");
 document.getElementById("fBlack").onclick = () => setFilter("black");
 
-document.getElementById("toggleRuns").onchange  = (e)=> e.target.checked ? runsLayer.addTo(map) : map.removeLayer(runsLayer);
+document.getElementById("toggleRuns").onchange = (e)=>{
+  if(e.target.checked){
+    runsShadowLayer.addTo(map);
+    runsLayer.addTo(map);
+  } else {
+    map.removeLayer(runsShadowLayer);
+    map.removeLayer(runsLayer);
+  }
+};
 document.getElementById("toggleLifts").onchange = (e)=> e.target.checked ? liftsLayer.addTo(map) : map.removeLayer(liftsLayer);
 document.getElementById("toggleSpots").onchange = (e)=> e.target.checked ? spotLayer.addTo(map) : map.removeLayer(spotLayer);
 
@@ -1235,8 +1201,8 @@ async function refreshSnow(){
     const i = nearestTimeIndex(times);
     const meters = Number(depths[i]);
     const cm = Math.max(0, Math.round(meters * 100));
-
     const when = new Date(times[i]).toLocaleString("it-IT");
+
     snowDepthEl.textContent = `Neve al suolo: ${cm} cm`;
     snowMetaEl.textContent = `Fonte: Open-Meteo (snow_depth). Ora: ${when}`;
   }catch(e){
@@ -1254,7 +1220,6 @@ const STORAGE_SPOTS = "ski_spots_v5";
 let mode = null;
 
 function iconFor(type){ return type==="jump" ? "🛫" : "❄️"; }
-
 function loadSpots(){
   const raw = localStorage.getItem(STORAGE_SPOTS);
   return raw ? JSON.parse(raw) : [];
@@ -1322,7 +1287,6 @@ document.addEventListener("click", (ev) => {
   if(!btn) return;
   const id = btn.getAttribute("data-spot-id");
   if(!id) return;
-
   const spots = loadSpots().filter(s => String(s.id) !== String(id));
   saveSpots(spots);
   renderSpots();
