@@ -270,26 +270,11 @@
       </summary>
       <div class="menu-card-body">
         <div class="dashboard-grid">
-          <div class="stat-card">
-            <div class="stat-label">Sessioni</div>
-            <div class="stat-value" id="dashSessions">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Distanza totale</div>
-            <div class="stat-value" id="dashDistance">0 m</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Tempo totale</div>
-            <div class="stat-value" id="dashTime">0s</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Velocità media</div>
-            <div class="stat-value" id="dashAvgSpeed">0.0 km/h</div>
-          </div>
-          <div class="stat-card wide">
-            <div class="stat-label">Velocità massima</div>
-            <div class="stat-value" id="dashMaxSpeed">0.0 km/h</div>
-          </div>
+          <div class="stat-card"><div class="stat-label">Sessioni</div><div class="stat-value" id="dashSessions">0</div></div>
+          <div class="stat-card"><div class="stat-label">Distanza totale</div><div class="stat-value" id="dashDistance">0 m</div></div>
+          <div class="stat-card"><div class="stat-label">Tempo totale</div><div class="stat-value" id="dashTime">0s</div></div>
+          <div class="stat-card"><div class="stat-label">Velocità media</div><div class="stat-value" id="dashAvgSpeed">0.0 km/h</div></div>
+          <div class="stat-card wide"><div class="stat-label">Velocità massima</div><div class="stat-value" id="dashMaxSpeed">0.0 km/h</div></div>
         </div>
       </div>
     </details>
@@ -345,7 +330,6 @@
           <button class="btn-dark" id="trackReplayLatest">▶︎ Ultima</button>
         </div>
         <div class="small" id="trackInfo">Tracking fermo</div>
-
         <div class="small" style="margin-top:12px; font-weight:900;">🗂 Storico registrazioni</div>
         <div id="trackHistory" class="small">Nessuna registrazione salvata.</div>
       </div>
@@ -373,14 +357,8 @@ if (savedAccount && savedAccount.name) {
 }
 
 function runNameFromProps(p){
-  return p?.name || p?.["piste:name"] || p?.ref ||
-         p?.["piste:ref"] || p?.["piste:ref:name"] || "Pista";
+  return p?.name || p?.["piste:name"] || p?.ref || p?.["piste:ref"] || p?.["piste:ref:name"] || "Pista";
 }
-
-function runLabelFromProps(p){
-  return p?.name || p?.["piste:name"] || p?.ref || p?.["piste:ref"] || "";
-}
-
 function runDifficultyFromProps(p){
   return p?.["piste:difficulty"] || p?.difficulty || "";
 }
@@ -456,13 +434,11 @@ function googleMapsDirectionsUrl(lat, lng) {
 
 function addIconFromCanvas(name, drawFn, size=64, pixelRatio=2) {
   if (map.hasImage(name)) return;
-
   const c = document.createElement("canvas");
   c.width = size;
   c.height = size;
   const ctx = c.getContext("2d");
   drawFn(ctx, size);
-
   const img = ctx.getImageData(0, 0, size, size);
   const data = new Uint8Array(img.data.buffer);
   map.addImage(name, { width: size, height: size, data }, { pixelRatio });
@@ -471,95 +447,36 @@ function addIconFromCanvas(name, drawFn, size=64, pixelRatio=2) {
 function addAllIcons() {
   addIconFromCanvas("icon-ristoro", (ctx, s) => {
     ctx.clearRect(0, 0, s, s);
-
+    ctx.beginPath(); ctx.arc(s/2, s/2, s*0.30, 0, Math.PI*2);
+    ctx.fillStyle = "#f59e0b"; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = "rgba(255,255,255,0.95)"; ctx.stroke();
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    const fx = s*0.39, fy1 = s*0.30, fy2 = s*0.57;
+    ctx.beginPath(); ctx.moveTo(fx, fy1); ctx.lineTo(fx, fy2); ctx.stroke();
     ctx.beginPath();
-    ctx.arc(s/2, s/2, s*0.30, 0, Math.PI*2);
-    ctx.fillStyle = "#f59e0b";
-    ctx.fill();
-
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "rgba(255,255,255,0.95)";
+    ctx.moveTo(fx - s*0.045, fy1); ctx.lineTo(fx - s*0.045, fy1 + s*0.11);
+    ctx.moveTo(fx, fy1); ctx.lineTo(fx, fy1 + s*0.11);
+    ctx.moveTo(fx + s*0.045, fy1); ctx.lineTo(fx + s*0.045, fy1 + s*0.11);
     ctx.stroke();
-
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 3.2;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    const fx = s*0.39;
-    const fy1 = s*0.30;
-    const fy2 = s*0.57;
-
-    ctx.beginPath();
-    ctx.moveTo(fx, fy1);
-    ctx.lineTo(fx, fy2);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(fx - s*0.045, fy1);
-    ctx.lineTo(fx - s*0.045, fy1 + s*0.11);
-    ctx.moveTo(fx, fy1);
-    ctx.lineTo(fx, fy1 + s*0.11);
-    ctx.moveTo(fx + s*0.045, fy1);
-    ctx.lineTo(fx + s*0.045, fy1 + s*0.11);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(fx, fy2);
-    ctx.lineTo(fx, s*0.68);
-    ctx.stroke();
-
+    ctx.beginPath(); ctx.moveTo(fx, fy2); ctx.lineTo(fx, s*0.68); ctx.stroke();
     const kx = s*0.58;
-    ctx.beginPath();
-    ctx.moveTo(kx, fy1);
-    ctx.quadraticCurveTo(kx + s*0.06, fy1 + s*0.08, kx, fy1 + s*0.22);
-    ctx.lineTo(kx, s*0.68);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(kx, fy1); ctx.quadraticCurveTo(kx + s*0.06, fy1 + s*0.08, kx, fy1 + s*0.22); ctx.lineTo(kx, s*0.68); ctx.stroke();
   });
 
   addIconFromCanvas("icon-impianto", (ctx, s) => {
     ctx.clearRect(0, 0, s, s);
-
+    ctx.beginPath(); ctx.arc(s/2, s/2, s*0.30, 0, Math.PI*2);
+    ctx.fillStyle = "#2563eb"; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = "rgba(255,255,255,0.95)"; ctx.stroke();
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.beginPath(); ctx.moveTo(s*0.32, s*0.34); ctx.lineTo(s*0.68, s*0.34); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(s*0.50, s*0.34); ctx.lineTo(s*0.50, s*0.47); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(s*0.41, s*0.48); ctx.lineTo(s*0.59, s*0.48); ctx.stroke();
     ctx.beginPath();
-    ctx.arc(s/2, s/2, s*0.30, 0, Math.PI*2);
-    ctx.fillStyle = "#2563eb";
-    ctx.fill();
-
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "rgba(255,255,255,0.95)";
+    ctx.moveTo(s*0.42, s*0.51); ctx.lineTo(s*0.42, s*0.61);
+    ctx.moveTo(s*0.58, s*0.51); ctx.lineTo(s*0.58, s*0.61);
     ctx.stroke();
-
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 3.2;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    ctx.beginPath();
-    ctx.moveTo(s*0.32, s*0.34);
-    ctx.lineTo(s*0.68, s*0.34);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(s*0.50, s*0.34);
-    ctx.lineTo(s*0.50, s*0.47);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(s*0.41, s*0.48);
-    ctx.lineTo(s*0.59, s*0.48);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(s*0.42, s*0.51);
-    ctx.lineTo(s*0.42, s*0.61);
-    ctx.moveTo(s*0.58, s*0.51);
-    ctx.lineTo(s*0.58, s*0.61);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(s*0.39, s*0.61);
-    ctx.lineTo(s*0.61, s*0.61);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(s*0.39, s*0.61); ctx.lineTo(s*0.61, s*0.61); ctx.stroke();
   });
 }
 
@@ -610,16 +527,13 @@ map.on("load", () => {
       }
     });
 
+    // Versione robusta: testo più visibile e meno restrittivo
     map.addLayer({
       id:"runs-labels",
       type:"symbol",
       source:"runs",
-      minzoom:12.8,
-      filter:[
-        "all",
-        ["==",["get","piste:type"],"downhill"],
-        ["!=",["coalesce",["get","name"],["get","piste:name"],["get","ref"],["get","piste:ref"],""],""]
-      ],
+      minzoom:12,
+      filter:["==",["get","piste:type"],"downhill"],
       layout:{
         "symbol-placement":"line",
         "text-field":[
@@ -632,28 +546,27 @@ map.on("load", () => {
         ],
         "text-size":[
           "interpolate", ["linear"], ["zoom"],
-          12.8, 8.5,
-          14, 9.5,
-          16, 10.5
+          12, 9,
+          14, 10,
+          16, 11
         ],
         "symbol-spacing":[
           "interpolate", ["linear"], ["zoom"],
-          12.8, 560,
-          14, 430,
-          16, 320
+          12, 420,
+          14, 320,
+          16, 240
         ],
-        "text-font":["Open Sans Regular"],
         "text-rotation-alignment":"map",
         "text-pitch-alignment":"map",
         "text-keep-upright":true,
-        "text-allow-overlap":false,
-        "text-ignore-placement":false
+        "text-allow-overlap":true,
+        "text-ignore-placement":true
       },
       paint:{
         "text-color":"#ffffff",
-        "text-halo-color":"rgba(17,24,39,0.88)",
-        "text-halo-width":1.4,
-        "text-opacity":0.74
+        "text-halo-color":"rgba(17,24,39,0.96)",
+        "text-halo-width":1.8,
+        "text-opacity":0.9
       }
     });
 
@@ -673,7 +586,6 @@ map.on("load", () => {
       const f = e.features && e.features[0];
       if (!f) return;
       const p = f.properties || {};
-
       const name = runNameFromProps(p);
       const diff = runDifficultyFromProps(p);
       const color = runColorFromDifficulty(diff);
@@ -778,60 +690,6 @@ map.on("load", () => {
     map.moveLayer("rifugi-label");
     map.moveLayer("impianti-layer");
     map.moveLayer("impianti-label");
-
-    map.on("mouseenter","rifugi-layer",()=>map.getCanvas().style.cursor="pointer");
-    map.on("mouseleave","rifugi-layer",()=>map.getCanvas().style.cursor="");
-    map.on("click","rifugi-layer",(e)=>{
-      const f=e.features&&e.features[0]; if(!f) return;
-      const name=f.properties?.name||"Rifugio";
-      const [lng,lat]=f.geometry.coordinates;
-      const googleUrl=googleMapsPlaceUrl(name,lat,lng);
-      const navUrl=googleMapsDirectionsUrl(lat,lng);
-      new maplibregl.Popup()
-        .setLngLat(e.lngLat)
-        .setHTML(`
-          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
-            <div style="font-weight:900;font-size:14px;margin-bottom:8px;">🍽️ ${name}</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
-                 style="display:inline-block;padding:8px 10px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font-weight:900;">
-                Apri su Google
-              </a>
-              <a href="${navUrl}" target="_blank" rel="noopener noreferrer"
-                 style="display:inline-block;padding:8px 10px;border-radius:10px;background:#eee;color:#111;text-decoration:none;font-weight:900;">
-                Naviga
-              </a>
-            </div>
-          </div>
-        `).addTo(map);
-    });
-
-    map.on("mouseenter","impianti-layer",()=>map.getCanvas().style.cursor="pointer");
-    map.on("mouseleave","impianti-layer",()=>map.getCanvas().style.cursor="");
-    map.on("click","impianti-layer",(e)=>{
-      const f=e.features&&e.features[0]; if(!f) return;
-      const name=f.properties?.name||f.properties?.ref||"Impianto";
-      const [lng,lat]=f.geometry.coordinates;
-      const googleUrl=googleMapsPlaceUrl(name,lat,lng);
-      const navUrl=googleMapsDirectionsUrl(lat,lng);
-      new maplibregl.Popup()
-        .setLngLat(e.lngLat)
-        .setHTML(`
-          <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial">
-            <div style="font-weight:900;font-size:14px;margin-bottom:8px;">🚡 ${name}</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
-                 style="display:inline-block;padding:8px 10px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font-weight:900;">
-                Apri su Google
-              </a>
-              <a href="${navUrl}" target="_blank" rel="noopener noreferrer"
-                 style="display:inline-block;padding:8px 10px;border-radius:10px;background:#eee;color:#111;text-decoration:none;font-weight:900;">
-                Naviga
-              </a>
-            </div>
-          </div>
-        `).addTo(map);
-    });
 
     const btnMap=document.getElementById("btnMap");
     const btnSat=document.getElementById("btnSat");
