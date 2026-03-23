@@ -376,6 +376,11 @@ function runNameFromProps(p){
   return p?.name || p?.["piste:name"] || p?.ref ||
          p?.["piste:ref"] || p?.["piste:ref:name"] || "Pista";
 }
+
+function runLabelFromProps(p){
+  return p?.name || p?.["piste:name"] || p?.ref || p?.["piste:ref"] || "";
+}
+
 function runDifficultyFromProps(p){
   return p?.["piste:difficulty"] || p?.difficulty || "";
 }
@@ -606,6 +611,53 @@ map.on("load", () => {
     });
 
     map.addLayer({
+      id:"runs-labels",
+      type:"symbol",
+      source:"runs",
+      minzoom:12.8,
+      filter:[
+        "all",
+        ["==",["get","piste:type"],"downhill"],
+        ["!=",["coalesce",["get","name"],["get","piste:name"],["get","ref"],["get","piste:ref"],""],""]
+      ],
+      layout:{
+        "symbol-placement":"line",
+        "text-field":[
+          "coalesce",
+          ["get","name"],
+          ["get","piste:name"],
+          ["get","ref"],
+          ["get","piste:ref"],
+          ""
+        ],
+        "text-size":[
+          "interpolate", ["linear"], ["zoom"],
+          12.8, 8.5,
+          14, 9.5,
+          16, 10.5
+        ],
+        "symbol-spacing":[
+          "interpolate", ["linear"], ["zoom"],
+          12.8, 560,
+          14, 430,
+          16, 320
+        ],
+        "text-font":["Open Sans Regular"],
+        "text-rotation-alignment":"map",
+        "text-pitch-alignment":"map",
+        "text-keep-upright":true,
+        "text-allow-overlap":false,
+        "text-ignore-placement":false
+      },
+      paint:{
+        "text-color":"#ffffff",
+        "text-halo-color":"rgba(17,24,39,0.88)",
+        "text-halo-width":1.4,
+        "text-opacity":0.74
+      }
+    });
+
+    map.addLayer({
       id:"runs-selected",
       type:"line",
       source:"runs",
@@ -721,6 +773,7 @@ map.on("load", () => {
       }
     });
 
+    map.moveLayer("runs-labels");
     map.moveLayer("rifugi-layer");
     map.moveLayer("rifugi-label");
     map.moveLayer("impianti-layer");
