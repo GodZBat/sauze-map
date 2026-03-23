@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="SkiSmart">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
 
 <style>
 html, body { height:100%; margin:0; }
@@ -205,10 +205,7 @@ body{
 }
 .welcome-btn:hover{ transform:translateY(-1px); }
 .welcome-btn:active{ transform:translateY(0); }
-.welcome-btn-primary{
-  background:#fff;
-  color:#111;
-}
+.welcome-btn-primary{ background:#fff; color:#111; }
 .welcome-btn-secondary{
   background:rgba(255,255,255,0.16);
   color:#fff;
@@ -245,7 +242,6 @@ body{
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   box-shadow:0 16px 42px rgba(0,0,0,0.18);
-  transform:translateY(0);
   transition:transform .25s ease, box-shadow .25s ease, opacity .25s ease;
 }
 .panel:hover{ box-shadow:0 18px 48px rgba(0,0,0,0.20); }
@@ -279,18 +275,15 @@ body{
   font-weight:900;
   background:#111827;
   color:#fff;
-  transition:transform .18s ease, opacity .18s ease;
 }
-.panel-toggle:hover{ transform:translateY(-1px); }
 .panel-body{
   padding:12px;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
   flex:1 1 auto;
 }
-.panel.collapsed .panel-body{
-  display:none;
-}
+.panel.collapsed .panel-body{ display:none; }
+
 @media (max-width: 600px){
   .panel{
     left:10px;
@@ -301,10 +294,9 @@ body{
     max-height:76vh;
     border-radius:20px;
   }
-  .panel.collapsed{
-    max-height:62px;
-  }
+  .panel.collapsed{ max-height:62px; }
 }
+
 .quick-row{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -322,6 +314,7 @@ button{
 }
 button:hover{ transform:translateY(-1px); }
 button:active{ transform:translateY(0); }
+
 .btn-dark{ background:#111827; color:#fff; }
 .btn-blue{ background:#2563eb; color:#fff; }
 .btn-light{ background:#eef1f5; color:#111; }
@@ -335,9 +328,7 @@ button:active{ transform:translateY(0); }
   border:1px solid rgba(0,0,0,0.05);
   overflow:hidden;
   box-shadow:0 6px 18px rgba(0,0,0,0.05);
-  transition:transform .2s ease, box-shadow .2s ease;
 }
-.menu-card:hover{ box-shadow:0 10px 22px rgba(0,0,0,0.07); }
 .menu-card summary{
   list-style:none;
   cursor:pointer;
@@ -364,12 +355,9 @@ button:active{ transform:translateY(0); }
   color:#667085;
   transition:transform .2s ease;
 }
-.menu-card[open] .menu-card-chevron{
-  transform:rotate(180deg);
-}
-.menu-card-body{
-  padding:0 14px 14px;
-}
+.menu-card[open] .menu-card-chevron{ transform:rotate(180deg); }
+.menu-card-body{ padding:0 14px 14px; }
+
 .dashboard-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -380,11 +368,6 @@ button:active{ transform:translateY(0); }
   border:1px solid rgba(0,0,0,0.05);
   border-radius:14px;
   padding:10px;
-  transition:transform .18s ease, box-shadow .18s ease;
-}
-.stat-card:hover{
-  transform:translateY(-1px);
-  box-shadow:0 8px 18px rgba(0,0,0,0.06);
 }
 .stat-card.wide{ grid-column:1 / -1; }
 .stat-label{
@@ -398,14 +381,14 @@ button:active{ transform:translateY(0); }
   font-weight:1000;
   color:#111827;
 }
+
 .row{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
 }
-.row > *{
-  flex:1 1 auto;
-}
+.row > *{ flex:1 1 auto; }
+
 .small{
   font-size:12px;
   color:#475467;
@@ -438,6 +421,7 @@ input[type="text"]:focus{
   outline:none;
 }
 input[type="range"]{ width:100%; }
+
 .history-card{
   border:1px solid rgba(0,0,0,0.08);
   border-radius:14px;
@@ -457,19 +441,42 @@ input[type="range"]{ width:100%; }
   line-height:1.4;
 }
 
-.leaflet-popup-content-wrapper{
+/* Popup MapLibre */
+.maplibregl-popup-content{
   border-radius:16px;
-  box-shadow:0 12px 28px rgba(0,0,0,0.18);
-}
-.leaflet-popup-content{
-  font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
   font-size:13px;
   line-height:1.4;
-  margin:12px 14px;
+  padding:12px 14px;
 }
-.leaflet-popup-tip{
-  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+.maplibregl-popup-close-button{
+  font-size:18px;
+  padding:4px 8px;
 }
+
+/* Marker utente */
+.user-dot{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:#2563eb;
+  border:3px solid rgba(255,255,255,0.95);
+  box-shadow:0 0 0 6px rgba(37,99,235,0.16), 0 6px 18px rgba(0,0,0,0.18);
+}
+
+.spot-dot{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,0.95);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:15px;
+  box-shadow:0 8px 18px rgba(0,0,0,0.18);
+}
+.spot-jump{ background:#7c3aed; }
+.spot-powder{ background:#0ea5a4; }
 </style>
 </head>
 <body>
@@ -532,7 +539,7 @@ input[type="range"]{ width:100%; }
     <button class="panel-toggle" id="panelToggle" aria-label="Apri/chiudi menu">☰</button>
     <div class="panel-title-wrap">
       <div class="panel-title">⛷️ SkiSmart · Sauze</div>
-      <div class="panel-subtitle" id="panelUserLabel">Esplora il comprensorio e registra le tue discese</div>
+      <div class="panel-subtitle" id="panelUserLabel">Esplora il comprensorio, ruota la mappa e registra le tue discese</div>
     </div>
   </div>
 
@@ -566,7 +573,7 @@ input[type="range"]{ width:100%; }
       <summary>
         <div>
           <div class="menu-card-title">🧭 Esplora</div>
-          <div class="menu-card-sub">Cerca piste, filtra e cambia visuale</div>
+          <div class="menu-card-sub">Cerca piste, filtra, ruota e cambia visuale</div>
         </div>
         <div class="menu-card-chevron">⌄</div>
       </summary>
@@ -586,14 +593,44 @@ input[type="range"]{ width:100%; }
           <button class="btn-light" id="fBlack">Nere</button>
         </div>
         <div class="small" id="filterHint">Filtro: tutte</div>
+
+        <div class="small" style="margin-top:12px; font-weight:900;">🧭 Rotazione mappa</div>
+        <div class="row" style="margin-top:6px;">
+          <button class="btn-light" id="rotateLeftBtn">↺ Sinistra</button>
+          <button class="btn-light" id="rotateRightBtn">↻ Destra</button>
+          <button class="btn-dark" id="northBtn">🧭 Nord</button>
+        </div>
+        <div class="small">Su mobile puoi ruotare anche con due dita.</div>
       </div>
     </details>
 
     <details class="menu-card">
       <summary>
         <div>
-          <div class="menu-card-title">❄️ Neve e rilievo</div>
-          <div class="menu-card-sub">Neve al suolo e ombreggiatura della montagna</div>
+          <div class="menu-card-title">🗺 Vista 2D</div>
+          <div class="menu-card-sub">Mappa, satellite, labels e hillshade</div>
+        </div>
+        <div class="menu-card-chevron">⌄</div>
+      </summary>
+      <div class="menu-card-body">
+        <div class="row">
+          <button class="btn-light" id="btnMap">🗺️ Mappa</button>
+          <button class="btn-dark" id="btnSat">🛰️ Satellite</button>
+          <button class="btn-light" id="btnLabels">🔤 Labels: OFF</button>
+        </div>
+
+        <div class="small" style="margin-top:12px; font-weight:900;">🏔 Ombreggiatura rilievo</div>
+        <label class="small"><input type="checkbox" id="toggleHillshade" checked> Attiva hillshade</label>
+        <div class="small">Intensità</div>
+        <input id="hillshadeOpacity" type="range" min="0" max="100" value="28"/>
+      </div>
+    </details>
+
+    <details class="menu-card">
+      <summary>
+        <div>
+          <div class="menu-card-title">❄️ Neve</div>
+          <div class="menu-card-sub">Neve al suolo aggiornata</div>
         </div>
         <div class="menu-card-chevron">⌄</div>
       </summary>
@@ -603,11 +640,6 @@ input[type="range"]{ width:100%; }
         </div>
         <div class="pill" id="snowDepth">Neve al suolo: —</div>
         <div class="small" id="snowMeta">Fonte: Open-Meteo (snow_depth). Ultimo update: —</div>
-
-        <div class="small" style="margin-top:12px; font-weight:900;">🏔 Ombreggiatura rilievo</div>
-        <label class="small"><input type="checkbox" id="toggleHillshade" checked> Attiva hillshade</label>
-        <div class="small">Intensità</div>
-        <input id="hillshadeOpacity" type="range" min="0" max="100" value="35"/>
       </div>
     </details>
 
@@ -649,6 +681,7 @@ input[type="range"]{ width:100%; }
           <button class="btn-light" id="btnHeatmap">🔥 Heatmap: ON</button>
         </div>
         <div class="small" id="trackInfo">Tracking fermo</div>
+
         <div class="small" style="margin-top:12px; font-weight:900;">🗂 Storico registrazioni</div>
         <div id="trackHistory" class="small">Nessuna registrazione salvata.</div>
       </div>
@@ -665,21 +698,21 @@ input[type="range"]{ width:100%; }
       <div class="menu-card-body">
         <label class="small"><input type="checkbox" id="toggleRuns" checked> Piste</label><br>
         <label class="small"><input type="checkbox" id="toggleLifts" checked> Impianti</label><br>
-        <label class="small"><input type="checkbox" id="toggleSpots" checked> Spot</label><br>
-        <label class="small"><input type="checkbox" id="toggleLabels" checked> Nomi (Satellite)</label>
+        <label class="small"><input type="checkbox" id="toggleSpots" checked> Spot</label>
       </div>
     </details>
 
   </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.polyline.snakeanim@0.2.0/L.Polyline.SnakeAnim.js"></script>
+<script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
 <script src="./tracking-shared.js"></script>
 
 <script>
 const ACCOUNT_STORAGE_KEY = "skismart_local_account_v1";
 const SELECTED_RESORT_KEY = "skismart_selected_resort_v1";
+const MAPTILER_KEY = "ORUgXv14fwE911CA6MdX";
+const CENTER = [6.86, 45.03];
 
 const splashScreen = document.getElementById("splashScreen");
 const welcomeScreen = document.getElementById("welcomeScreen");
@@ -708,10 +741,10 @@ function updateWelcomeUser() {
   if (acc && acc.name) {
     welcomeSavedUser.textContent = `Bentornato, ${acc.name}`;
     accountNameInput.value = acc.name;
-    panelUserLabel.textContent = `Ciao ${acc.name}, esplora il comprensorio e registra le tue discese`;
+    panelUserLabel.textContent = `Ciao ${acc.name}, esplora il comprensorio, ruota la mappa e registra le tue discese`;
   } else {
     welcomeSavedUser.textContent = "";
-    panelUserLabel.textContent = "Esplora il comprensorio e registra le tue discese";
+    panelUserLabel.textContent = "Esplora il comprensorio, ruota la mappa e registra le tue discese";
   }
 }
 function enterAppAsUser(isGuest = false) {
@@ -742,82 +775,21 @@ window.addEventListener("load", () => {
   setTimeout(() => splashScreen.classList.add("hidden"), 1700);
 });
 
-const map = L.map("map", {
-  zoomControl: true,
-  preferCanvas: true
-});
-
-const osm = L.tileLayer(
-  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  { maxZoom:19, attribution:"© OpenStreetMap contributors" }
-);
-
-const esriSat = L.tileLayer(
-  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-  { maxZoom:19, attribution:"Tiles © Esri" }
-);
-
-const hillshade = L.tileLayer(
-  "https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}",
-  { maxZoom:19, opacity: 0.24, attribution:"Hillshade © Esri" }
-);
-
-const esriLabels = L.tileLayer(
-  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-  { maxZoom: 19, opacity: 0.95, zIndex: 650, attribution:"Labels © Esri" }
-);
-
-osm.addTo(map);
-hillshade.addTo(map);
-
-L.control.layers(
-  { "🗺 Mappa": osm, "🛰 Satellite ESRI": esriSat },
-  { "🏔 Hillshade": hillshade, "🔤 Labels": esriLabels },
-  { position:"topright" }
-).addTo(map);
-
-map.setView([45.03,6.86],12);
-
-function setLabelsActive(active){
-  const toggle = document.getElementById("toggleLabels");
-  if (toggle && !toggle.checked) active = false;
-  if(active) esriLabels.addTo(map);
-  else map.removeLayer(esriLabels);
-}
-map.on("baselayerchange", (e) => {
-  if (e.name === "🛰 Satellite ESRI") setLabelsActive(true);
-  else setLabelsActive(false);
-});
-document.getElementById("toggleLabels").addEventListener("change", () => {
-  const isSat = map.hasLayer(esriSat);
-  setLabelsActive(isSat);
-});
-
-const hillToggle = document.getElementById("toggleHillshade");
-const hillOpacity = document.getElementById("hillshadeOpacity");
-hillToggle.addEventListener("change", () => {
-  if (hillToggle.checked) hillshade.addTo(map);
-  else map.removeLayer(hillshade);
-});
-hillOpacity.addEventListener("input", () => {
-  hillshade.setOpacity(Number(hillOpacity.value)/100);
-});
-
 function pisteColor(diff){
-  if(!diff) return "#60a5fa";
+  if(!diff) return "#2f6fca";
   diff = String(diff).toLowerCase();
   if(diff.includes("easy")||diff.includes("novice")||diff.includes("beginner")||diff.includes("blue")) return "#2f6fca";
   if(diff.includes("intermediate")||diff.includes("medium")||diff.includes("red")) return "#d84c4c";
   if(diff.includes("advanced")||diff.includes("expert")||diff.includes("difficult")||diff.includes("black")) return "#1f2937";
-  return "#60a5fa";
+  return "#2f6fca";
 }
 function pisteShadowColor(diff){
-  if(!diff) return "rgba(116,151,190,0.30)";
+  if(!diff) return "rgba(115,145,185,0.34)";
   diff = String(diff).toLowerCase();
-  if(diff.includes("easy")||diff.includes("novice")||diff.includes("beginner")||diff.includes("blue")) return "rgba(93,137,191,0.32)";
-  if(diff.includes("intermediate")||diff.includes("medium")||diff.includes("red")) return "rgba(183,130,130,0.28)";
-  if(diff.includes("advanced")||diff.includes("expert")||diff.includes("difficult")||diff.includes("black")) return "rgba(115,129,145,0.28)";
-  return "rgba(116,151,190,0.30)";
+  if(diff.includes("easy")||diff.includes("novice")||diff.includes("beginner")||diff.includes("blue")) return "rgba(115,145,185,0.36)";
+  if(diff.includes("intermediate")||diff.includes("medium")||diff.includes("red")) return "rgba(188,144,144,0.30)";
+  if(diff.includes("advanced")||diff.includes("expert")||diff.includes("difficult")||diff.includes("black")) return "rgba(133,145,159,0.30)";
+  return "rgba(115,145,185,0.34)";
 }
 function classify(diff){
   if(!diff) return "unknown";
@@ -827,459 +799,376 @@ function classify(diff){
   if(diff.includes("advanced")||diff.includes("expert")||diff.includes("difficult")||diff.includes("black")) return "black";
   return "unknown";
 }
-
-const userIcon = L.divIcon({
-  className: "",
-  html: `
-    <div style="
-      width:18px;height:18px;border-radius:50%;
-      background:#2563eb;
-      border:3px solid rgba(255,255,255,0.95);
-      box-shadow:0 0 0 6px rgba(37,99,235,0.16), 0 6px 18px rgba(0,0,0,0.18);
-    "></div>
-  `,
-  iconSize: [18,18],
-  iconAnchor: [9,9]
-});
-
-function makeSpotIcon(type){
-  const bg = type === "jump" ? "#7c3aed" : "#0ea5a4";
-  const emoji = type === "jump" ? "🛫" : "❄️";
-  return L.divIcon({
-    className: "",
-    html: `
-      <div style="
-        width:32px;height:32px;border-radius:50%;
-        background:${bg};
-        border:2px solid rgba(255,255,255,0.95);
-        display:flex;align-items:center;justify-content:center;
-        font-size:15px;
-        box-shadow:0 8px 18px rgba(0,0,0,0.18);
-      ">${emoji}</div>
-    `,
-    iconSize:[32,32],
-    iconAnchor:[16,16],
-    popupAnchor:[0,-12]
-  });
+function runNameFromProps(p){
+  return p?.name || p?.["piste:name"] || p?.ref || p?.["piste:ref"] || "Pista";
 }
 
-let runsShadowLayer = L.geoJSON(null);
-let runsLayer = L.geoJSON(null);
-let liftsLayer = L.geoJSON(null);
-const spotLayer = L.layerGroup().addTo(map);
+function collectCoords(coords, out){
+  if (!Array.isArray(coords)) return;
+  if (typeof coords[0] === "number" && typeof coords[1] === "number") {
+    out.push(coords);
+    return;
+  }
+  for (const c of coords) collectCoords(c, out);
+}
+function bboxFromFeature(feature){
+  const pts = [];
+  collectCoords(feature?.geometry?.coordinates, pts);
+  if (!pts.length) return null;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const [x,y] of pts){
+    if (x < minX) minX = x;
+    if (y < minY) minY = y;
+    if (x > maxX) maxX = x;
+    if (y > maxY) maxY = y;
+  }
+  return [[minX, minY], [maxX, maxY]];
+}
+
+const style = {
+  version: 8,
+  sources: {
+    carto: {
+      type: "raster",
+      tiles: ["https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"],
+      tileSize: 256
+    },
+    sat: {
+      type: "raster",
+      tiles: [`https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`],
+      tileSize: 256
+    },
+    satlabels: {
+      type: "raster",
+      tiles: [`https://api.maptiler.com/tiles/hybrid/{z}/{x}/{y}.png?key=${MAPTILER_KEY}`],
+      tileSize: 256
+    },
+    hillshade: {
+      type: "raster",
+      tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}"],
+      tileSize: 256
+    }
+  },
+  layers: [
+    { id:"base", type:"raster", source:"carto", layout:{ visibility:"visible" } },
+    { id:"satellite", type:"raster", source:"sat", layout:{ visibility:"none" } },
+    { id:"hillshade-layer", type:"raster", source:"hillshade", layout:{ visibility:"visible" }, paint:{ "raster-opacity":0.28 } },
+    { id:"satlabels-layer", type:"raster", source:"satlabels", layout:{ visibility:"none" } }
+  ]
+};
+
+const map = new maplibregl.Map({
+  container:"map",
+  style,
+  center:CENTER,
+  zoom:12.2,
+  minZoom:10,
+  maxZoom:17,
+  pitch:0,
+  maxPitch:0,
+  bearing:0,
+  dragRotate:true,
+  touchZoomRotate:true,
+  antialias:true
+});
+
+map.addControl(new maplibregl.NavigationControl({ visualizePitch:false, showCompass:true }), "top-right");
 
 let cachedData = null;
 let currentFilter = "all";
-let lastHighlighted = null;
-let focusLayer = null;
-let isFocus = false;
-
-function resetHighlight(){
-  if(!lastHighlighted) return;
-  const l = lastHighlighted;
-  if(l.__isLift){
-    l.setStyle({
-      color:"#64748b",
-      weight:2.2,
-      dashArray:"8 7",
-      opacity:0.78
-    });
-  } else {
-    const diff = l.feature?.properties?.["piste:difficulty"];
-    l.setStyle({
-      color:pisteColor(diff),
-      weight:3.3,
-      opacity:0.96
-    });
-  }
-  lastHighlighted = null;
-}
-
-function highlight(layer, isLift){
-  resetHighlight();
-  if(isLift){
-    layer.setStyle({
-      color:"#0f172a",
-      weight:4.1,
-      dashArray:"10 6",
-      opacity:0.95
-    });
-  } else {
-    layer.setStyle({
-      color:"#ffffff",
-      weight:5.8,
-      opacity:1
-    });
-  }
-  layer.__isLift = isLift;
-  lastHighlighted = layer;
-}
-
-function enterFocus(runLayer){
-  if(!runLayer) return;
-  isFocus = true;
-
-  runsShadowLayer.eachLayer(l => {
-    l.setStyle({ opacity:0.06, weight:6 });
-  });
-
-  runsLayer.eachLayer(l => {
-    if(l === runLayer) return;
-    l.setStyle({ opacity:0.10, weight:2.4 });
-  });
-
-  if (focusLayer) map.removeLayer(focusLayer);
-
-  const diff = runLayer.feature?.properties?.["piste:difficulty"];
-  focusLayer = L.geoJSON(runLayer.feature, {
-    style: {
-      color: pisteColor(diff),
-      weight: 6.2,
-      opacity: 0.99,
-      lineCap: "round",
-      lineJoin: "round"
-    }
-  }).addTo(map);
-
-  try { focusLayer.bringToFront(); } catch(e) {}
-}
-
-function exitFocus(){
-  isFocus = false;
-
-  if (focusLayer){
-    map.removeLayer(focusLayer);
-    focusLayer = null;
-  }
-
-  runsShadowLayer.eachLayer(l => {
-    const diff = l.feature?.properties?.["piste:difficulty"];
-    l.setStyle({
-      color:pisteShadowColor(diff),
-      weight:8.5,
-      opacity:0.95
-    });
-  });
-
-  runsLayer.eachLayer(l => {
-    const diff = l.feature?.properties?.["piste:difficulty"];
-    l.setStyle({
-      color: pisteColor(diff),
-      weight: 3.3,
-      opacity: 0.96
-    });
-  });
-}
-
-function runPopupHtml(name, diff){
-  return `
-    <div>
-      <div style="font-weight:1000; font-size:14px; color:#111827;">🎿 ${name}</div>
-      <div style="margin-top:4px; color:#475467;">
-        Difficoltà:
-        <span style="font-weight:900;">${diff || "N/D"}</span>
-      </div>
-    </div>
-  `;
-}
-function liftPopupHtml(name){
-  return `
-    <div>
-      <div style="font-weight:1000; font-size:14px; color:#111827;">🚡 ${name}</div>
-      <div style="margin-top:4px; color:#475467;">Impianto del comprensorio</div>
-    </div>
-  `;
-}
-
-function runFilterFeature(f){
-  const p = f.properties || {};
-  if(!p["piste:type"]) return false;
-  if(p.aerialway) return false;
-  if(currentFilter === "all") return true;
-  return classify(p["piste:difficulty"]) === currentFilter;
-}
-
-function rebuild(keepView=false){
-  if(!cachedData) return;
-
-  if (isFocus) exitFocus();
-
-  [runsShadowLayer, runsLayer, liftsLayer].forEach(layer => {
-    if(layer && map.hasLayer(layer)) map.removeLayer(layer);
-  });
-
-  runsShadowLayer = L.geoJSON(cachedData, {
-    filter: runFilterFeature,
-    style: (f) => {
-      const p = f.properties || {};
-      return {
-        color: pisteShadowColor(p["piste:difficulty"]),
-        weight: 8.5,
-        opacity: 0.95,
-        lineCap: "round",
-        lineJoin: "round"
-      };
-    },
-    interactive: false
-  });
-
-  runsLayer = L.geoJSON(cachedData, {
-    filter: runFilterFeature,
-    style: (f) => {
-      const p = f.properties || {};
-      return {
-        color: pisteColor(p["piste:difficulty"]),
-        weight: 3.3,
-        opacity: 0.96,
-        lineCap: "round",
-        lineJoin: "round"
-      };
-    },
-    onEachFeature: (f, l) => {
-      const p = f.properties || {};
-      const name = p.name || p.ref || p["piste:name"] || p["piste:ref"] || "Pista";
-      const diff = p["piste:difficulty"] || "";
-      l.bindPopup(runPopupHtml(name, diff));
-      l.on("click", () => highlight(l, false));
-      l.__searchName = String(p.name || p["piste:name"] || "").toLowerCase();
-      l.__searchRef  = String(p.ref || p["piste:ref"] || "").toLowerCase();
-    }
-  });
-
-  liftsLayer = L.geoJSON(cachedData, {
-    filter: (f) => !!(f.properties || {}).aerialway,
-    style: () => ({
-      color:"#64748b",
-      weight:2.2,
-      dashArray:"8 7",
-      opacity:0.78,
-      lineCap:"round",
-      lineJoin:"round"
-    }),
-    onEachFeature: (f, l) => {
-      const p = f.properties || {};
-      const name = p.name || p.ref || "Impianto";
-      l.bindPopup(liftPopupHtml(name));
-      l.on("click", () => highlight(l, true));
-      l.__isLift = true;
-    }
-  });
-
-  if(document.getElementById("toggleRuns").checked){
-    runsShadowLayer.addTo(map);
-    runsLayer.addTo(map);
-  }
-  if(document.getElementById("toggleLifts").checked) liftsLayer.addTo(map);
-
-  if(!keepView){
-    const group = L.featureGroup([]);
-    if(document.getElementById("toggleRuns").checked){
-      group.addLayer(runsShadowLayer);
-      group.addLayer(runsLayer);
-    }
-    if(document.getElementById("toggleLifts").checked) group.addLayer(liftsLayer);
-    const b = group.getBounds();
-    if(b.isValid()) map.fitBounds(b.pad(0.10));
-  }
-}
-
-fetch("./sauze_doulx.geojson")
-  .then(r => r.json())
-  .then(data => { cachedData = data; rebuild(false); })
-  .catch(err => { alert("Errore GeoJSON: " + err.message); console.error(err); });
-
-function setFilter(f){
-  currentFilter = f;
-  const label = f==="all" ? "tutte" : (f==="blue" ? "blu" : (f==="red" ? "rosse" : "nere"));
-  document.getElementById("filterHint").textContent = "Filtro: " + label;
-  resetHighlight();
-  rebuild(true);
-}
-document.getElementById("fAll").onclick   = () => setFilter("all");
-document.getElementById("fBlue").onclick  = () => setFilter("blue");
-document.getElementById("fRed").onclick   = () => setFilter("red");
-document.getElementById("fBlack").onclick = () => setFilter("black");
-
-document.getElementById("toggleRuns").onchange = (e)=>{
-  if(e.target.checked){
-    runsShadowLayer.addTo(map);
-    runsLayer.addTo(map);
-  } else {
-    map.removeLayer(runsShadowLayer);
-    map.removeLayer(runsLayer);
-  }
-};
-document.getElementById("toggleLifts").onchange = (e)=> e.target.checked ? liftsLayer.addTo(map) : map.removeLayer(liftsLayer);
-document.getElementById("toggleSpots").onchange = (e)=> e.target.checked ? spotLayer.addTo(map) : map.removeLayer(spotLayer);
-
-function findRun(query){
-  query = String(query||"").trim().toLowerCase();
-  if(!query) return null;
-  let found = null;
-  runsLayer.eachLayer(l => {
-    if(found) return;
-    if((l.__searchName||"").includes(query) || (l.__searchRef||"").includes(query)) found = l;
-  });
-  return found;
-}
-
-document.getElementById("searchBtn").onclick = () => {
-  const q = document.getElementById("searchInput").value;
-  const run = findRun(q);
-  if(!run){
-    document.getElementById("searchHint").textContent = "Nessuna pista trovata. Prova un altro nome/ref.";
-    return;
-  }
-  document.getElementById("searchHint").textContent = "Trovata! Modalità focus attiva.";
-  highlight(run, false);
-  enterFocus(run);
-  map.fitBounds(run.getBounds().pad(0.25));
-  run.openPopup();
-};
-
-document.getElementById("clearSearchBtn").onclick = () => {
-  document.getElementById("searchInput").value = "";
-  document.getElementById("searchHint").textContent = "Puoi cercare per nome o ref. In modalità focus le altre piste spariscono.";
-  resetHighlight();
-  exitFocus();
-};
-
+let focusedFeature = null;
 let userMarker = null;
-document.getElementById("locateBtn").onclick = () => {
-  if(!navigator.geolocation){
-    alert("Geolocalizzazione non supportata.");
-    return;
-  }
-  navigator.geolocation.getCurrentPosition((pos) => {
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-    if(userMarker) map.removeLayer(userMarker);
-    userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map)
-      .bindPopup(`<div style="font-weight:900;color:#111827;">📍 Sei qui</div>`)
-      .openPopup();
-    map.setView([lat, lng], 15);
-  }, (err) => alert("Errore geolocalizzazione: " + err.message), { enableHighAccuracy:true, timeout:8000 });
-};
-
-const snowDepthEl = document.getElementById("snowDepth");
-const snowMetaEl  = document.getElementById("snowMeta");
-const snowRefreshBtn = document.getElementById("snowRefresh");
-
-const SNOW_LAT = 45.03;
-const SNOW_LON = 6.86;
-
-function nearestTimeIndex(times){
-  const now = Date.now();
-  let bestI = 0;
-  let bestD = Infinity;
-  for(let i=0;i<times.length;i++){
-    const t = new Date(times[i]).getTime();
-    const d = Math.abs(t - now);
-    if(d < bestD){ bestD = d; bestI = i; }
-  }
-  return bestI;
-}
-
-async function refreshSnow(){
-  try{
-    snowDepthEl.textContent = "Neve al suolo: caricamento…";
-    const url =
-      `https://api.open-meteo.com/v1/forecast` +
-      `?latitude=${SNOW_LAT}&longitude=${SNOW_LON}` +
-      `&hourly=snow_depth` +
-      `&timezone=Europe%2FRome`;
-
-    const res = await fetch(url);
-    if(!res.ok) throw new Error("Open-Meteo non raggiungibile");
-    const data = await res.json();
-
-    const times = data?.hourly?.time || [];
-    const depths = data?.hourly?.snow_depth || [];
-
-    if(!times.length || !depths.length) throw new Error("Dati neve non disponibili");
-
-    const i = nearestTimeIndex(times);
-    const meters = Number(depths[i]);
-    const cm = Math.max(0, Math.round(meters * 100));
-    const when = new Date(times[i]).toLocaleString("it-IT");
-
-    snowDepthEl.textContent = `Neve al suolo: ${cm} cm`;
-    snowMetaEl.textContent = `Fonte: Open-Meteo (snow_depth). Ora: ${when}`;
-  }catch(e){
-    console.error(e);
-    snowDepthEl.textContent = "Neve al suolo: —";
-    snowMetaEl.textContent = "Errore nel recupero dati neve (riprovare).";
-  }
-}
-
-snowRefreshBtn.onclick = refreshSnow;
-refreshSnow();
-setInterval(refreshSnow, 30 * 60 * 1000);
-
-const STORAGE_SPOTS = "ski_spots_v5";
+let spotMarkers = [];
 let mode = null;
 
-function iconFor(type){ return type==="jump" ? "🛫" : "❄️"; }
+const runsPopup = new maplibregl.Popup({
+  closeButton:true,
+  closeOnClick:true,
+  maxWidth:"280px"
+});
+
+function setLayoutVisible(id, visible){
+  if (!map.getLayer(id)) return;
+  map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
+}
+
+function makeRunFilter(){
+  if (currentFilter === "all") {
+    return ["all", ["==",["get","piste:type"],"downhill"], ["!",["has","aerialway"]]];
+  }
+  return [
+    "all",
+    ["==",["get","piste:type"],"downhill"],
+    ["!",["has","aerialway"]],
+    ["in", ["downcase", ["to-string", ["get","piste:difficulty"]]], ["literal",
+      currentFilter === "blue" ? ["easy","novice","beginner","blue"] :
+      currentFilter === "red" ? ["intermediate","medium","red"] :
+      ["advanced","expert","difficult","black"]
+    ]]
+  ];
+}
+
+function updateRunFilters(){
+  const f = makeRunFilter();
+  if (map.getLayer("runs-shadow")) map.setFilter("runs-shadow", f);
+  if (map.getLayer("runs-colored")) map.setFilter("runs-colored", f);
+  if (map.getLayer("runs-labels")) map.setFilter("runs-labels", f);
+}
+
+function clearFocus(){
+  focusedFeature = null;
+  if (map.getSource("runs-focus")) {
+    map.getSource("runs-focus").setData({ type:"FeatureCollection", features:[] });
+  }
+}
+
+function setFocusFeature(feature){
+  focusedFeature = feature;
+  if (map.getSource("runs-focus")) {
+    map.getSource("runs-focus").setData({ type:"FeatureCollection", features:[feature] });
+  }
+}
+
+function fitToFeature(feature){
+  const bbox = bboxFromFeature(feature);
+  if (!bbox) return;
+  map.fitBounds(bbox, { padding:60, duration:700 });
+}
+
+function renderSpotMarkers(){
+  for (const m of spotMarkers) m.remove();
+  spotMarkers = [];
+  const visible = document.getElementById("toggleSpots").checked;
+  if (!visible) return;
+
+  const spots = loadSpots();
+  for (const s of spots){
+    const el = document.createElement("div");
+    el.className = `spot-dot ${s.type === "jump" ? "spot-jump" : "spot-powder"}`;
+    el.textContent = s.type === "jump" ? "🛫" : "❄️";
+
+    const marker = new maplibregl.Marker({ element: el, anchor:"center" })
+      .setLngLat([s.lng, s.lat])
+      .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML(`
+        <div>
+          <div style="font-weight:1000;font-size:14px;color:#111827;">${s.type === "jump" ? "🛫" : "❄️"} ${s.title || (s.type==="jump" ? "Salto" : "Powder")}</div>
+          ${s.notes ? `<div style="margin-top:4px;color:#475467;">${s.notes}</div>` : ""}
+          <hr style="border:none;border-top:1px solid #e6e6e6;margin:8px 0;">
+          <button class="btn-light delete-spot" data-spot-id="${s.id}">🗑 Elimina questo spot</button>
+        </div>
+      `))
+      .addTo(map);
+
+    spotMarkers.push(marker);
+  }
+}
+
 function loadSpots(){
-  const raw = localStorage.getItem(STORAGE_SPOTS);
+  const raw = localStorage.getItem("ski_spots_v5");
   return raw ? JSON.parse(raw) : [];
 }
 function saveSpots(spots){
-  localStorage.setItem(STORAGE_SPOTS, JSON.stringify(spots));
+  localStorage.setItem("ski_spots_v5", JSON.stringify(spots));
 }
 function newSpotId(){
   if (crypto?.randomUUID) return crypto.randomUUID();
   return String(Date.now()) + "_" + Math.random().toString(16).slice(2);
 }
-
-function renderSpots(){
-  spotLayer.clearLayers();
-  const spots = loadSpots();
-
-  for(const s of spots){
-    const m = L.marker([s.lat, s.lng], { icon: makeSpotIcon(s.type) }).addTo(spotLayer);
-    const title = s.title || (s.type==="jump" ? "Salto" : "Powder");
-    const notes = s.notes ? `<div style="margin-top:4px;color:#475467;">${s.notes}</div>` : "";
-    m.bindPopup(`
-      <div>
-        <div style="font-weight:1000;font-size:14px;color:#111827;">${iconFor(s.type)} ${title}</div>
-        ${notes}
-        <hr style="border:none;border-top:1px solid #e6e6e6;margin:8px 0;">
-        <button class="btn-light delete-spot" data-spot-id="${s.id}">🗑 Elimina questo spot</button>
-      </div>
-    `);
-  }
-}
 function addSpot(s){
   const spots = loadSpots();
   spots.push(s);
   saveSpots(spots);
-  renderSpots();
+  renderSpotMarkers();
 }
 
-document.getElementById("modeJump").onclick = () => mode = "jump";
-document.getElementById("modePowder").onclick = () => mode = "powder";
-
-document.getElementById("clearSpots").onclick = () => {
-  if(confirm("Cancellare tutti gli spot?")){
-    localStorage.removeItem(STORAGE_SPOTS);
-    renderSpots();
-  }
-};
-
-map.on("click", (e) => {
-  if(!mode) return;
-  const title = prompt(mode==="jump" ? "Nome spot salto (opzionale)" : "Nome spot powder (opzionale)", "") || "";
-  const notes = prompt("Note (opzionale)", "") || "";
-  addSpot({
-    id: newSpotId(),
-    type: mode,
-    lat: e.latlng.lat,
-    lng: e.latlng.lng,
-    title,
-    notes,
-    created_at: new Date().toISOString()
+map.on("load", async () => {
+  map.addSource("runs", {
+    type:"geojson",
+    data:{ type:"FeatureCollection", features:[] }
   });
+
+  map.addSource("runs-focus", {
+    type:"geojson",
+    data:{ type:"FeatureCollection", features:[] }
+  });
+
+  map.addLayer({
+    id:"runs-shadow",
+    type:"line",
+    source:"runs",
+    filter: makeRunFilter(),
+    paint:{
+      "line-color":[
+        "case",
+        ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["easy","novice","beginner","blue"]]], "rgba(115,145,185,0.36)",
+        ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["intermediate","medium","red"]]], "rgba(188,144,144,0.30)",
+        ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["advanced","expert","difficult","black"]]], "rgba(133,145,159,0.30)",
+        "rgba(115,145,185,0.34)"
+      ],
+      "line-width":["interpolate",["linear"],["zoom"],10,7,12,8.5,14,10.5,16,12.5],
+      "line-opacity":0.95
+    },
+    layout:{
+      "line-join":"round",
+      "line-cap":"round",
+      "visibility":"visible"
+    }
+  });
+
+  map.addLayer({
+    id:"runs-colored",
+    type:"line",
+    source:"runs",
+    filter: makeRunFilter(),
+    paint:{
+      "line-color":[
+        "case",
+        ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["easy","novice","beginner","blue"]]], "#2f6fca",
+        ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["intermediate","medium","red"]]], "#d84c4c",
+        ["in",["downcase",["to-string",["get","piste:difficulty"]]],["literal",["advanced","expert","difficult","black"]]], "#1f2937",
+        "#2f6fca"
+      ],
+      "line-width":["interpolate",["linear"],["zoom"],10,2.6,12,3.3,14,4.0,16,4.8],
+      "line-opacity":0.97
+    },
+    layout:{
+      "line-join":"round",
+      "line-cap":"round",
+      "visibility":"visible"
+    }
+  });
+
+  map.addLayer({
+    id:"runs-focus-layer",
+    type:"line",
+    source:"runs-focus",
+    paint:{
+      "line-color":"#ffffff",
+      "line-width":["interpolate",["linear"],["zoom"],10,4.8,12,6.2,14,7.4,16,9],
+      "line-opacity":0.98
+    },
+    layout:{
+      "line-join":"round",
+      "line-cap":"round"
+    }
+  });
+
+  map.addLayer({
+    id:"runs-labels",
+    type:"symbol",
+    source:"runs",
+    minzoom:12.4,
+    filter: makeRunFilter(),
+    layout:{
+      "symbol-placement":"line",
+      "text-field":[
+        "coalesce",
+        ["get","name"],
+        ["get","piste:name"],
+        ["get","ref"],
+        ["get","piste:ref"],
+        ""
+      ],
+      "text-size":["interpolate",["linear"],["zoom"],12.4,8.5,14,9.5,16,10.5],
+      "symbol-spacing":["interpolate",["linear"],["zoom"],12.4,520,14,400,16,300],
+      "text-rotation-alignment":"map",
+      "text-keep-upright":true,
+      "text-allow-overlap":false,
+      "text-ignore-placement":false
+    },
+    paint:{
+      "text-color":"#ffffff",
+      "text-halo-color":"rgba(17,24,39,0.88)",
+      "text-halo-width":1.4,
+      "text-opacity":0.72
+    }
+  });
+
+  map.addLayer({
+    id:"lifts-layer",
+    type:"line",
+    source:"runs",
+    filter:["has","aerialway"],
+    paint:{
+      "line-color":"#64748b",
+      "line-width":["interpolate",["linear"],["zoom"],10,1.6,12,2.2,14,2.8,16,3.4],
+      "line-dasharray":[3,3],
+      "line-opacity":0.78
+    },
+    layout:{
+      "line-join":"round",
+      "line-cap":"round",
+      "visibility":"visible"
+    }
+  });
+
+  try {
+    const res = await fetch("./sauze_doulx.geojson");
+    cachedData = await res.json();
+    map.getSource("runs").setData(cachedData);
+  } catch (err) {
+    console.error(err);
+    alert("Errore GeoJSON: " + err.message);
+  }
+
+  renderSpotMarkers();
+
+  map.on("click", "runs-colored", (e) => {
+    const f = e.features && e.features[0];
+    if (!f) return;
+    setFocusFeature(f);
+    const p = f.properties || {};
+    runsPopup
+      .setLngLat(e.lngLat)
+      .setHTML(`
+        <div>
+          <div style="font-weight:1000;font-size:14px;color:#111827;">🎿 ${runNameFromProps(p)}</div>
+          <div style="margin-top:4px;color:#475467;">
+            Difficoltà: <span style="font-weight:900;">${p["piste:difficulty"] || "N/D"}</span>
+          </div>
+        </div>
+      `)
+      .addTo(map);
+    fitToFeature(f);
+  });
+
+  map.on("mouseenter", "runs-colored", () => { map.getCanvas().style.cursor = "pointer"; });
+  map.on("mouseleave", "runs-colored", () => { map.getCanvas().style.cursor = ""; });
+
+  map.on("click", "lifts-layer", (e) => {
+    const f = e.features && e.features[0];
+    if (!f) return;
+    const p = f.properties || {};
+    new maplibregl.Popup({ maxWidth:"250px" })
+      .setLngLat(e.lngLat)
+      .setHTML(`
+        <div>
+          <div style="font-weight:1000;font-size:14px;color:#111827;">🚡 ${p.name || p.ref || "Impianto"}</div>
+          <div style="margin-top:4px;color:#475467;">Impianto del comprensorio</div>
+        </div>
+      `)
+      .addTo(map);
+  });
+
+  map.on("mouseenter", "lifts-layer", () => { map.getCanvas().style.cursor = "pointer"; });
+  map.on("mouseleave", "lifts-layer", () => { map.getCanvas().style.cursor = ""; });
+
+  map.on("click", (e) => {
+    if(!mode) return;
+    const title = prompt(mode==="jump" ? "Nome spot salto (opzionale)" : "Nome spot powder (opzionale)", "") || "";
+    const notes = prompt("Note (opzionale)", "") || "";
+    addSpot({
+      id: newSpotId(),
+      type: mode,
+      lat: e.lngLat.lat,
+      lng: e.lngLat.lng,
+      title,
+      notes,
+      created_at: new Date().toISOString()
+    });
+  });
+
+  SkiSmartTracking.initMapLibre(map);
 });
 
 document.addEventListener("click", (ev) => {
@@ -1289,9 +1178,114 @@ document.addEventListener("click", (ev) => {
   if(!id) return;
   const spots = loadSpots().filter(s => String(s.id) !== String(id));
   saveSpots(spots);
-  renderSpots();
+  renderSpotMarkers();
 });
 
+document.getElementById("fAll").onclick   = () => { currentFilter = "all";   document.getElementById("filterHint").textContent = "Filtro: tutte"; updateRunFilters(); clearFocus(); };
+document.getElementById("fBlue").onclick  = () => { currentFilter = "blue";  document.getElementById("filterHint").textContent = "Filtro: blu"; updateRunFilters(); clearFocus(); };
+document.getElementById("fRed").onclick   = () => { currentFilter = "red";   document.getElementById("filterHint").textContent = "Filtro: rosse"; updateRunFilters(); clearFocus(); };
+document.getElementById("fBlack").onclick = () => { currentFilter = "black"; document.getElementById("filterHint").textContent = "Filtro: nere"; updateRunFilters(); clearFocus(); };
+
+document.getElementById("searchBtn").onclick = () => {
+  const q = String(document.getElementById("searchInput").value || "").trim().toLowerCase();
+  if (!q || !cachedData?.features?.length) return;
+
+  const found = cachedData.features.find(f => {
+    const p = f.properties || {};
+    if (p.aerialway) return false;
+    const a = String(p.name || p["piste:name"] || "").toLowerCase();
+    const b = String(p.ref || p["piste:ref"] || "").toLowerCase();
+    return a.includes(q) || b.includes(q);
+  });
+
+  if (!found) {
+    document.getElementById("searchHint").textContent = "Nessuna pista trovata. Prova un altro nome/ref.";
+    return;
+  }
+
+  document.getElementById("searchHint").textContent = "Trovata! Modalità focus attiva.";
+  setFocusFeature(found);
+  fitToFeature(found);
+};
+
+document.getElementById("clearSearchBtn").onclick = () => {
+  document.getElementById("searchInput").value = "";
+  document.getElementById("searchHint").textContent = "Puoi cercare per nome o ref. In modalità focus le altre piste spariscono.";
+  clearFocus();
+};
+
+document.getElementById("toggleRuns").onchange = (e) => {
+  setLayoutVisible("runs-shadow", e.target.checked);
+  setLayoutVisible("runs-colored", e.target.checked);
+  setLayoutVisible("runs-labels", e.target.checked);
+  setLayoutVisible("runs-focus-layer", e.target.checked);
+};
+document.getElementById("toggleLifts").onchange = (e) => setLayoutVisible("lifts-layer", e.target.checked);
+document.getElementById("toggleSpots").onchange = () => renderSpotMarkers();
+
+document.getElementById("btnMap").onclick = () => {
+  setLayoutVisible("base", true);
+  setLayoutVisible("satellite", false);
+  setLayoutVisible("satlabels-layer", false);
+  document.getElementById("btnLabels").textContent = "🔤 Labels: OFF";
+  labelsOn = false;
+};
+document.getElementById("btnSat").onclick = () => {
+  setLayoutVisible("base", false);
+  setLayoutVisible("satellite", true);
+  setLayoutVisible("satlabels-layer", labelsOn);
+};
+let labelsOn = false;
+document.getElementById("btnLabels").onclick = () => {
+  labelsOn = !labelsOn;
+  const satVisible = map.getLayoutProperty("satellite", "visibility") !== "none";
+  setLayoutVisible("satlabels-layer", satVisible && labelsOn);
+  document.getElementById("btnLabels").textContent = "🔤 Labels: " + (labelsOn ? "ON" : "OFF");
+};
+
+const hillToggle = document.getElementById("toggleHillshade");
+const hillOpacity = document.getElementById("hillshadeOpacity");
+hillToggle.addEventListener("change", () => setLayoutVisible("hillshade-layer", hillToggle.checked));
+hillOpacity.addEventListener("input", () => {
+  if (map.getLayer("hillshade-layer")) {
+    map.setPaintProperty("hillshade-layer", "raster-opacity", Number(hillOpacity.value)/100);
+  }
+});
+
+document.getElementById("rotateLeftBtn").onclick = () => map.easeTo({ bearing: map.getBearing() - 25, duration: 400 });
+document.getElementById("rotateRightBtn").onclick = () => map.easeTo({ bearing: map.getBearing() + 25, duration: 400 });
+document.getElementById("northBtn").onclick = () => map.easeTo({ bearing: 0, duration: 500 });
+
+document.getElementById("locateBtn").onclick = () => {
+  if(!navigator.geolocation){
+    alert("Geolocalizzazione non supportata.");
+    return;
+  }
+  navigator.geolocation.getCurrentPosition((pos) => {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+
+    if (userMarker) userMarker.remove();
+    const el = document.createElement("div");
+    el.className = "user-dot";
+    userMarker = new maplibregl.Marker({ element: el, anchor:"center" })
+      .setLngLat([lng, lat])
+      .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML(`<div style="font-weight:900;color:#111827;">📍 Sei qui</div>`))
+      .addTo(map);
+
+    userMarker.togglePopup();
+    map.easeTo({ center:[lng, lat], zoom:15, duration:700 });
+  }, (err) => alert("Errore geolocalizzazione: " + err.message), { enableHighAccuracy:true, timeout:8000 });
+};
+
+document.getElementById("modeJump").onclick = () => mode = "jump";
+document.getElementById("modePowder").onclick = () => mode = "powder";
+document.getElementById("clearSpots").onclick = () => {
+  if(confirm("Cancellare tutti gli spot?")){
+    localStorage.removeItem("ski_spots_v5");
+    renderSpotMarkers();
+  }
+};
 document.getElementById("exportSpots").onclick = () => {
   const spots = loadSpots();
   const blob = new Blob([JSON.stringify(spots, null, 2)], {type:"application/json"});
@@ -1304,7 +1298,6 @@ document.getElementById("exportSpots").onclick = () => {
   a.remove();
   URL.revokeObjectURL(url);
 };
-
 document.getElementById("importSpots").onclick = () => {
   const input = document.createElement("input");
   input.type = "file";
@@ -1320,7 +1313,7 @@ document.getElementById("importSpots").onclick = () => {
         const fixed = imported.map(s => ({ id: s.id || newSpotId(), ...s }));
         const merged = loadSpots().concat(fixed);
         saveSpots(merged);
-        renderSpots();
+        renderSpotMarkers();
         alert("Import ok! Spot totali: " + merged.length);
       } catch(err){
         alert("Errore import: " + err.message);
@@ -1331,9 +1324,55 @@ document.getElementById("importSpots").onclick = () => {
   input.click();
 };
 
-renderSpots();
+const snowDepthEl = document.getElementById("snowDepth");
+const snowMetaEl  = document.getElementById("snowMeta");
+const snowRefreshBtn = document.getElementById("snowRefresh");
+const SNOW_LAT = 45.03;
+const SNOW_LON = 6.86;
 
-SkiSmartTracking.initLeaflet(map);
+function nearestTimeIndex(times){
+  const now = Date.now();
+  let bestI = 0;
+  let bestD = Infinity;
+  for(let i=0;i<times.length;i++){
+    const t = new Date(times[i]).getTime();
+    const d = Math.abs(t - now);
+    if(d < bestD){ bestD = d; bestI = i; }
+  }
+  return bestI;
+}
+async function refreshSnow(){
+  try{
+    snowDepthEl.textContent = "Neve al suolo: caricamento…";
+    const url =
+      `https://api.open-meteo.com/v1/forecast` +
+      `?latitude=${SNOW_LAT}&longitude=${SNOW_LON}` +
+      `&hourly=snow_depth` +
+      `&timezone=Europe%2FRome`;
+
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("Open-Meteo non raggiungibile");
+    const data = await res.json();
+    const times = data?.hourly?.time || [];
+    const depths = data?.hourly?.snow_depth || [];
+    if(!times.length || !depths.length) throw new Error("Dati neve non disponibili");
+
+    const i = nearestTimeIndex(times);
+    const meters = Number(depths[i]);
+    const cm = Math.max(0, Math.round(meters * 100));
+    const when = new Date(times[i]).toLocaleString("it-IT");
+
+    snowDepthEl.textContent = `Neve al suolo: ${cm} cm`;
+    snowMetaEl.textContent = `Fonte: Open-Meteo (snow_depth). Ora: ${when}`;
+  }catch(e){
+    console.error(e);
+    snowDepthEl.textContent = "Neve al suolo: —";
+    snowMetaEl.textContent = "Errore nel recupero dati neve (riprovare).";
+  }
+}
+snowRefreshBtn.onclick = refreshSnow;
+refreshSnow();
+setInterval(refreshSnow, 30 * 60 * 1000);
 
 const panel = document.getElementById("panel");
 const panelToggle = document.getElementById("panelToggle");
@@ -1341,12 +1380,10 @@ const panelToggle = document.getElementById("panelToggle");
 if (!window.matchMedia("(max-width: 600px)").matches) {
   panel.classList.remove("collapsed");
 }
-
 panelToggle.addEventListener("click", () => {
   panel.classList.toggle("collapsed");
 });
-
-map.getContainer().addEventListener("pointerdown", () => {
+map.getCanvasContainer().addEventListener("pointerdown", () => {
   if (window.matchMedia("(max-width: 600px)").matches) {
     panel.classList.add("collapsed");
   }
